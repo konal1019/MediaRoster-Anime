@@ -163,4 +163,4 @@ js/pagespriv.js
 csspriv.css
 
 # env files
-idx/
+.idx/
