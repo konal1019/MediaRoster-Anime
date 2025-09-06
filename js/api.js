@@ -33,12 +33,12 @@ const fetchWithCacheAndRetry = async (url, cacheKey) => {
             console.log('Unknown Error while fetching data');
             console.log(`${response.status} : ${response.statusText}`);
           }
-        };
-
-        const jsonResponse = await response.json();
-        const data = jsonResponse.data; // This is the array of anime
-        cache[cacheKey] = { data: data, timestamp: now };
-        return data; // Return the array directly
+        } else {
+          const jsonResponse = await response.json();
+          const data = jsonResponse.data; // This is the array of anime
+          cache[cacheKey] = { data: data, timestamp: now };
+          return data; // Return the array directly
+        }
 
         // Handle non-OK responses (like 429, 500, etc.)
         console.warn(`API request failed with status ${response.status}. Retrying...`);

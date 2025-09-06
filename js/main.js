@@ -71,3 +71,74 @@ export function initFlashcardHover() {
     });
   });
 }
+
+export function escapeHTML(str) {
+  if (typeof str !== 'string') {
+    return '';
+  }
+  return str.replace(/[&<>"']/g, function(m) {
+    switch (m) {
+      case '&':
+        return '&amp;';
+      case '<':
+        return '&lt;';
+      case '>':
+        return '&gt;';
+      case '"':
+        return '&quot;';
+      default:
+        return '&#039;';
+    }
+  });
+}
+
+export function randomAnime() {
+  const randomButton = document.getElementById('random-anime-button');
+  randomButton.addEventListener('click', () => {
+    const chance = Math.floor(Math.random() * 100);
+    if (chance < 50) {
+      triggerJumpscare();
+    } else {
+      const randomAnimeId = Math.floor(Math.random() * 10871);
+      window.location.href = `/#/details-${randomAnimeId}`;
+    }
+  });
+}
+
+function triggerJumpscare() {
+  const header = document.querySelector('header');
+  const main = document.querySelector('main');
+  const footer = document.querySelector('footer');
+  const loader = document.getElementById('loader');
+
+  if (header) header.style.display = 'none';
+  if (main) main.style.display = 'none';
+  if (footer) footer.style.display = 'none';
+  if (loader) loader.style.display = 'none';
+
+  const jumpscareContainer = document.createElement('div');
+  jumpscareContainer.id = 'jumpscare-container';
+
+  const jumpscareImage = document.createElement('img');
+  jumpscareImage.src = 'https://i.pinimg.com/736x/a5/c5/be/a5c5be99a59c0d2ec0271dcde1205709.jpg';
+  jumpscareImage.id = 'jumpscare-image';
+
+  const jumpscareAudio = new Audio('./jumpscare.mp3');
+
+  jumpscareContainer.appendChild(jumpscareImage);
+  document.body.appendChild(jumpscareContainer);
+
+  if (jumpscareContainer.requestFullscreen) {
+    jumpscareContainer.requestFullscreen();
+  }
+
+  jumpscareAudio.play().catch(e => console.error("Couldn't play jumpscare audio, maybe it's missing?"));
+
+  setTimeout(() => {
+    if (document.exitFullscreen) {
+      document.exitFullscreen();
+    }
+    jumpscareContainer.remove();
+    window.location.href = '/';
+  }, 3000);
+}
