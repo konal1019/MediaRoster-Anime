@@ -9,7 +9,7 @@ export function loadPageContent(pageName) {
   } else if (pageName === 'search') {
     loadSearchPage();
   } else if (pageName === 'portfolio') {
-    window.location.href = 'https://github.com/konal1019';
+    window.location.href = '.https://github.com/konal1019';
   } else {
     load404();
   }
@@ -103,7 +103,7 @@ function createFlashcardHTML(anime, cardType) {
     }
 
     return `
-        <a href="${detailsUrl}" class="flashcard-link" data-synopsis="${synopsis}">
+        <a href=".${detailsUrl}" class="flashcard-link" data-synopsis="${synopsis}">
             <div class="flashcard" style="background-image: url('${imageUrl}');">
                 <div class="flashcard-overlay">
                     <div class="flashcard-title">${title}</div>
@@ -300,7 +300,7 @@ export async function loadHomePage() {
                 <span><i class="fas fa-users"></i> ${anime.members.toLocaleString() || 'N/A'}</span>
                 <span><i class="fas fa-trophy"></i> Rank: #${anime.rank || 'N/A'}</span>
               </div>
-              <a href="/#/details-${anime.mal_id}"  class="slide-button">View Details</a>
+              <a href="./#/details-${anime.mal_id}"  class="slide-button">View Details</a>
             </div>
           </div>
         </div>
@@ -373,7 +373,7 @@ export function load404(path) {
       <h2>Oops! Page Not Found</h2>
       <p>The page you're looking for at <code>${path}</code> doesn't exist.</p>
       <p>Redirecting to homepage in <span id="countdown">5</span> seconds...</p>
-      <a href="#/" class="btn-home">Back to Home</a>
+      <a href=".#/" class="btn-home">Back to Home</a>
     </div>
   `;
   

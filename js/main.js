@@ -51,7 +51,7 @@ export function initFlashcardHover() {
       synopsisOverlay.classList.add('flashcard-synopsis-overlay');
       synopsisOverlay.innerHTML = `
         <p>${synopsis}</p>
-        <a href="${detailsUrl}" class="synopsis-details-link">...</a>
+        <a href=".${detailsUrl}" class="synopsis-details-link">...</a>
       `;
 
       card.querySelector('.flashcard').appendChild(synopsisOverlay);
@@ -139,6 +139,6 @@ function triggerJumpscare() {
       document.exitFullscreen();
     }
     jumpscareContainer.remove();
-    window.location.href = '/';
+    window.location.href = './';
   }, 3000);
 }
