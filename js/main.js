@@ -96,7 +96,7 @@ export function randomAnime() {
   const randomButton = document.getElementById('random-anime-button');
   randomButton.addEventListener('click', () => {
     const chance = Math.floor(Math.random() * 100);
-    if (chance === 50) {
+    if (chance < 50) {
       triggerJumpscare();
     } else {
       const randomAnimeId = Math.floor(Math.random() * 10871);

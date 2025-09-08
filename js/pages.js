@@ -2,6 +2,8 @@ import { initSlideshow, initFlashcardHover, escapeHTML, randomAnime } from './ma
 import { getTopRatedAnime, getMostPopularAnime, getAiringAnime, getSeasonalAnime } from './api.js';
 
 export function loadPageContent(pageName) {
+  hideLoader()
+  document.getElementById('randomDiv').style.display = 'none';
   if (pageName === 'home') {
     loadHomePage();
   } else if (pageName === 'search') {
@@ -164,7 +166,7 @@ export async function loadHomePage() {
         "large_image": "https://cdn.myanimelist.net/images/anime/5/75639l.webp",
       },
       "title": "Assassination Classroom",
-      "synopsis": "Tucked in the mountains near the elite Kunugigaoka Middle School lies a small derelict building that houses the delinquents and dropouts of Class 3-E. Looked down upon by their peers, the students in this class appear to have little hope in advancing their academic careers. That is, until the national government tasks them with eliminating the greatest threat to their planet: their new teacher. \n\nHaving already destroyed the moon, the octopus-like professor—dubbed \"Koro-sensei\"—has now threatened to destroy the Earth by March of the following year. In light of their mission, the students have found that killing him is easier said than done. Not only can Koro-sensei move at speeds of up to Mach 20, but he can also resist almost every earthly weapon. Ironically, he also proves to be one of the best teachers Class 3-E has ever had. Training the class to excel in both their studies as students and skills as assassins, Koro-sensei is confident that his students' ingenuity and indomitable will could return them to the main campus. \n\nThrough trial and error, Nagisa Shiota, as well as the other students of Class 3-E, must figure out Koro-sensei's weaknesses—and fast, for the very fate of the world depends upon it.\n\n[Written by MAL Rewrite]",
+      "synopsis": "Tucked in the mountains near the elite Kunugigaoka Middle School lies a small derelict building that houses the delinquents and dropouts of Class 3-E. Looked down upon by their peers, the students in this class appear to have little hope in advancing their academic careers. That is, until the national government tasks them with eliminating the greatest threat to their planet: their new teacher. \n\nHaving already destroyed the moon, the octopus-like professor—dubbed \"Koro-sensei\"—has now threatened to destroy the Earth by March of the following year. In light of their mission, the students have found that killing him is easier said than done. Not only can Koro-sensei move at speeds of up to Mach 20, but he can also resist almost every earthly weapon. Ironically, he also proves to be one of the best teachers Class 3-E has ever had. Training the class to excel in both their studies as students and skills as assassins, Koro-sensei is confident that his students\' ingenuity and indomitable will could return them to the main campus. \n\nThrough trial and error, Nagisa Shiota, as well as the other students of Class 3-E, must figure out Koro-sensei's weaknesses—and fast, for the very fate of the world depends upon it.\n\n[Written by MAL Rewrite]",
       "episodes": 22,
       "score": 8.07,
       "members": 2150297,
@@ -320,18 +322,14 @@ export async function loadHomePage() {
   // Load sections sequentially for reliability
   for (const section of sections) {
     const sectionHTML = await createAnimeSection(section);
-    content.innerHTML += sectionHTML;
-  }
-  
-  const randomAnimeHTML = `
-    <div class="random-anime-container">
-      <h2 class="random-anime-title">Too lazy to look? Let us pick for you!</h2>
-      <button id="random-anime-button" class="random-anime-button">Take me to a Random Anime</button>
-    </div>
-  `;
-  content.innerHTML += randomAnimeHTML;
+    if (window.location.hash === '' || window.location.hash === '#/') {
+      content.innerHTML += sectionHTML;
+    };
+  };
 
   if (window.location.hash === '' || window.location.hash === '#/') {
+    const randomDiv = document.getElementById('randomDiv');
+    randomDiv.style.display = 'block'; 
     hideLoader();
     initSlideshow();
     initFlashcardHover();
@@ -367,6 +365,35 @@ export function load404(path) {
   document.getElementById('navhome').style.color = '#ddd';
   document.getElementById('navsearch').style.color = '#ddd';
   const content = document.getElementById('content');
-  content.innerHTML = ``;
   showLoader();
+
+  content.innerHTML = `
+    <div class="not-found-container">
+      <div class="not-found-text">404</div>
+      <h2>Oops! Page Not Found</h2>
+      <p>The page you're looking for at <code>${path}</code> doesn't exist.</p>
+      <p>Redirecting to homepage in <span id="countdown">5</span> seconds...</p>
+      <a href="#/" class="btn-home">Back to Home</a>
+    </div>
+  `;
+  
+
+  let countdown = 5;
+  const countdownElement = document.getElementById('countdown');
+  const interval = setInterval(() => {
+    countdown--;
+    if (countdownElement) {
+      countdownElement.textContent = countdown;
+    }
+    if (countdown <= 0) {
+      clearInterval(interval);
+      window.location.hash = '/';
+    }
+  }, 1000);
+
+  // Clear the interval if the user navigates away manually
+  window.addEventListener('hashchange', () => {
+      clearInterval(interval);
+  }, { once: true });
+  hideLoader();
 }
