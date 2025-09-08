@@ -6,8 +6,12 @@ export function initSlideshow() {
 
   function showSlides() {
     slides.forEach(slide => slide.classList.remove('active'));
-    if (slideIndex >= slides.length) { slideIndex = 0; }
-    if (slideIndex < 0) { slideIndex = slides.length - 1; }
+    if (slideIndex >= slides.length) {
+      slideIndex = 0;
+    }
+    if (slideIndex < 0) {
+      slideIndex = slides.length - 1;
+    }
     slides[slideIndex].classList.add('active');
   }
 
@@ -34,7 +38,7 @@ export function initSlideshow() {
 export function initFlashcardHover() {
   const flashcards = document.querySelectorAll('.flashcard-link:not([data-hover-initialized])');
   flashcards.forEach(card => {
-    if (card.hoverInitialized=='true') {
+    if (card.hoverInitialized == 'true') {
       return;
     }
     card.dataset.hoverInitialized = 'true';
@@ -51,7 +55,7 @@ export function initFlashcardHover() {
       synopsisOverlay.classList.add('flashcard-synopsis-overlay');
       synopsisOverlay.innerHTML = `
         <p>${synopsis}</p>
-        <a href=".${detailsUrl}" class="synopsis-details-link">...</a>
+        <a href="${window.location.pathname}${detailsUrl.split('#')[1]}" class="synopsis-details-link">...</a>
       `;
 
       card.querySelector('.flashcard').appendChild(synopsisOverlay);
@@ -64,7 +68,9 @@ export function initFlashcardHover() {
         synopsisOverlay.addEventListener('transitionend', () => {
           synopsisOverlay.remove();
           delete card.dataset.overlayAdded;
-        }, { once: true });
+        }, {
+          once: true
+        });
       } else {
         delete card.dataset.overlayAdded;
       }
@@ -100,7 +106,7 @@ export function randomAnime() {
       triggerJumpscare();
     } else {
       const randomAnimeId = Math.floor(Math.random() * 10871);
-      window.location.href = `/#/details-${randomAnimeId}`;
+      window.location.href = `${window.location.pathname}#/details-${randomAnimeId}`;
     }
   });
 }

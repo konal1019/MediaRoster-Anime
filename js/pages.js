@@ -9,7 +9,7 @@ export function loadPageContent(pageName) {
   } else if (pageName === 'search') {
     loadSearchPage();
   } else if (pageName === 'portfolio') {
-    window.location.href = '.https://github.com/konal1019';
+    window.location.href = 'https://github.com/konal1019';
   } else {
     load404();
   }
@@ -50,7 +50,7 @@ function createFlashcardHTML(anime, cardType) {
     const imageUrl = anime.images?.webp?.large_image_url ?? 'placeholder.png';
     const title = anime.title_english || anime.title;
     const synopsis = escapeHTML(anime.synopsis || anime.background || 'No synopsis available.')
-    const detailsUrl = `/#/details-${anime.mal_id}`;
+    const detailsUrl = `#/details-${anime.mal_id}`;
 
     let overlayDetails = '';
     let badges = '';
@@ -103,7 +103,7 @@ function createFlashcardHTML(anime, cardType) {
     }
 
     return `
-        <a href=".${detailsUrl}" class="flashcard-link" data-synopsis="${synopsis}">
+        <a href="./${detailsUrl}" class="flashcard-link" data-synopsis="${synopsis}">
             <div class="flashcard" style="background-image: url('${imageUrl}');">
                 <div class="flashcard-overlay">
                     <div class="flashcard-title">${title}</div>
@@ -365,7 +365,7 @@ export function load404(path) {
   document.getElementById('navhome').style.color = '#ddd';
   document.getElementById('navsearch').style.color = '#ddd';
   const content = document.getElementById('content');
-  showLoader();
+  hideLoader();
 
   content.innerHTML = `
     <div class="not-found-container">
@@ -373,10 +373,9 @@ export function load404(path) {
       <h2>Oops! Page Not Found</h2>
       <p>The page you're looking for at <code>${path}</code> doesn't exist.</p>
       <p>Redirecting to homepage in <span id="countdown">5</span> seconds...</p>
-      <a href=".#/" class="btn-home">Back to Home</a>
+      <a href="./#/" class="btn-home">Back to Home</a>
     </div>
   `;
-  
 
   let countdown = 5;
   const countdownElement = document.getElementById('countdown');
@@ -395,5 +394,4 @@ export function load404(path) {
   window.addEventListener('hashchange', () => {
       clearInterval(interval);
   }, { once: true });
-  hideLoader();
 }
