@@ -160,7 +160,9 @@ package-lock.json
 blueprint.md
 js/empty.js
 js/pagespriv.js
-csspriv.css
+css/csspriv.css
+css/Allicons.css
+builder.js
 
 # env files
 .idx/

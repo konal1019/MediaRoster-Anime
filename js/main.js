@@ -126,7 +126,7 @@ function triggerJumpscare() {
   jumpscareContainer.id = 'jumpscare-container';
 
   const jumpscareImage = document.createElement('img');
-  jumpscareImage.src = 'https://i.pinimg.com/736x/a5/c5/be/a5c5be99a59c0d2ec0271dcde1205709.jpg';
+  jumpscareImage.src = './jumpscare.jpg';
   jumpscareImage.id = 'jumpscare-image';
 
   const jumpscareAudio = new Audio('./jumpscare.mp3');

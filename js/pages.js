@@ -47,72 +47,73 @@ function hideLoader() {
 }
 
 function createFlashcardHTML(anime, cardType) {
-    const imageUrl = anime.images?.webp?.large_image_url ?? 'placeholder.png';
-    const title = anime.title_english || anime.title;
-    const synopsis = escapeHTML(anime.synopsis || anime.background || 'No synopsis available.')
-    const detailsUrl = `#/details-${anime.mal_id}`;
+  const imageUrl = anime.images?.webp?.large_image_url ?? 'placeholder.png';
+  const title = anime.title_english || anime.title;
+  const synopsis = escapeHTML(anime.synopsis || anime.background || 'No synopsis available.')
+  const detailsUrl = `#/details-${anime.mal_id}`;
 
-    let overlayDetails = '';
-    let badges = '';
+  let overlayDetails = '';
+  let badges = '';
 
-    switch (cardType) {
-        case 'top-rated':
-            overlayDetails = `
-                <div class="flashcard-episodes"><i class="fas fa-play-circle"></i> ${anime.episodes || 'N/A'} episodes</div>
-                <div class="flashcard-status"><i class="fas fa-tv"></i> ${anime.status || 'Unknown'}</div>
-            `;
-            badges = `
-                <div class="flashcard-rank">#${anime.rank || ''}</div>
-                <div class="flashcard-rating"><i class="fas fa-star"></i> ${anime.score || 'N/A'}</div>
-                <div class="flashcard-type"><i class="fas fa-video"></i> ${anime.type || 'N/A'}</div>
-            `;
-            break;
-        case 'most-popular':
-            overlayDetails = `
-                <div class="flashcard-episodes"><i class="fas fa-play-circle"></i> ${anime.episodes || 'N/A'} episodes</div>
-                <div class="flashcard-status"><i class="fas fa-tv"></i> ${anime.status || 'Unknown'}</div>
-            `;
-            badges = `
-                <div class="flashcard-rank">#${anime.popularity || ''}</div>
-                <div class="flashcard-rating"><i class="fa-solid fa-user-group"></i>${anime.members?.toLocaleString() || 'N/A'}</div>
-                <div class="flashcard-type"><i class="fas fa-video"></i> ${anime.type || 'N/A'}</div>
-            `;
-            break;
-        case 'airing':
-            overlayDetails = `
-                <div class="flashcard-studio"><i class="fa-solid fa-clapperboard"></i>${anime.studios?.map(s => s.name).join(', ') || 'Unknown'}</div>
-                <div class="flashcard-status"><i class="fas fa-calendar-days"></i> ${anime.broadcast?.string || 'Unscheduled'}</div>
-            `;
-             badges = `
-                <div class="flashcard-rank">#${anime.rank || ''}</div>
-                <div class="flashcard-rating"><i class="fas fa-star"></i> ${anime.score || 'N/A'}</div>
-                <div class="flashcard-type"><i class="fas fa-video"></i> ${anime.type || 'N/A'}</div>
-            `;
-            break;
-        case 'seasonal':
-             overlayDetails = `
-                <div class="flashcard-episodes"><i class="fas fa-play-circle"></i> ${anime.episodes || 'N/A'} episodes</div>
-                <div class="flashcard-studio"><i class="fa-solid fa-clapperboard"></i>${anime.studios?.map(s => s.name).join(', ') || 'Unknown'}</div>
-            `;
-             badges = `
-                <div class="flashcard-rank">#${anime.rank || ''}</div>
-                <div class="flashcard-rating"><i class="fas fa-star"></i> ${anime.score || 'N/A'}</div>
-                <div class="flashcard-type"><i class="fas fa-video"></i> ${anime.type || 'N/A'}</div>
-            `;
-            break;
-    }
+  switch (cardType) {
+      case 'top-rated':
+          overlayDetails = `
+              <div class="flashcard-episodes"><i class="fas fa-play-circle"></i> ${anime.episodes || 'N/A'} episodes</div>
+              <div class="flashcard-status"><i class="fas fa-tv"></i> ${anime.status || 'Unknown'}</div>
+          `;
+          badges = `
+              <div class="flashcard-rank">#${anime.rank || ''}</div>
+              <div class="flashcard-rating"><i class="fas fa-star"></i> ${anime.score || 'N/A'}</div>
+              <div class="flashcard-type"><i class="fas fa-video"></i> ${anime.type || 'N/A'}</div>
+          `;
+          break;
+      case 'most-popular':
+          overlayDetails = `
+              <div class="flashcard-episodes"><i class="fas fa-play-circle"></i> ${anime.episodes || 'N/A'} episodes</div>
+              <div class="flashcard-status"><i class="fas fa-tv"></i> ${anime.status || 'Unknown'}</div>
+          `;
+          badges = `
+              <div class="flashcard-rank">#${anime.popularity || ''}</div>
+              <div class="flashcard-rating"><i class="fa-solid fa-user-group"></i>${anime.members?.toLocaleString() || 'N/A'}</div>
+              <div class="flashcard-type"><i class="fas fa-video"></i> ${anime.type || 'N/A'}</div>
+          `;
+          break;
+      case 'airing':
+          overlayDetails = `
+              <div class="flashcard-studio"><i class="fa-solid fa-clapperboard"></i>${anime.studios?.map(s => s.name).join(', ') || 'Unknown'}</div>
+              <div class="flashcard-status"><i class="fas fa-calendar-days"></i> ${anime.broadcast?.string || 'Unscheduled'}</div>
+          `;
+           badges = `
+              <div class="flashcard-rank">#${anime.rank || ''}</div>
+              <div class="flashcard-rating"><i class="fas fa-star"></i> ${anime.score || 'N/A'}</div>
+              <div class="flashcard-type"><i class="fas fa-video"></i> ${anime.type || 'N/A'}</div>
+          `;
+          break;
+      case 'seasonal':
+           overlayDetails = `
+              <div class="flashcard-episodes"><i class="fas fa-play-circle"></i> ${anime.episodes || 'N/A'} episodes</div>
+              <div class="flashcard-studio"><i class="fa-solid fa-clapperboard"></i>${anime.studios?.map(s => s.name).join(', ') || 'Unknown'}</div>
+          `;
+           badges = `
+              <div class="flashcard-rank">#${anime.rank || ''}</div>
+              <div class="flashcard-rating"><i class="fas fa-star"></i> ${anime.score || 'N/A'}</div>
+              <div class="flashcard-type"><i class="fas fa-video"></i> ${anime.type || 'N/A'}</div>
+          `;
+          break;
+  }
 
-    return `
-        <a href="./${detailsUrl}" class="flashcard-link" data-synopsis="${synopsis}">
-            <div class="flashcard" style="background-image: url('${imageUrl}');">
-                <div class="flashcard-overlay">
-                    <div class="flashcard-title">${title}</div>
-                    ${overlayDetails}
-                </div>
-                ${badges}
-            </div>
-        </a>
-    `;
+  return `
+      <a href="./${detailsUrl}" class="flashcard-link" data-synopsis="${synopsis}">
+          <div class="flashcard">
+              <img src="${imageUrl}" loading="lazy" alt="${title}" class="flashcard-image" width="225" height="320" loading="lazy">
+              <div class="flashcard-overlay">
+                  <div class="flashcard-title">${title}</div>
+                  ${overlayDetails}
+              </div>
+              ${badges}
+          </div>
+      </a>
+  `;
 }
 
 async function createAnimeSection({ title, apiFunction, cardType, containerClass, titleClass, galleryClass }) {
