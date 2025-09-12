@@ -47,7 +47,7 @@ function hideLoader() {
 }
 
 function createFlashcardHTML(anime, cardType) {
-  const imageUrl = anime.images?.webp?.large_image_url ?? 'placeholder.png';
+  const imageUrl = anime.images?.webp?.image_url ?? 'placeholder.png';
   const title = anime.title_english || anime.title;
   const synopsis = escapeHTML(anime.synopsis || anime.background || 'No synopsis available.')
   const detailsUrl = `#/details-${anime.mal_id}`;

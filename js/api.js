@@ -1,12 +1,43 @@
 const CACHE_DURATION = 5 * 60 * 1000;
-const cache = {};
 const BASE_URL = 'https://api.jikan.moe/v4';
+
+const logErrorByStatus = (status, statusText) => {
+    switch (status) {
+        case 400:
+            console.log('You\'ve made an invalid request. Recheck documentation');
+            break;
+        case 404:
+            console.log('The resource was not found or MyAnimeList responded with a 404');
+            break;
+        case 405:
+            console.log('Requested Method is not supported for resource. Only GET requests are allowed');
+            break;
+        case 429:
+            console.log('You are being rate limited by Jikan or MyAnimeList is rate-limiting our servers');
+            break;
+        case 500:
+            console.log('Something didn\'t work. Try again later. If you see an error response with a report_url URL, please click on it to open an auto-generated GitHub issue');
+            break;
+        case 503:
+            console.log('Jikan service is down. Try again later');
+            break;
+        default:
+            console.log('Unknown Error while fetching data');
+            console.log(`${status} : ${statusText}`);
+            break;
+    }
+};
 
 const fetchWithCacheAndRetry = async (url, cacheKey) => {
     const now = Date.now();
-    if (cache[cacheKey] && now - cache[cacheKey].timestamp < CACHE_DURATION) {
-      console.log(`Cache hit for key: ${cacheKey}`);
-      return cache[cacheKey].data;
+    const cachedData = localStorage.getItem(cacheKey);
+
+    if (cachedData) {
+        const { data, timestamp } = JSON.parse(cachedData);
+        if (now - timestamp < CACHE_DURATION) {
+            console.log(`Cache hit for key: ${cacheKey}`);
+            return data;
+        }
     }
 
     const maxRetries = 5;
@@ -16,26 +47,11 @@ const fetchWithCacheAndRetry = async (url, cacheKey) => {
         const response = await fetch(url, { method: 'GET' });
 
         if (response.status !== 200 && response.status !== 304) {
-          if (response.status == 400) {
-            console.log('You\'ve made an invalid request. Recheck documentation')
-          } else if (response.status == 404) {
-            console.log('The resource was not found or MyAnimeList responded with a 404')
-          } else if (response.status == 405) {
-            console.log('Requested Method is not supported for resource. Only GET requests are allowed');
-          } else if (response.status == 429) {
-            console.log('You are being rate limited by Jikan or MyAnimeList is rate-limiting our servers');
-          } else if (response.status == 500) {
-            console.log('Something didn\'t work. Try again later. If you see an error response with a report_url URL, please click on it to open an auto-generated GitHub issue');
-          } else if (response.status == 503) {
-            console.log('Jikan service is down. Try again later');
-          } else {
-            console.log('Unknown Error while fetching data');
-            console.log(`${response.status} : ${response.statusText}`);
-          }
+            logErrorByStatus(response.status, response.statusText);
         } else {
           const jsonResponse = await response.json();
           const data = jsonResponse.data;
-          cache[cacheKey] = { data: data, timestamp: now };
+          localStorage.setItem(cacheKey, JSON.stringify({ data, timestamp: now }));
           return data;
         }
         console.warn(`API request failed with status ${response.status}. Retrying...`);
@@ -76,59 +92,46 @@ export const getSeasonalAnime = async () => {
     return await fetchWithCacheAndRetry(url, cacheKey);
 };
 
-export const getAnimeDetails = async (animeId, fields='all') => {
-  const cacheKey = animeId;
-  const maxRetries = 5;
-  let retries = 0;
-
+export const getAnimeDetails = async (animeId, fields = 'all') => {
+  const cacheKey = `anime_details_${animeId}`;
   const now = Date.now();
-  if (cache[cacheKey] && now - cache[cacheKey].timestamp < CACHE_DURATION) {
-    console.log(`Cache hit for anime ID: ${animeId}`);
-    if (fields === 'all') {
-      return cache[cacheKey].data;
-    } else {
-      const filteredData = {};
-      fields.forEach((field) => {
-        if (cache[cacheKey].data.hasOwnProperty(field)) {
-          filteredData[field] = cache[cacheKey].data[field];
-        }
-      });
-      return filteredData;
+  const cachedData = localStorage.getItem(cacheKey);
+
+  if (cachedData) {
+    const { data, timestamp } = JSON.parse(cachedData);
+    if (now - timestamp < CACHE_DURATION) {
+      console.log(`Cache hit for anime ID: ${animeId}`);
+      if (fields === 'all') {
+        return data;
+      } else {
+        const filteredData = {};
+        fields.forEach((field) => {
+          if (data.hasOwnProperty(field)) {
+            filteredData[field] = data[field];
+          }
+        });
+        return filteredData;
+      }
     }
   }
 
+  const maxRetries = 5;
+  let retries = 0;
   let data = null;
 
   try {
     while (retries < maxRetries) {
-    const now = Date.now();
+      console.log(`Fetching details for anime ID: ${animeId}`);
+      const response = await fetch(`${BASE_URL}/anime/${animeId}/full`, {
+        method: 'GET',
+      });
 
-    console.log(`Fetching details for anime ID: ${animeId}`);
-    const response = await fetch(`${BASE_URL}/anime/${animeId}/full`, {
-      method: 'GET',
-    });
-
-    if (response.status !== 200 && response.status !== 304) {
-      if (response.status == 400) {
-        console.log('You\'ve made an invalid request. Recheck documentation')
-      } else if (response.status == 404) {
-        console.log('The resource was not found or MyAnimeList responded with a 404')
-      } else if (response.status == 405) {
-        console.log('Requested Method is not supported for resource. Only GET requests are allowed');
-      } else if (response.status == 429) {
-        console.log('You are being rate limited by Jikan or MyAnimeList is rate-limiting our servers');
-      } else if (response.status == 500) {
-        console.log('Something didn\'t work. Try again later. If you see an error response with a report_url URL, please click on it to open an auto-generated GitHub issue');
-      } else if (response.status == 503) {
-        console.log('Jikan service is down. Try again later');
-      } else {
-        console.log('Unknown Error while fetching data');
-        console.log(`${response.status} : ${response.statusText}`);
+      if (response.status !== 200 && response.status !== 304) {
+        logErrorByStatus(response.status, response.statusText);
+        retries++;
+        await new Promise(resolve => setTimeout(resolve, retries * 1000));
+        continue;
       }
-      retries++;
-      await new Promise(resolve => setTimeout(resolve, retries * 1000));
-      continue;
-    }
 
       data = await response.json();
       break;
@@ -140,14 +143,15 @@ export const getAnimeDetails = async (animeId, fields='all') => {
 
     const standardizedData = detailsParser(data);
 
-    cache[cacheKey] = { data: standardizedData, timestamp: now };
+    localStorage.setItem(cacheKey, JSON.stringify({ data: standardizedData, timestamp: now }));
+
     if (fields === 'all') {
-      return cache[cacheKey].data;
+      return standardizedData;
     } else {
       const filteredData = {};
       fields.forEach((field) => {
-        if (cache[cacheKey].data.hasOwnProperty(field)) {
-          filteredData[field] = cache[cacheKey].data[field];
+        if (standardizedData.hasOwnProperty(field)) {
+          filteredData[field] = standardizedData[field];
         }
       });
       return filteredData;
