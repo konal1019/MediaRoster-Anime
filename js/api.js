@@ -1,6 +1,6 @@
 const CACHE_DURATION = 5 * 60 * 1000;
 const BASE_URL = 'https://api.jikan.moe/v4';
-
+export const genres = {};
 const logErrorByStatus = (status, statusText) => {
     switch (status) {
         case 400:
@@ -68,6 +68,34 @@ const fetchWithCacheAndRetry = async (url, cacheKey) => {
     throw new Error(`Failed to fetch data from ${url} after ${maxRetries} retries.`);
   };
 
+  const fetchWithoutCache = async (url) => {
+    const maxRetries = 5;
+    for (let retries = 0; retries < maxRetries; retries++) {
+        try {
+            console.log(`Fetching data for URL: ${url}`);
+            const response = await fetch(url, { method: 'GET' });
+
+            if (response.status !== 200) {
+                logErrorByStatus(response.status, response.statusText);
+            } else {
+                return await response.json();
+            }
+
+            console.warn(`API request failed with status ${response.status}. Retrying...`);
+            await new Promise(resolve => setTimeout(resolve, (retries + 1) * 1000));
+
+        } catch (error) {
+            console.error(`Error fetching data from ${url}:`, error);
+            if (retries === maxRetries - 1) {
+                throw error;
+            }
+            await new Promise(resolve => setTimeout(resolve, (retries + 1) * 1000));
+        }
+    }
+    throw new Error(`Failed to fetch data from ${url} after ${maxRetries} retries.`);
+};
+
+
 export const getTopRatedAnime = async () => {
     const url = `${BASE_URL}/top/anime`;
     const cacheKey = 'top_rated_anime';
@@ -90,6 +118,16 @@ export const getSeasonalAnime = async () => {
     const url = `${BASE_URL}/seasons/now`;
     const cacheKey = 'seasonal_anime';
     return await fetchWithCacheAndRetry(url, cacheKey);
+};
+
+export const getGenres = async () => {
+    const url = `${BASE_URL}/genres/anime`;
+    const cacheKey = 'anime_genres';
+    const genreData = await fetchWithCacheAndRetry(url, cacheKey);
+    genreData.forEach((genre) => {
+        genres[genre.mal_id] = genre.name;
+    });
+    console.log('loaded genres')
 };
 
 export const getAnimeDetails = async (animeId, fields = 'all') => {
@@ -206,4 +244,10 @@ export const detailsParser = (data) => {
   };
 
   return standardizedData;
+};
+
+export const searchAnime = async (params) => {
+    const query = new URLSearchParams(params).toString();
+    const url = `${BASE_URL}/anime?${query}`;
+    return await fetchWithoutCache(url);
 };

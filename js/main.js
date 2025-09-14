@@ -90,7 +90,7 @@ export function escapeHTML(str) {
         return '&lt;';
       case '>':
         return '&gt;';
-      case '"':
+      case '\"' :
         return '&quot;';
       default:
         return '&#039;';
@@ -147,4 +147,41 @@ function triggerJumpscare() {
     jumpscareContainer.remove();
     window.location.href = './';
   }, 3000);
+}
+
+
+export function initiateFilters() {
+    const filterButton = document.querySelector('.filter-button');
+    const filterOptions = document.querySelector('.filter-options');
+    const filterBtns = document.querySelectorAll('.filter-btn');
+  
+    filterButton.addEventListener('click', () => {
+      if (filterOptions.style.display === 'none') {
+        filterOptions.style.display = 'grid';
+      } else {
+        filterOptions.style.display = 'none';
+      }
+    });
+
+    const activeFilters = [];
+
+    filterBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const filter = btn.dataset.filter;
+        const value = btn.dataset.value;
+
+        const existingFilter = activeFilters.find(f => f.filter === filter && f.value === value);
+
+        if (existingFilter) {
+          activeFilters.splice(activeFilters.indexOf(existingFilter), 1);
+          btn.classList.remove('active');
+        } else {
+          activeFilters.push({ filter, value });
+          btn.classList.add('active');
+        }
+
+        console.log(activeFilters);
+      });
+  });
+
 }

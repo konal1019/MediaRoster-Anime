@@ -330,6 +330,9 @@
   .fa-calendar-days:before {
     content: "\f073";
   }
+  .fa-bars:before {
+    content: "\f0c9";
+  }
   .fa-users:before {
     content: "\f0c0";
   }
@@ -346,6 +349,9 @@
   
   .fa-play-circle:before {
     content: "\f144";
+  }
+  .fa-filter:before {
+    content: "\f0b0";
   }
   
   .fa-home:before {

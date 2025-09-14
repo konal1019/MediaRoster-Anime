@@ -1,8 +1,8 @@
-import { initSlideshow, initFlashcardHover, escapeHTML, randomAnime } from './main.js';
-import { getTopRatedAnime, getMostPopularAnime, getAiringAnime, getSeasonalAnime } from './api.js';
+import { initSlideshow, initFlashcardHover, escapeHTML, randomAnime, initiateFilters } from './main.js';
+import { getTopRatedAnime, getMostPopularAnime, getAiringAnime, getSeasonalAnime, getGenres, genres} from './api.js';
 
 export function loadPageContent(pageName) {
-  hideLoader()
+  hideLoader();
   document.getElementById('randomDiv').style.display = 'none';
   if (pageName === 'home') {
     loadHomePage();
@@ -46,10 +46,20 @@ function hideLoader() {
   }
 }
 
+function loadCSS(filename) {
+  const existingLink = document.querySelector(`link[href="${filename}"]`);
+  if (!existingLink) {
+    const link = document.createElement('link');
+    link.href = filename;
+    link.rel = 'stylesheet';
+    document.head.appendChild(link);
+  }
+}
+
 function createFlashcardHTML(anime, cardType) {
   const imageUrl = anime.images?.webp?.image_url ?? 'placeholder.png';
   const title = anime.title_english || anime.title;
-  const synopsis = escapeHTML(anime.synopsis || anime.background || 'No synopsis available.')
+  const synopsis = escapeHTML(anime.synopsis || anime.background || 'No synopsis available.');
   const detailsUrl = `#/details-${anime.mal_id}`;
 
   let overlayDetails = '';
@@ -147,7 +157,6 @@ export async function loadHomePage() {
 
   showLoader();
 
-  // Hardcoded slideshow data remains for speed and simplicity
   const recommendedAnimeData = [
     {
       "mal_id": 20,
@@ -215,7 +224,7 @@ export async function loadHomePage() {
         "large_image": "https://cdn.myanimelist.net/images/anime/1895/142748l.webp",
       },
       "title": "KonoSuba: God's Blessing on This Wonderful World!",
-      "synopsis": "After dying a laughable and pathetic death on his way back from buying a game, high school student and recluse Kazuma Satou finds himself sitting before a beautiful but obnoxious goddess named Aqua. She provides the NEET with two options: continue on to heaven or reincarnate in every gamer's dream—a real fantasy world! Choosing to start a new life, Kazuma is quickly tasked with defeating a Demon King who is terrorizing villages. But before he goes, he can choose one item of any kind to aid him in his quest, and the future hero selects Aqua. But Kazuma has made a grave mistake—Aqua is completely useless!\n\nUnfortunately, their troubles don't end here; it turns out that living in such a world is far different from how it plays out in a game. Instead of going on a thrilling adventure, the duo must first work to pay for their living expenses. Indeed, their misfortunes have only just begun!\n\n[Written by MAL Rewrite]",
+      "synopsis": "After dying a laughable and pathetic death on his way back from buying a game, high school student and recluse Kazuma Satou finds himself sitting before a beautiful but obnoxious goddess named Aqua. She provides the NEET with two options: continue on to heaven or reincarnate in every gamer's dream—a real fantasy world! Choosing to start a new life, Kazuma is quickly tasked with defeating a DemonKing who is terrorizing villages. But before he goes, he can choose one item of any kind to aid him in his quest, and the future hero selects Aqua. But Kazuma has made a grave mistake—Aqua is completely useless!\n\nUnfortunately, their troubles don't end here; it turns out that living in such a world is far different from how it plays out in a game. Instead of going on a thrilling adventure, the duo must first work to pay for their living expenses. Indeed, their misfortunes have only just begun!\n\n[Written by MAL Rewrite]",
       "episodes": 10,
       "score": 8.09,
       "members": 2091344,
@@ -300,14 +309,14 @@ export async function loadHomePage() {
                 <span><i class="fas fa-star"></i> ${anime.score || 'N/A'}</span>
                 <span><i class="fas fa-users"></i> ${anime.members.toLocaleString() || 'N/A'}</span>
                 <span><i class="fas fa-trophy"></i> Rank: #${anime.rank || 'N/A'}</span>
-              </div>
+            </div>
               <a href="./#/details-${anime.mal_id}"  class="slide-button">View Details</a>
             </div>
           </div>
         </div>
       `).join('')}
-      <a class="prev">&#10094;</a>
-      <a class="next">&#10095;</a>
+      <a class="prev"><</a>
+      <a class="next">></a>
     </div>
   `;
 
@@ -335,6 +344,7 @@ export async function loadHomePage() {
     initSlideshow();
     initFlashcardHover();
     randomAnime();
+    getGenres(); // preload if possible to reduce load time
     console.log('Home page loaded');
   } else {
     console.log('Home page load cancelled due to navigation.');
@@ -342,21 +352,167 @@ export async function loadHomePage() {
 };
 
 
-export function loadSearchPage(query=null) {
+export async function loadSearchPage(query = null) {
+  loadCSS('./css/search.css');
   console.log('Loading Search Page');
   document.getElementById('navsearch').style.color = '#8960ff';
   document.getElementById('navhome').style.color = '#ddd';
+  if (JSON.stringify(genres) === '{}') {
+    getGenres();
+  }
   const content = document.getElementById('content');
-  content.innerHTML = ``;
+  content.innerHTML = `
+  <h1 class="search-title">Search across our databases and make your pick!</h1>
+  <div class="search-container">
+      <div class="search-bar">
+          <button class="filter-button"><i class="fas fa-filter"></i> Filters</button>
+          <div class="search-bar-content">
+              <input type="text" id="search-input" placeholder="Search for anime...">
+              <button id="search-button"><i class="fas fa-search"></i></button>
+          </div>
+      </div>
+      <div class="filter-options" style="display: none;">
+          <h2 class='filter-title'>Filter Options</h2>
+          <div class="filter-section">
+              <div class="filter-controls">
+                  <h4>Type:</h4>
+                  <div class="filter-buttons">
+                      <button class="filter-btn" data-filter="type" data-value="tv">TV</button>
+                      <button class="filter-btn" data-filter="type" data-value="movie">Movie</button>
+                      <button class="filter-btn" data-filter="type" data-value="ova">OVA</button>
+                      <button class="filter-btn" data-filter="type" data-value="special">Special</button>
+                      <button class="filter-btn" data-filter="type" data-value="ona">ONA</button>
+                      <button class="filter-btn" data-filter="type" data-value="music">Music</button>
+                  </div>
+              </div>
+          </div>
+          <div class="filter-section">
+              <div class="filter-controls">
+                  <h4>Status:</h4>
+                  <div class="filter-buttons">
+                      <button class="filter-btn" data-filter="status" data-value="airing">Airing</button>
+                      <button class="filter-btn" data-filter="status" data-value="complete">Completed</button>
+                      <button class="filter-btn" data-filter="status" data-value="upcoming">Upcoming</button>
+                  </div>
+              </div>
+          </div>
+          <div class="filter-section">
+              <div class="filter-controls">
+                  <h4>Rating:</h4>
+                  <div class="filter-buttons">
+                      <button class="filter-btn" data-filter="rating" data-value="g">G - All Ages</button>
+                      <button class="filter-btn" data-filter="rating" data-value="pg">PG - Children</button>
+                      <button class="filter-btn" data-filter="rating" data-value="pg13">PG-13 - Teens 13+</button>
+                      <button class="filter-btn" data-filter="rating" data-value="r17">R - 17+ (violence)</button>
+                      <button class="filter-btn" data-filter="rating" data-value="r">R+ - Mild Nudity</button>
+                      <button class="filter-btn" data-filter="rating" data-value="rx">Rx - Hentai</button>
+                  </div>
+              </div>
+          </div>
+          <div class="filter-section">
+              <div class="filter-controls">
+                  <h4>Score:</h4>
+                  <input type="number" class="filter-input" placeholder="Min Score" id="min-score" min="0" max="10" step="0.1">
+                  <input type="number" class="filter-input" placeholder="Max Score" id="max-score" min="0" max="10" step="0.1">
+              </div>
+          </div>
+          <div class="filter-section">
+              <div class="filter-controls">
+                  <h4>Season:</h4>
+                  <div class="filter-buttons">
+                      <button class="filter-btn" data-filter="season" data-value="winter">Winter</button>
+                      <button class="filter-btn" data-filter="season" data-value="spring">Spring</button>
+                      <button class="filter-btn" data-filter="season" data-value="summer">Summer</button>
+                      <button class="filter-btn" data-filter="season" data-value="fall">Fall</button>
+                  </div>
+              </div>
+          </div>
+          <div class="filter-section">
+              <div class="filter-controls">
+                  <h4>Year:</h4>
+                  <input type="number" class="filter-input" placeholder="Start Year" id="start-year" min="1900" max="2025">
+                  <input type="number" class="filter-input" placeholder="End Year" id="end-year" min="1900" max="2025">
+              </div>
+          </div>
+          <div class="filter-section">
+              <div class="filter-controls">
+                  <h4>Order By:</h4>
+                  <select id="order-by-select" class="filter-dropdown">
+                      <option value="score">Score</option>
+                      <option value="members">Members</option>
+                      <option value="popularity">Popularity</option>
+                      <option value="title">A-Z</option>
+                  </select>
+                  <h4>Sort Direction:</h4>
+                  <select id="sort-direction-select" class="filter-dropdown">
+                      <option value="desc">Descending</option>
+                      <option value="asc">Ascending</option>
+                  </select>
+              </div>
+          </div>
+          <div class="sfw-toggle">
+              <label class="switch">
+                  <input type="checkbox" id="sfw-checkbox" checked>
+                  <span class="slider round"></span>
+              </label>
+              <span>Allow NSFW content</span>
+          </div>
+      </div>
+  </div>
+  <div id="search-results"></div>
+  `;
   showLoader();
+  initiateFilters();
+
+  const path = window.location.hash.substring(1);
+  if (path === '/search' && !query) {
+    const searchResultsContainer = document.getElementById('search-results');
+    if (searchResultsContainer) {
+      const topRatedSection = await createAnimeSection({
+        title: 'Top Rated Anime',
+        apiFunction: getTopRatedAnime,
+        cardType: 'top-rated',
+        containerClass: 'airing-container',
+        titleClass: 'airing-title',
+        galleryClass: 'gridGallery'
+      });
+      searchResultsContainer.innerHTML += topRatedSection;
+
+      const mostPopularSection = await createAnimeSection({
+        title: 'Most Popular Anime',
+        apiFunction: getMostPopularAnime,
+        cardType: 'most-popular',
+        containerClass: 'airing-container',
+        titleClass: 'airing-title',
+        galleryClass: 'gridGallery'
+      });
+      searchResultsContainer.innerHTML += mostPopularSection;
+    }
+
+    if (window.location.hash === '#/search') {
+      initFlashcardHover();
+      document.getElementById('randomDiv').style.display = 'block';
+      randomAnime();
+      hideLoader();
+    };
+
+  } else {
+    // Logic for handling search queries will be implemented here later.
+    console.log(`Search initiated with query: ${query}`);
+    // For now, we'll just clear the results and hide the loader.
+    const searchResultsContainer = document.getElementById('search-results');
+    if(searchResultsContainer) searchResultsContainer.innerHTML = '';
+    hideLoader();
+  }
 };
+
 
 export function loadDetailsPage(query=null) {
   console.log('Loading Details Page');
   document.getElementById('navhome').style.color = '#ddd';
   document.getElementById('navsearch').style.color = '#ddd';
   const content = document.getElementById('content');
-  content.innerHTML = ``;
+  content.innerHTML = '';
   showLoader();
 };
 
