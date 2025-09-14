@@ -23,6 +23,9 @@ const filesToHash = {
 function hashAndCopy() {
     console.log('Starting name hashing and file copying...');
 
+    // Remove the existing build folder to ensure a clean build
+    fs.rmSync(buildDir, { recursive: true, force: true });
+    
     fs.mkdirSync(buildDir, { recursive: true });
     fs.mkdirSync(path.join(buildDir, 'css'), { recursive: true });
     fs.mkdirSync(path.join(buildDir, 'js'), { recursive: true });

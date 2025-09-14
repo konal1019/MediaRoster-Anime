@@ -105,7 +105,6 @@ static
 
 # Remix build output
 .cache/
-build/
 public/build/
 
 # Production builds
