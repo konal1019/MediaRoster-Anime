@@ -1,0 +1,27 @@
+{
+  "name": "anime-list",
+  "version": "1.0.0",
+  "description": "A simple HTML/JS/CSS starter template",
+  "main": "fetcher.js",
+  "scripts": {
+  "test": "echo \"Error: no test specified\" && exit 1",
+  "minify": "node minify.js",
+  "hash": "node hash.js",
+  "build": "npm run minify && npm run hash"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+  "node-fetch": "^3.3.2",
+  "clean-css-cli": "^5.6.2",
+  "html-minifier-terser": "^7.1.0",
+  "terser": "^5.31.1"
+  },
+  "dependencies": {
+  "@node-minify/clean-css": "^9.0.1",
+  "@node-minify/core": "^9.0.2",
+  "@node-minify/html-minifier": "^9.0.1",
+  "@node-minify/uglify-js": "^9.0.1"
+  }
+  }

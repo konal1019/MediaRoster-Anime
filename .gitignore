@@ -155,7 +155,6 @@ firebase.json
 database-rules.json
 storage.rules
 fetcher.mjs
-package.json
 package-lock.json
 blueprint.md
 js/empty.js
