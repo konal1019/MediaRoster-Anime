@@ -2,54 +2,66 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 
+const srcDir = '.';
 const buildDir = './build';
 
 const filesToHash = {
+    html: [path.join(srcDir, 'index.html')],
     css: [
-        path.join(buildDir, 'css', 'style.css'),
-        path.join(buildDir, 'css', 'icons.css'),
-        path.join(buildDir, 'css', 'search.css')
+        path.join(srcDir, 'css', 'style.css'),
+        path.join(srcDir, 'css', 'icons.css'),
+        path.join(srcDir, 'css', 'search.css')
     ],
     js: [
-        path.join(buildDir, 'js', 'pages.js'),
-        path.join(buildDir, 'js', 'router.js'),
-        path.join(buildDir, 'js', 'main.js'),
-        path.join(buildDir, 'js', 'api.js')
+        path.join(srcDir, 'js', 'pages.js'),
+        path.join(srcDir, 'js', 'router.js'),
+        path.join(srcDir, 'js', 'main.js'),
+        path.join(srcDir, 'js', 'api.js')
     ]
 };
 
-async function hashAndRename() {
-    console.log('Starting name hashing...');
-    const hashedFiles = {};
-    const allFilesToHash = [...filesToHash.css, ...filesToHash.js];
+function hashAndCopy() {
+    console.log('Starting name hashing and file copying...');
 
-    // Hash and rename files
+    fs.mkdirSync(buildDir, { recursive: true });
+    fs.mkdirSync(path.join(buildDir, 'css'), { recursive: true });
+    fs.mkdirSync(path.join(buildDir, 'js'), { recursive: true });
+
+    const hashedFilePaths = {};
+
+    // Copy index.html first since it doesn't get hashed
+    const indexSourcePath = filesToHash.html[0];
+    const indexDestPath = path.join(buildDir, path.basename(indexSourcePath));
+    fs.copyFileSync(indexSourcePath, indexDestPath);
+
+    // Process CSS and JS files
+    const allFilesToHash = [...filesToHash.css, ...filesToHash.js];
     for (const fullPath of allFilesToHash) {
         const content = fs.readFileSync(fullPath);
         const hash = crypto.createHash('md5').update(content).digest('hex').substring(0, 8);
         const ext = path.extname(fullPath);
         const fileName = path.basename(fullPath, ext);
-        const dirName = path.dirname(fullPath);
+        const relativeSourceDir = path.relative(srcDir, path.dirname(fullPath));
         const newFileName = `${fileName}.${hash}${ext}`;
-        const newPath = path.join(dirName, newFileName);
+        const destPath = path.join(buildDir, relativeSourceDir, newFileName);
 
-        fs.renameSync(fullPath, newPath);
-        const relativePath = path.relative(buildDir, newPath);
-        hashedFiles[path.relative(buildDir, fullPath)] = relativePath;
-        console.log(`Hashed: ${path.relative(buildDir, fullPath)} -> ${relativePath}`);
+        fs.writeFileSync(destPath, content);
+
+        const originalRelativePath = path.join(relativeSourceDir, path.basename(fullPath));
+        const newRelativePath = path.join(relativeSourceDir, newFileName);
+        hashedFilePaths[originalRelativePath] = newRelativePath;
+        console.log(`Hashed: ${originalRelativePath} -> ${newRelativePath}`);
     }
 
-    // Update index.html
-    const indexPath = path.join(buildDir, 'index.html');
-    let indexContent = fs.readFileSync(indexPath, 'utf-8');
-
-    for (const originalPath in hashedFiles) {
-        indexContent = indexContent.replace(originalPath, hashedFiles[originalPath]);
+    // Update index.html with new hashed names
+    let indexContent = fs.readFileSync(indexDestPath, 'utf-8');
+    for (const originalPath in hashedFilePaths) {
+        indexContent = indexContent.replace(originalPath, hashedFilePaths[originalPath]);
     }
 
-    fs.writeFileSync(indexPath, indexContent);
+    fs.writeFileSync(indexDestPath, indexContent);
     console.log('\nUpdated index.html with hashed file names.');
-    console.log('Name hashing complete.');
+    console.log('Process completed successfully.');
 }
 
-hashAndRename();
+hashAndCopy();
