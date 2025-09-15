@@ -1,18 +1,18 @@
 {
-    "name": "anime-list",
-    "version": "1.0.0",
-    "description": "A simple HTML/JS/CSS starter template",
-    "main": "fetcher.js",
-    "scripts": {
-      "test": "echo \"Error: no test specified\" && exit 1",
-      "hash": "node hash.js",
-      "build": "npm run hash",
-      "deploy": "npm run build && git add build && git commit -m \"Build for deployment\" && git subtree push --prefix build origin gh-pages"
-    },
-    "keywords": [],
-    "author": "",
-    "license": "ISC",
-    "devDependencies": {
-      "node-fetch": "^3.3.2"
-    }
+  "name": "anime-list",
+  "version": "1.0.0",
+  "description": "A simple HTML/JS/CSS starter template",
+  "main": "fetcher.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "hash": "python hash.py",
+    "build": "npm run hash",
+    "deploy": "npm run build && git push origin `git subtree split --prefix build master`:gh-pages --force && rm -rf build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "node-fetch": "^3.3.2"
   }
+}
