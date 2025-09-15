@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Anime List</title>
+    <style>
+        :root {
+            --darker-accent: #6a48cc;
+            --primary-accent: #8960ff;
+            --secondary-accent: #cf80ee;
+            --lighter-accent: #d9a2f5;
+            --lightest-accent: #d9a2f5;
+            --text-color: #ddd;
+            --bg-color-primary: #1a1a1a;
+            --bg-color-secondary: #242424;
+            --border-color: #333;
+            --icon-color: #445599;
+            --error-color: #ff6b6b;
+            --loader-color: #8960ff;
+            --hover-primary-accent: #6a48cc;
+            --warning-color: #ddab5b;
+        }
+        html {
+            background-color: var(--bg-color-primary);
+        }
+        body {
+            font-family: sans-serif;
+            margin: 0;
+            background-color: var(--bg-color-primary);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        header {
+            background-color: var(--bg-color-secondary);
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        nav .title {
+            font-size: 30px;
+            font-weight: bold;
+            color: var(--primary-accent);
+            text-decoration: none;
+        }
+        .hamburger {
+          display: none;
+        }
+        nav ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+        nav ul li {
+            margin-left: 1.5rem;
+        }
+        nav ul li a {
+            color: var(--text-color);
+            text-decoration: none;
+            font-size: 1rem;
+            transition: color 0.3s;
+            display: flex;
+            align-items: center;
+        }
+        nav ul li a i {
+            margin-right: 0.5rem;
+        }
+        nav ul li a:hover {
+            color: var(--primary-accent);
+        }
+        .logo {
+            width: 30px;
+            height: 30px;
+        }
+        .nav-text-desktop {
+            display: inline;
+        }
+        .nav-text-mobile {
+            display: none;
+        }
+        footer {
+            background-color: var(--bg-color-secondary);
+            padding: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+        .footer-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .footer-left {
+            text-align: left;
+        }
+        .footer-right {
+            text-align: justify;
+            max-width: 50%;
+        }
+        .footer-right h4 {
+            margin-top: 0;
+            color: var(--primary-accent);
+        }
+        .social-links a {
+            color: var(--text-color);
+            margin: 0 0.5rem;
+            font-size: 1.5rem;
+            transition: all 0.2s ease-in-out;
+            display: inline-block;
+        }
+        .social-links a:hover {
+            color: var(--primary-accent);
+            transform: scale(1.4);
+        }
+        .footer-left p a {
+            color: var(--primary-accent);
+            transition: all 0.2s ease-in-out;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .footer-left p a:hover {
+            color: var(--primary-accent);
+            transform: scale(1.3);
+        }
+        @media screen and (max-width: 600px) {
+            nav {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            .nav-links {
+                display: none;
+                flex-direction: column;
+                position: absolute;
+                top: 60px;
+                right: 0;
+                width: 100%;
+                background-color: var(--bg-color-secondary);
+                text-align: center;
+            }
+            .nav-links.nav-active {
+                display: flex;
+            }
+            .nav-links li {
+                margin: 1rem 0;
+            }
+            .hamburger {
+                display: block;
+                cursor: pointer;
+            }
+            .hamburger i {
+                font-size: 1.5rem;
+            }
+            nav .title {
+                display: block;
+            }
+            .logo {
+                margin-left: 1rem;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="./css/style.110bbaa7.css">
+    <link rel="stylesheet" href="./css/icons.fb2b0580.css">
+    <link rel="preload" href="./webfonts/fa-brands-400.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="./webfonts/fa-solid-900.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preconnect" href="https://cdn.myanimelist.net">
+    <link rel="preconnect" href="https://api.jikan.moe">
+</head>
+<body>
+    <header id="head" class="head">
+        <nav id="navbar">
+            <div class="hamburger">
+                <i class="fas fa-bars"></i>
+            </div>
+            <span class="title">AnimeList</span>
+            <ul class="nav-links">
+                <li><a href="#/" id="navhome"><i class="fas fa-home"></i><span class="nav-text-desktop"> Home</span></a></li>
+                <li><a href="#/search" id="navsearch"><i class="fas fa-search"></i><span class="nav-text-desktop"> Search</span></a></li>
+                <li><a href="#/meet-the-creator" id="navcreator"><i class="fas fa-user"></i><span class="nav-text-desktop"> Meet the Creator</span></a></li>
+            </ul>
+            <img class="logo" src="./logo.webp"> </nav>
+    </header>
+
+    <main id='content'>
+        </main>
+
+    <div id="randomDiv">
+        <div class="random-anime-container">
+            <h2 class="random-anime-title">Too lazy to look? Let us pick for you!</h2>
+            <button id="random-anime-button" class="random-anime-button">Take me to a Random Anime</button>
+        </div>
+    </div>
+
+    <div id="loader"></div>
+
+    <footer id="foot" class="foot">
+        <div class="footer-container">
+            <div class="footer-left">
+                <div class="social-links">
+                    <a href="https://github.com/konal1019" target="_blank"><i class="fab fa-github"></i></a>
+                    <a href="https://www.instagram.com/4qua_taken/" target="_blank"><i class="fab fa-instagram"></i></a>
+                    <a href="https://twitter.com/" target="_blank"><i class="fab fa-twitter"></i></a>
+                    <a href="https://www.linkedin.com/" target="_blank"><i class="fab fa-linkedin"></i></a>
+                    <a href="https://discord.com/users/4qua_fl4r3" target="_blank"><i class="fab fa-discord"></i></a>
+                    <a href="https://github.com/konal1019" target="_blank"><i class="fa-solid fa-circle-user"></i></a>
+                </div>
+                <p>Powered by <a href="https://jikan.moe" target="_blank">Jikan API</a></p>
+                <p>Source: <a href="https://myanimelist.net/" target="_blank">MyAnimeList</a></p>
+                <p>&copy; 2024 AnimeList. All Rights Reserved.</p>
+            </div>
+            <div class="footer-right">
+                <h4>The Stupid reason this site exists</h4>
+                <p>So, it was a hot summer evening right after exams ended when I had that boost of motivation to make something. Naturally i hit up ma bro and asked him for an idea for a "simple python script". "Idk if it's possible but a script that will go thru the anime lists in any website (I mean any website of your choice, the user can't change it) and suggests you a random anime" he said. As you would expect I proceeded with making this full blown website after hearing that suggestion.</p>
+            </div>
+        </div>
+    </footer>
+    <script>
+        const hamburger = document.querySelector(".hamburger");
+        const navLinks = document.querySelector(".nav-links");
+
+        hamburger.addEventListener("click", () => {
+            navLinks.classList.toggle("nav-active");
+        });
+    </script>
+    <script type="module" src="./js/api.74604ed3.js"></script>
+    <script type="module" src="./js/router.e8f1577d.js"></script>
+    <script type="module" src="./js/pages.d2d9013e.js"></script>
+    <script type="module" src="./js/main.ad96b171.js"></script>
+</body>
+</html>
