@@ -126,10 +126,10 @@ function triggerJumpscare() {
   jumpscareContainer.id = 'jumpscare-container';
 
   const jumpscareImage = document.createElement('img');
-  jumpscareImage.src = './jumpscare.jpg';
+  jumpscareImage.src = './jumpscare.55a1a238.jpg';
   jumpscareImage.id = 'jumpscare-image';
 
-  const jumpscareAudio = new Audio('./jumpscare.mp3');
+  const jumpscareAudio = new Audio('./jumpscare.2c34293a.mp3');
 
   jumpscareContainer.appendChild(jumpscareImage);
   document.body.appendChild(jumpscareContainer);

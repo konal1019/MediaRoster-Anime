@@ -35,9 +35,6 @@ bower_components
 # node-waf configuration
 .lock-wscript
 
-# Compiled binary addons (https://nodejs.org/api/addons.html)
-build/Release
-
 # Dependency directories
 node_modules/
 jspm_packages/
@@ -87,10 +84,6 @@ out
 # Nuxt.js build output
 .nuxt
 dist
-
-# SvelteKit build output
-.svelte-kit
-build
 
 # Docusaurus build output
 .docusaurus
@@ -159,7 +152,6 @@ js/empty.js
 js/pagespriv.js
 css/csspriv.css
 css/Allicons.css
-builder.js
 
 # env files
 .idx/

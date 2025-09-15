@@ -353,7 +353,7 @@ export async function loadHomePage() {
 
 
 export async function loadSearchPage(query = null) {
-  loadCSS('./css/search.css');
+  loadCSS('./css/search.b2c5090c.css');
   console.log('Loading Search Page');
   document.getElementById('navsearch').style.color = '#8960ff';
   document.getElementById('navhome').style.color = '#ddd';
