@@ -109,7 +109,6 @@ public/build/
 
 # Production builds
 /dist
-/build
 /public
 
 # Misc
