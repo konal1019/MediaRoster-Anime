@@ -246,8 +246,21 @@ export const detailsParser = (data) => {
   return standardizedData;
 };
 
-export const searchAnime = async (params) => {
-    const query = new URLSearchParams(params).toString();
-    const url = `${BASE_URL}/anime?${query}`;
-    return await fetchWithoutCache(url);
-};
+export async function searchAnime(JikanURL = null) {
+  const [path, queries] = window.location.hash.split('?');
+  if (path !== '#/search') {
+    return;
+  }
+  let finalUrl = null;
+
+  if (JikanURL) {
+    finalUrl = JikanURL;
+  } else if (queries) {
+    finalUrl = `${BASE_URL}/anime?${queries}`;
+  }
+
+  if (finalUrl) {
+    return [await fetchWithoutCache(finalUrl), finalUrl];
+  }
+  return;
+}

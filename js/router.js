@@ -9,17 +9,13 @@ const routes = {
 export const handleRoute = () => {
   const path = window.location.hash.substring(1) || '/';
   const routeName = routes[path];
+  console.log()
 
   if (routeName) {
     console.log(`Navigating to: ${routeName}`);
     loadPageContent(routeName);
-  } else if (path.startsWith('/search-')) {
-    const searchQuery = path.match(/^\/search-(.+)$/);
-    if (searchQuery) {
-      const searchTerm = searchQuery[1];
-      console.log(`Navigating to search results for: ${searchTerm}`);
-      loadSearchPage(searchQuery[1])
-    }
+  } else if (window.location.hash.startsWith('#/search')) {
+    loadPageContent('search')
   } else {
     const detailsMatch = path.match(/^\/details-(.+)$/);
     if (detailsMatch) {

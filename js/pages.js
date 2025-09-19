@@ -1,5 +1,5 @@
-import { initSlideshow, initFlashcardHover, escapeHTML, randomAnime, initiateFilters } from './main.js';
-import { getTopRatedAnime, getMostPopularAnime, getAiringAnime, getSeasonalAnime, getGenres, genres} from './api.js';
+import { status, initSlideshow, initFlashcardHover, escapeHTML, randomAnime, initFilters, renderGenres, initSearch, displaySearchResults } from './main.js';
+import { searchAnime, getTopRatedAnime, getMostPopularAnime, getAiringAnime, getSeasonalAnime, getGenres, genres} from './api.js';
 
 export function loadPageContent(pageName) {
   hideLoader();
@@ -17,7 +17,7 @@ export function loadPageContent(pageName) {
 
 let loaderTimeout;
 
-function showLoader() {
+export function showLoader() {
   const loaderContainer = document.getElementById('loader');
   if (loaderContainer) {
     loaderContainer.innerHTML = `
@@ -37,7 +37,7 @@ function showLoader() {
   }
 }
 
-function hideLoader() {
+export function hideLoader() {
   const loaderContainer = document.getElementById('loader');
   if (loaderContainer) {
     clearTimeout(loaderTimeout);
@@ -56,7 +56,7 @@ function loadCSS(filename) {
   }
 }
 
-function createFlashcardHTML(anime, cardType) {
+export function createFlashcardHTML(anime, cardType) {
   const imageUrl = anime.images?.webp?.image_url ?? 'placeholder.png';
   const title = anime.title_english || anime.title;
   const synopsis = escapeHTML(anime.synopsis || anime.background || 'No synopsis available.');
@@ -352,7 +352,7 @@ export async function loadHomePage() {
 };
 
 
-export async function loadSearchPage(query = null) {
+export async function loadSearchPage() {
   loadCSS('./css/search.css');
   console.log('Loading Search Page');
   document.getElementById('navsearch').style.color = '#8960ff';
@@ -405,7 +405,7 @@ export async function loadSearchPage(query = null) {
                       <button class="filter-btn" data-filter="rating" data-value="pg13">PG-13 - Teens 13+</button>
                       <button class="filter-btn" data-filter="rating" data-value="r17">R - 17+ (violence)</button>
                       <button class="filter-btn" data-filter="rating" data-value="r">R+ - Mild Nudity</button>
-                      <button class="filter-btn" data-filter="rating" data-value="rx">Rx - Hentai</button>
+                      <abutton class="filter-btn" data-filter="rating" data-value="rx">Rx - Hentai</button>
                   </div>
               </div>
           </div>
@@ -430,8 +430,15 @@ export async function loadSearchPage(query = null) {
           <div class="filter-section">
               <div class="filter-controls">
                   <h4>Year:</h4>
-                  <input type="number" class="filter-input" placeholder="Start Year" id="start-year" min="1900" max="2025">
-                  <input type="number" class="filter-input" placeholder="End Year" id="end-year" min="1900" max="2025">
+                  <input type="date" class="filter-input" placeholder="Start Date" id="start_date" min="01-01-1900" max="31-12-2025">
+                  <input type="date" class="filter-input" placeholder="End Date" id="end_date" min="01-01-1900" max="31-12-2025">
+              </div>
+          </div>
+                    <div class="filter-section">
+              <div class="filter-controls">
+                  <h4>Genres:</h4>
+                  <div class= "filter-buttons" id="genresDiv">
+                  </div>
               </div>
           </div>
           <div class="filter-section">
@@ -462,10 +469,11 @@ export async function loadSearchPage(query = null) {
   <div id="search-results"></div>
   `;
   showLoader();
-  initiateFilters();
+  initSearch();
+  initFilters();
 
-  const path = window.location.hash.substring(1);
-  if (path === '/search' && !query) {
+  const [path, query] = window.location.hash.split('?');
+  if (path === '#/search' && !query) {
     const searchResultsContainer = document.getElementById('search-results');
     if (searchResultsContainer) {
       const topRatedSection = await createAnimeSection({
@@ -492,17 +500,24 @@ export async function loadSearchPage(query = null) {
     if (window.location.hash === '#/search') {
       initFlashcardHover();
       document.getElementById('randomDiv').style.display = 'block';
+      renderGenres();
       randomAnime();
       hideLoader();
     };
 
   } else {
-    // Logic for handling search queries will be implemented here later.
     console.log(`Search initiated with query: ${query}`);
-    // For now, we'll just clear the results and hide the loader.
     const searchResultsContainer = document.getElementById('search-results');
     if(searchResultsContainer) searchResultsContainer.innerHTML = '';
-    hideLoader();
+    if (status.searching) {
+      return;
+    }
+    else {
+      status.searching = true;
+      const [results, url] = await searchAnime();
+      console.log(results)
+      displaySearchResults(results, url)
+    }
   }
 };
 

@@ -1,3 +1,5 @@
+# 80% AI code cuz I was too lazy to dedicate time to this
+
 import os
 import re
 import shutil
