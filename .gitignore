@@ -152,6 +152,7 @@ js/empty.js
 js/pagespriv.js
 css/csspriv.css
 css/Allicons.css
+package.json
 
 # env files
 .idx/
