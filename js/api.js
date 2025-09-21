@@ -246,21 +246,9 @@ export const detailsParser = (data) => {
   return standardizedData;
 };
 
-export async function searchAnime(JikanURL = null) {
-  const [path, queries] = window.location.hash.split('?');
-  if (path !== '#/search') {
+export async function searchAnime(JikanURL) {
+    if (JikanURL) {
+        return await fetchWithoutCache(JikanURL);
+    }
     return;
-  }
-  let finalUrl = null;
-
-  if (JikanURL) {
-    finalUrl = JikanURL;
-  } else if (queries) {
-    finalUrl = `${BASE_URL}/anime?${queries}`;
-  }
-
-  if (finalUrl) {
-    return [await fetchWithoutCache(finalUrl), finalUrl];
-  }
-  return;
 }

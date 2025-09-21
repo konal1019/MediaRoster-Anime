@@ -1,4 +1,4 @@
-import { loadPageContent, load404, loadDetailsPage, loadSearchPage, loadHomePage } from './pages.js';
+import { loadPageContent } from './pages.js';
 
 const routes = {
   '/': 'home',
@@ -8,23 +8,18 @@ const routes = {
 
 export const handleRoute = () => {
   const path = window.location.hash.substring(1) || '/';
-  const routeName = routes[path];
-  console.log()
+  const [pathName] = path.split('?');
+  const routeName = routes[pathName];
 
   if (routeName) {
     console.log(`Navigating to: ${routeName}`);
     loadPageContent(routeName);
-  } else if (window.location.hash.startsWith('#/search')) {
-    loadPageContent('search')
+  } else if (path.startsWith('/details-')) {
+    const animeNameOrId = path.split('-')[1];
+    console.log(`Navigating to details for: ${animeNameOrId}`);
+    loadDetailsPage(animeNameOrId)
   } else {
-    const detailsMatch = path.match(/^\/details-(.+)$/);
-    if (detailsMatch) {
-      const animeNameOrId = detailsMatch[1];
-      console.log(`Navigating to details for: ${animeNameOrId}`);
-      loadDetailsPage(animeNameOrId)
-    } else {
-      load404(path);
-    }
+    load404(path);
   }
 };
 

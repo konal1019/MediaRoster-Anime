@@ -1,4 +1,4 @@
-import { genres, searchAnime } from './api.js';
+import { genres, searchAnime, getGenres } from './api.js';
 import { showLoader, hideLoader, createFlashcardHTML } from './pages.js';
 export const status = {"searching":false}
 
@@ -142,7 +142,7 @@ function triggerJumpscare() {
     jumpscareContainer.requestFullscreen();
   }
 
-  jumpscareAudio.play().catch(e => console.error("Couldn't play jumpscare audio, maybe it's missing?"));
+  jumpscareAudio.play().catch(e => console.error("Couldn\'t play jumpscare audio, maybe it\'s missing?"));
 
   setTimeout(() => {
     if (document.exitFullscreen) {
@@ -177,13 +177,17 @@ export function initFilters() {
         const singleSelectGroups = ["season", "status", "type", "rating"];
     
         if (singleSelectGroups.includes(filter)) {
-          // remove active state from all buttons in this group
           document.querySelectorAll(`.filter-btn[data-filter="${filter}"]`)
             .forEach(b => b.classList.remove('active'));
-    
-          // set only the clicked one
-          activeFilters[filter] = value;
-          btn.classList.add('active');
+          if (activeFilters[filter] !== value) {
+            // set only the clicked one
+            activeFilters[filter] = value;
+            btn.classList.add('active');
+          } else {
+            // remove the filter
+            delete activeFilters[filter];
+            btn.classList.remove('active');
+          }
         } else {
           // keep multi-select behavior for other filters
           if (activeFilters[filter] && activeFilters[filter].includes(value)) {
@@ -241,7 +245,7 @@ export async function renderGenres() {
 
   const content = Object.entries(genres).map(([key, value]) => {
     return `
-        <button class="genre-btn" data-filter="genre" data-value="${key}">${value}</button>
+        <button class="genre-btn" data-filter="genres" data-value="${key}">${value}</button>
     `;
   }).join('')
 
@@ -274,51 +278,39 @@ export async function renderGenres() {
 };
 
 export async function initSearch() {
-  const searchBtn = document.getElementById('search-button')
+  applyFilters();
+  const searchBtn = document.getElementById('search-button');
   if (searchBtn) {
     searchBtn.addEventListener('click', () => {
-      handleSearch();
-    })
-  } else {
-    window.location.reload();
+      delete activeFilters['page']
+      constructURL(true);
+    });
   }
 
-  const searchIn =document.getElementById('search-input')
+  const searchIn = document.getElementById('search-input');
   searchIn.addEventListener('input', () => {
-    const search = searchIn.value;
-    if (search) {
-      activeFilters.q = search;
-    }
+    activeFilters.q = searchIn.value;
     console.log(activeFilters);
-  })
-}
+  });
 
-async function handleSearch() {
-  let hasEnd = false;
-  if (activeFilters.end_date) {
-    activeFilters.end_date = activeFilters.end_date.split('-').reverse().join('-');
-    hasEnd = true;
-  }
-  if (activeFilters.start_date) {
-    activeFilters.start_date = activeFilters.start_date.split('-').reverse().join('-'); 
-  }
-
-  if (hasEnd) {
-    const end_date = activeFilters.end_date;
-    delete activeFilters.end_date;
-    const url = await constructURL(end_date);
-    alert('end date filter is currently unavailable')
-  } else {
-    const url = await constructURL();
-    console.log(url)
-    const results = searchAnime(url)
-    displaySearchResults(results, url)
+  const params = new URLSearchParams(window.location.hash.split('?')[1] || '');
+  if (params.toString()) {
+    handleSearch(false);
   }
 }
 
-export async function constructURL(end_date) {
-  console.log('creating url for')
-  console.log(activeFilters)
+
+async function handleSearch(updateURL = true) {
+  console.log('handling search');
+  const url = await constructURL(updateURL);
+  if (url) {
+    const results = await searchAnime(url);
+    displaySearchResults(results);
+  }
+}
+
+export async function constructURL(updateURL = false) {
+  console.log('creating url for', activeFilters);
   const baseURL = 'https://api.jikan.moe/v4/anime';
 
   const params = new URLSearchParams();
@@ -329,18 +321,68 @@ export async function constructURL(end_date) {
       params.append(filter, activeFilters[filter]);
     }
   }
-  const JikanURL = `${baseURL}?${params.toString()}` 
-  if (end_date) {
-    params.append('end_date', end_date);
+
+  if (params.toString()) {
+    const JikanURL = `${baseURL}?${params.toString()}`;
+    if (updateURL) {
+      const hash = `#/search?${params.toString()}`;
+      window.location.hash = hash;
+      console.log(hash);
+    }
+    return JikanURL;
   }
-  const hash =`#/search?${params.toString()}`;
-  window.location.hash = hash;
+  return null;
+}
 
-  console.log(hash);
-  return JikanURL;
-};
+export function applyFilters() {
+  console.log('applying filters');
+  // Clear existing active filters
+  for (const key in activeFilters) {
+    delete activeFilters[key];
+  }
 
-// This function is not exported. It builds the pagination controls inside a given container.
+  // un-mark all active buttons
+  const activeElements = document.querySelectorAll('[class*="active"]');
+  activeElements.forEach(element => {
+    element.classList.remove('active');
+  });
+
+  const params = new URLSearchParams(window.location.hash.split('?')[1] || '');
+  const IdFilters = ['order_by', 'sort', 'min_score', 'max_score'] 
+
+  for (const [key, value] of params.entries()) {
+    if (key === 'q') {
+      const searchInput = document.getElementById('search-input');
+      if (searchInput) searchInput.value = value;
+      activeFilters.q = value;
+    } else if (key === 'genres') {
+      const values = value.split(',');
+      activeFilters[key] = [];
+      values.forEach(v => {
+        const btn = document.querySelector(`[data-filter='${key}'][data-value='${v}']`);
+        if (btn) {
+          btn.classList.add('active');
+          activeFilters[key].push(v);
+        }
+      });
+    } else if (key==='page') {
+      activeFilters[key] = value;
+    } else if (key in IdFilters ) {
+      const filt = document.getElementById(key)
+      if (filt) {
+        filt.value = value;
+      }
+    } else {
+      const element = document.querySelector(`[data-filter='${key}'][data-value='${value}']`);
+      if (element) {
+        element.classList.add('active');
+      }
+      activeFilters[key] = value;
+    }
+  }
+  console.log('filters applied', activeFilters);
+}
+
 function loadPagination(paginationData, containerEl) {
     if (!containerEl) return;
     containerEl.innerHTML = ''; // Clear old controls
@@ -372,11 +414,6 @@ function loadPagination(paginationData, containerEl) {
     containerEl.appendChild(createButton('>>', last_visible_page, current_page < last_visible_page));
 }
 
-
-/**
- * Renders search results and pagination controls into the #search-results container.
- * @param {object} searchResults The full response object from the Jikan API search.
- */
 export async function displaySearchResults(searchResults) {
   const searchResultsContainer = document.getElementById('search-results');
 
@@ -385,7 +422,6 @@ export async function displaySearchResults(searchResults) {
       return;
   }
 
-  // Clear all previous content from the container
   searchResultsContainer.innerHTML = '';
   
   const defaultContent = document.getElementById('default-search-content');
@@ -400,29 +436,23 @@ export async function displaySearchResults(searchResults) {
       return;
   }
 
-  // 1. Create and append the results count info
   const infoHeader = document.createElement('h2');
   infoHeader.className = 'search-results-info';
   infoHeader.textContent = `Found ${searchResults.pagination.items.total} results`;
   searchResultsContainer.appendChild(infoHeader);
 
-  // 2. Create the grid, populate it, and append it
   const gridContainer = document.createElement('div');
   gridContainer.className = 'results-grid';
   
-  // Correctly build the HTML string from the results and set it
   gridContainer.innerHTML = searchResults.data.map(anime => createFlashcardHTML(anime, 'top-rated')).join('');
   
   searchResultsContainer.appendChild(gridContainer);
   
-  // 3. Create the pagination container and append it
   const paginationContainer = document.createElement('div');
   paginationContainer.className = 'pagination-controls';
   searchResultsContainer.appendChild(paginationContainer);
 
-  // 4. Initialize hover effects for the newly created cards
   initFlashcardHover();
 
-  // 5. Load the pagination buttons into their new container
   loadPagination(searchResults.pagination, paginationContainer);
 }

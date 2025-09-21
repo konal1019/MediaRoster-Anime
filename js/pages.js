@@ -1,4 +1,4 @@
-import { status, initSlideshow, initFlashcardHover, escapeHTML, randomAnime, initFilters, renderGenres, initSearch, displaySearchResults } from './main.js';
+import { status, initSlideshow, initFlashcardHover, escapeHTML, randomAnime, initFilters, renderGenres, initSearch, displaySearchResults, applyFilters } from './main.js';
 import { searchAnime, getTopRatedAnime, getMostPopularAnime, getAiringAnime, getSeasonalAnime, getGenres, genres} from './api.js';
 
 export function loadPageContent(pageName) {
@@ -429,13 +429,6 @@ export async function loadSearchPage() {
           </div>
           <div class="filter-section">
               <div class="filter-controls">
-                  <h4>Year:</h4>
-                  <input type="date" class="filter-input" placeholder="Start Date" id="start_date" min="01-01-1900" max="31-12-2025">
-                  <input type="date" class="filter-input" placeholder="End Date" id="end_date" min="01-01-1900" max="31-12-2025">
-              </div>
-          </div>
-                    <div class="filter-section">
-              <div class="filter-controls">
                   <h4>Genres:</h4>
                   <div class= "filter-buttons" id="genresDiv">
                   </div>
@@ -444,14 +437,14 @@ export async function loadSearchPage() {
           <div class="filter-section">
               <div class="filter-controls">
                   <h4>Order By:</h4>
-                  <select id="order-by-select" class="filter-dropdown">
+                  <select id="order-by" class="filter-dropdown">
                       <option value="score">Score</option>
                       <option value="members">Members</option>
                       <option value="popularity">Popularity</option>
                       <option value="title">A-Z</option>
                   </select>
                   <h4>Sort Direction:</h4>
-                  <select id="sort-direction-select" class="filter-dropdown">
+                  <select id="sort-direction" class="filter-dropdown">
                       <option value="desc">Descending</option>
                       <option value="asc">Ascending</option>
                   </select>
@@ -510,13 +503,15 @@ export async function loadSearchPage() {
     const searchResultsContainer = document.getElementById('search-results');
     if(searchResultsContainer) searchResultsContainer.innerHTML = '';
     if (status.searching) {
-      return;
-    }
-    else {
+      randerGenres();
+      randomAnime();
+    } else {
       status.searching = true;
-      const [results, url] = await searchAnime();
-      console.log(results)
-      displaySearchResults(results, url)
+      await renderGenres();
+      initSearch();
+      randomAnime();
+      hideLoader();
+      status.searching = false;
     }
   }
 };
