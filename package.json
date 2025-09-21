@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "hash": "python hash.py",
     "build": "npm run hash",
-    "deploy": "npm run build && git checkout --orphan gh-pages && git --work-tree build add . && git --work-tree build commit -m 'Deploy' && git push origin gh-pages --force && git checkout main && rm -rf build"
+    "deploy": "npm run build && git add -f build && git commit -m 'temp build commit' && git subtree push --prefix build origin gh-pages --force && git reset --hard HEAD~ && git clean -fd && rm -rf build"
   },
   "keywords": [],
   "author": "",
