@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AniRoster</title>
+    <title>MediaRoster: Anime</title>
     <style>
         :root {
             --darker-accent: #6a48cc;
@@ -20,6 +20,8 @@
             --loader-color: #8960ff;
             --hover-primary-accent: #6a48cc;
             --warning-color: #ddab5b;
+            --bg-color-mid: #1f1f1f;
+            --bg-color-trans: #212121;
         }
         html {
             background-color: var(--bg-color-primary);
@@ -35,7 +37,7 @@
         }
         header {
             background-color: var(--bg-color-secondary);
-            padding: 1rem;
+            padding: 0.5rem;
             border-bottom: 1px solid var(--border-color);
             position: sticky;
             top: 0;
@@ -79,8 +81,8 @@
             color: var(--primary-accent);
         }
         .logo {
-            width: 30px;
-            height: 30px;
+            width: 60px;
+            height: 60px;
         }
         .nav-text-desktop {
             display: inline;
@@ -169,8 +171,10 @@
             }
         }
     </style>
+    <link rel="icon" href="./logo.webp">
     <link rel="stylesheet" href="./css/style.css">
     <link rel="stylesheet" href="./css/icons.css">
+    <link rel="stylesheet" href="./css/details.css">
     <link rel="preload" href="./webfonts/fa-brands-400.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="./webfonts/fa-solid-900.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preconnect" href="https://cdn.myanimelist.net">
@@ -182,7 +186,7 @@
             <div class="hamburger">
                 <i class="fas fa-bars"></i>
             </div>
-            <span class="title">AniRoster</span>
+            <span class="title">MediaRoster</span>
             <ul class="nav-links">
                 <li><a href="#/" id="navhome"><i class="fas fa-home"></i><span class="nav-text-desktop"> Home</span></a></li>
                 <li><a href="#/search" id="navsearch"><i class="fas fa-search"></i><span class="nav-text-desktop"> Search</span></a></li>
@@ -216,7 +220,7 @@
                 </div>
                 <p>Powered by <a href="https://jikan.moe" target="_blank">Jikan API</a></p>
                 <p>Source: <a href="https://myanimelist.net/" target="_blank">MyAnimeList</a></p>
-                <p>&copy; 2024 AniRoster. All Rights Reserved.</p>
+                <p>&copy; 2024 MediaRoster. All Rights Reserved.</p>
             </div>
             <div class="footer-right">
                 <h4>The Stupid reason this site exists</h4>
@@ -236,5 +240,7 @@
     <script type="module" src="./js/router.js"></script>
     <script type="module" src="./js/pages.js"></script>
     <script type="module" src="./js/main.js"></script>
+    <script type="module" src="./js/components/UIs.js"></script>
+    <script type="module" src="./js/components/search.js"></script>
 </body>
 </html>

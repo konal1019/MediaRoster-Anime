@@ -1,4 +1,4 @@
-const CACHE_DURATION = 5 * 60 * 1000;
+const CACHE_DURATION = 300000;
 const BASE_URL = 'https://api.jikan.moe/v4';
 export const genres = {};
 const logErrorByStatus = (status, statusText) => {
@@ -114,6 +114,12 @@ export const getAiringAnime = async () => {
     return await fetchWithCacheAndRetry(url, cacheKey);
 };
 
+export const getUpcomingAnime = async () => {
+    const url = `${BASE_URL}/seasons/upcoming`;
+    const cacheKey = 'upcoming_anime';
+    return await fetchWithCacheAndRetry(url, cacheKey);
+};
+
 export const getSeasonalAnime = async () => {
     const url = `${BASE_URL}/seasons/now`;
     const cacheKey = 'seasonal_anime';
@@ -130,125 +136,31 @@ export const getGenres = async () => {
     console.log('loaded genres')
 };
 
-export const getAnimeDetails = async (animeId, fields = 'all') => {
-  const cacheKey = `anime_details_${animeId}`;
-  const now = Date.now();
-  const cachedData = localStorage.getItem(cacheKey);
-
-  if (cachedData) {
-    const { data, timestamp } = JSON.parse(cachedData);
-    if (now - timestamp < CACHE_DURATION) {
-      console.log(`Cache hit for anime ID: ${animeId}`);
-      if (fields === 'all') {
-        return data;
-      } else {
-        const filteredData = {};
-        fields.forEach((field) => {
-          if (data.hasOwnProperty(field)) {
-            filteredData[field] = data[field];
-          }
-        });
-        return filteredData;
-      }
-    }
-  }
-
-  const maxRetries = 5;
-  let retries = 0;
-  let data = null;
-
-  try {
-    while (retries < maxRetries) {
-      console.log(`Fetching details for anime ID: ${animeId}`);
-      const response = await fetch(`${BASE_URL}/anime/${animeId}/full`, {
-        method: 'GET',
-      });
-
-      if (response.status !== 200 && response.status !== 304) {
-        logErrorByStatus(response.status, response.statusText);
-        retries++;
-        await new Promise(resolve => setTimeout(resolve, retries * 1000));
-        continue;
-      }
-
-      data = await response.json();
-      break;
-    }
-
-    if (!data) {
-      throw new Error(`Failed to fetch anime details for ID ${animeId} after ${maxRetries} retries.`);
-    }
-
-    const standardizedData = detailsParser(data);
-
-    localStorage.setItem(cacheKey, JSON.stringify({ data: standardizedData, timestamp: now }));
-
-    if (fields === 'all') {
-      return standardizedData;
-    } else {
-      const filteredData = {};
-      fields.forEach((field) => {
-        if (standardizedData.hasOwnProperty(field)) {
-          filteredData[field] = standardizedData[field];
-        }
-      });
-      return filteredData;
-    }
-  } catch (error) {
-    console.error(`Error fetching anime details for ID ${animeId}:`, error);
-    throw error;
-  }
+export const getAnimeDetails = async (animeId) => {
+    const url = `${BASE_URL}/anime/${animeId}/full`;
+    const cacheKey = `anime_details_${animeId}`;
+    return await fetchWithCacheAndRetry(url, cacheKey);
 };
 
-export const detailsParser = (data) => {
-  const { data: animeData } = data;
+export const getAnimeCharacters = async (animeId) => {
+    const url = `${BASE_URL}/anime/${animeId}/characters`;
+    const cacheKey = `anime_characters_${animeId}`;
+    return await fetchWithCacheAndRetry(url, cacheKey);
+};
 
-  const standardizedData = {
-    mal_id: animeData.mal_id,
-    url: animeData.url,
-    images: {
-      small_image: animeData.images?.webp?.small_image_url || null,
-      large_image: animeData.images?.webp?.large_image_url || null,
-      image: animeData.images?.webp?.image_url || null,
-    },
-    trailer: animeData.trailer ? (animeData.trailer.url || animeData.trailer.embed_url || animeData.trailer.youtube_id ? `https://www.youtube.com/watch?v=${animeData.trailer.youtube_id}` : null) : null,
-    approved: animeData.approved,
-    title: animeData.title,
-    title_english: animeData.title_english,
-    title_japanese: animeData.title_japanese,
-    type: animeData.type,
-    source: animeData.source,
-    episodes: animeData.episodes,
-    status: animeData.status,
-    airing: animeData.airing,
-    duration: animeData.duration,
-    rating: animeData.rating,
-    score: animeData.score,
-    scored_by: animeData.scored_by,
-    rank: animeData.rank,
-    popularity: animeData.popularity,
-    members: animeData.members,
-    favorites: animeData.favorites,
-    synopsis: animeData.synopsis,
-    background: animeData.background,
-    season: animeData.season,
-    year: animeData.year,
-    producers: animeData.producers,
-    licensors: animeData.licensors,
-    studio: animeData.studios.map((studio) => studio.name).join(', ') || 'unknown',
-    genres: animeData.genres,
-    relations: animeData.relations,
-    theme: animeData.theme,
-    demographics: animeData.demographics,
-    broadcast: animeData.broadcast?.string ?? null,
-  };
+export const getAnimeStaff = async (animeId) => {
+    const url = `${BASE_URL}/anime/${animeId}/staff`;
+    const cacheKey = `anime_staff_${animeId}`;
+    return await fetchWithCacheAndRetry(url, cacheKey);
+};
 
-  return standardizedData;
+export const getRandomAnime = async () => {
+    return await fetchWithoutCache(`${BASE_URL}/random/anime`);
 };
 
 export async function searchAnime(JikanURL) {
     if (JikanURL) {
         return await fetchWithoutCache(JikanURL);
     }
-    return;
+    return fetchWithCacheAndRetry(`${BASE_URL}/anime`);
 }

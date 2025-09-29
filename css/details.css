@@ -1,0 +1,571 @@
+/*
+================================
+Details Page Specific Styles
+================================
+*/
+
+/* --- Main Container --- */
+.details-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    color: var(--text-color);
+}
+
+.details-container h1 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    font-size: 3rem;
+    color: var(--primary-accent);
+    font-weight: 700;
+    text-shadow: 0 0 10px rgba(255, 87, 34, 0.3);
+}
+
+/* --- Genres Section (MOVED INSIDE OVERVIEW TAB) --- */
+.details-genres-inner {
+    margin-bottom: 2.5rem;
+    padding: 1.5rem;
+    background-color: var(--bg-color-secondary);
+    border-radius: 10px;
+}
+
+.genres-header {
+    font-size: 1.8rem;
+    color: var(--secondary-accent); /* Standard section header color */
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.5rem;
+}
+
+.details-genres-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+/* Genre Tag: Gradient Border */
+.genre-tag {
+    background-color: var(--bg-color-mid);
+    color: var(--secondary-accent);
+    padding: 0.7rem 1.4rem;
+    border-radius: 25px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: default;
+    border: none;
+    position: relative; 
+    z-index: 1; 
+    transition: none; 
+}
+
+.genre-tag::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 25px;
+    padding: 2px;
+    background: linear-gradient(45deg, var(--secondary-accent), var(--lighter-accent));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    z-index: -1;
+}
+
+.genre-tag:hover {
+    background-color: var(--bg-color-mid);
+    color: var(--secondary-accent);
+    border-color: transparent; 
+    transform: none;
+    box-shadow: none;
+}
+
+/* --- Hero Section (Poster, Stats, Synopsis) --- */
+.details-hero {
+    display: flex;
+    gap: 3rem; 
+    margin-bottom: 2.5rem;
+    background-color: var(--bg-color-secondary);
+    padding: 2.5rem;
+    border-radius: 18px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.3);
+}
+
+/* Container for Poster and Titles (now stacked) */
+.details-poster-group {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    flex-shrink: 0;
+    width: 350px; /* Wider poster group */
+}
+
+.details-poster {
+    width: 100%; 
+    text-align: center;
+    position: relative;
+}
+
+.details-poster img {
+    width: 100%;
+    height: 480px; /* Taller image */
+    object-fit: cover; 
+    border-radius: 12px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+    border: 3px solid var(--primary-accent);
+    transition: transform 0.3s ease;
+}
+
+.details-poster .placeholder-icon {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 480px; /* Match new image height */
+    background-color: var(--bg-color-mid);
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 6rem;
+    color: var(--primary-accent);
+    z-index: 1;
+    border: 3px solid var(--primary-accent);
+}
+
+/* --- Alternative Titles Box --- */
+.details-titles-box {
+    background-color: var(--bg-color-mid);
+    padding: 1.5rem;
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.details-titles-box h4 {
+    color: var(--primary-accent);
+    margin-top: 0;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px dashed var(--border-color);
+    font-size: 1.2rem;
+}
+
+.details-titles-box .titles-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.details-titles-box .titles-list li {
+    padding: 0.4rem 0;
+    font-size: 0.95rem;
+    border-bottom: 1px dotted rgba(255, 255, 255, 0.1);
+}
+
+/* --- Main Info (Stats & Synopsis) --- */
+.details-info {
+    flex-grow: 1;
+}
+
+/* Stats Boxes (Hero Section) */
+.details-stats.hero-stats {
+    display: flex;
+    flex-wrap: wrap; 
+    gap: 1rem;
+    margin-bottom: 2rem; 
+}
+
+#overview p {
+    text-align: justify;
+    line-height: 1.5rem; /* Matches the synopsis line height */
+    color: var(--text-color);
+    font-size: 1.05rem;
+}
+
+.stat-box {
+    background-color: var(--bg-color-mid);
+    padding: 1rem 0.75rem;
+    border-radius: 10px;
+    text-align: center;
+    flex: 1 1 20%; /* Distribute space evenly (4 boxes) */
+    min-width: 100px;
+    border: 1px solid var(--border-color);
+    transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+}
+
+.stat-box:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+    border-color: var(--secondary-accent);
+}
+
+.stat-box h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 0.95rem;
+    color: var(--secondary-accent);
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.stat-box .stat-value-large {
+    margin: 0;
+    font-size: 1.6rem; /* Larger size for stats */
+    font-weight: bold;
+    color: var(--lighter-accent);
+}
+
+/* Synopsis Header */
+.synopsis-header {
+    font-size: 1.8rem; /* Larger header */
+    color: var(--secondary-accent);
+    margin-bottom: 1rem;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.details-synopsis {
+    margin-bottom: 0; 
+    text-align: justify;
+    line-height: 1.75;
+    color: #e0e0e0;
+    font-size: 1.05rem; /* Slightly larger synopsis text */
+}
+
+/* --- Quick Facts Table (unchanged structure) --- */
+
+.quick-facts-table {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+    padding: 2.5rem;
+    background-color: var(--bg-color-mid);
+    border-radius: 18px;
+    border: 1px solid var(--border-color);
+}
+
+.fact-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 0.5rem 0;
+    border-bottom: 1px dotted var(--border-color);
+}
+
+.fact-label {
+    font-weight: 600;
+    color: var(--secondary-accent);
+}
+
+.fact-value {
+    color: var(--text-color-light);
+}
+
+/* --- Tabbed Navigation --- */
+.details-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+    margin-bottom: 2rem;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.details-nav-item {
+    padding: 0.8rem 1.5rem;
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--text-color-light);
+    transition: color 0.3s, background-color 0.3s, border-bottom 0.3s;
+    border-bottom: 2px solid transparent;
+}
+
+.details-nav-item:hover {
+    color: var(--primary-accent);
+    border-bottom: 2px solid var(--primary-accent);
+}
+
+.details-nav-item.active {
+    color: var(--lighter-accent);
+    border-bottom: 2px solid var(--lighter-accent);
+}
+
+/* --- Details Sections (Tab Content) --- */
+.details-section {
+    display: none;
+    padding: 1.5rem 0;
+    animation: fadeIn 0.5s ease-out;
+}
+
+.details-section.active {
+    display: block;
+}
+
+.details-section h2 {
+    color: var(--secondary-accent);
+    font-size: 1.8rem;
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.5rem;
+}
+
+/* Relations Section */
+.relation-group {
+    margin-bottom: 2rem;
+    padding: 1rem 0;
+    border-bottom: 1px dashed var(--border-color);
+}
+
+.relation-group h4 {
+    color: var(--primary-accent);
+    font-size: 1.2rem;
+    margin-top: 0;
+}
+
+.relation-group ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.relation-group li {
+    margin-bottom: 0.5rem;
+}
+
+.relation-group a {
+    color: var(--text-color-light);
+    text-decoration: none;
+}
+
+.relation-group a:hover {
+    color: var(--lighter-accent);
+    text-decoration: underline;
+}
+
+/* Production Section */
+.production-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.production-group h4 {
+    color: var(--primary-accent);
+    margin-bottom: 0.75rem;
+    font-size: 1.1rem;
+}
+
+.production-group ul {
+    list-style: none;
+    padding: 0;
+}
+
+.production-group li {
+    padding: 0.2rem 0;
+    color: var(--text-color-light);
+}
+
+.themes-section {
+    margin-bottom: 2rem;
+}
+
+.themes-section h4 {
+    color: var(--secondary-accent);
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+}
+
+.themes-section ul {
+    list-style-type: disc;
+    margin-left: 1.5rem;
+    padding-left: 0;
+}
+
+.themes-section li {
+    margin-bottom: 0.4rem;
+}
+
+.external-links h4 {
+    color: var(--primary-accent);
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+}
+
+.external-links ul {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 1.5rem;
+}
+
+/* Characters and Staff */
+.character-grid,
+.staff-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+}
+
+.character-card,
+.staff-card {
+    display: flex;
+    background-color: var(--bg-color-mid);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s;
+}
+
+.character-card:hover,
+.staff-card:hover {
+    transform: translateY(-5px);
+}
+
+.character-card img,
+.staff-card img {
+    width: 100px;
+    height: 140px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.character-card .placeholder-icon,
+.staff-card .placeholder-icon {
+    width: 100px;
+    height: 140px;
+    flex-shrink: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2.5rem;
+    background-color: var(--bg-color-secondary);
+    color: var(--primary-accent);
+}
+
+.character-info,
+.staff-info {
+    padding: 1rem;
+}
+
+.character-info h5,
+.staff-info h5 {
+    margin: 0 0 0.25rem 0;
+    color: var(--primary-accent);
+    font-size: 1.1rem;
+}
+
+.character-info p,
+.staff-info p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--text-color-light);
+}
+
+.character-info .voice-actor {
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--secondary-accent);
+}
+
+/* Trailer Section */
+.details-trailer {
+    margin-top: 3rem;
+    padding: 2.5rem;
+    background-color: var(--bg-color-secondary);
+    border-radius: 18px;
+    border: 1px solid var(--border-color);
+}
+
+.details-trailer h2 {
+    color: var(--lighter-accent);
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    font-size: 1.8rem;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.5rem;
+}
+
+.trailer-container {
+    position: relative;
+    width: 100%;
+    /* 16:9 Aspect Ratio */
+    padding-bottom: 56.25%; 
+    height: 0;
+}
+
+.trailer-container iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+/* --- Animations --- */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- Responsive Design --- */
+@media (max-width: 992px) {
+    .details-hero {
+        flex-direction: column;
+        align-items: center;
+        gap: 1.5rem;
+        padding: 1.5rem;
+    }
+
+    .details-container h1 {
+        font-size: 2.5rem;
+        text-align: center;
+    }
+
+    .details-poster-group {
+        width: 100%;
+        max-width: 300px; /* Adjust max width for portrait screens */
+        gap: 1.5rem;
+    }
+
+    .details-poster img,
+    .details-poster .placeholder-icon {
+        height: 400px; 
+    }
+
+    .details-info {
+        width: 100%;
+    }
+
+    .details-stats.hero-stats {
+        gap: 0.75rem;
+    }
+    
+    .stat-box {
+        flex: 1 1 45%; /* Two boxes per row on smaller screens */
+        padding: 0.8rem 0.5rem;
+    }
+
+    .stat-box .stat-value-large {
+        font-size: 1.4rem;
+    }
+
+    .quick-facts-table,
+    .details-trailer {
+        padding: 1.5rem;
+    }
+
+    .details-nav {
+        justify-content: center;
+    }
+
+    /* Adjust inner genres for small screens */
+    .details-genres-inner {
+        padding: 1rem;
+    }
+}

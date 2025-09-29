@@ -1,5 +1,6 @@
 import { genres, searchAnime, getGenres } from './api.js';
-import { showLoader, hideLoader, createFlashcardHTML } from './pages.js';
+import { showLoader, hideLoader } from './pages.js';
+import { createFlashcardHTML } from './components/UIs.js';
 export const status = {"searching":false}
 
 export function initSlideshow() {
@@ -272,7 +273,7 @@ export async function renderGenres() {
         btn.classList.add('active');
       }
 
-      console.log(activeFilters);
+      console.log(activeFilters); // after reading this at a later date, I dunno know what's goin on
     })
   });
 };
