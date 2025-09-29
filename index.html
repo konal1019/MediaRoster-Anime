@@ -48,11 +48,14 @@
             justify-content: space-between;
             align-items: center;
         }
-        nav .title {
+        nav .title a {
             font-size: 30px;
             font-weight: bold;
             color: var(--primary-accent);
             text-decoration: none;
+        }
+        nav .title a:hover {
+            cursor: pointer;
         }
         .hamburger {
           display: none;
@@ -186,17 +189,18 @@
             <div class="hamburger">
                 <i class="fas fa-bars"></i>
             </div>
-            <span class="title">MediaRoster</span>
+            <span class="title"><a href="#/">MediaRoster</a></span>
             <ul class="nav-links">
                 <li><a href="#/" id="navhome"><i class="fas fa-home"></i><span class="nav-text-desktop"> Home</span></a></li>
                 <li><a href="#/search" id="navsearch"><i class="fas fa-search"></i><span class="nav-text-desktop"> Search</span></a></li>
                 <li><a href="#/meet-the-creator" id="navcreator"><i class="fas fa-user"></i><span class="nav-text-desktop"> Meet the Creator</span></a></li>
             </ul>
-            <img class="logo" src="./logo.webp"> </nav>
+            <img class="logo" src="./logo.webp">
+        </nav>
     </header>
 
     <main id='content'>
-        </main>
+    </main>
 
     <div id="randomDiv">
         <div class="random-anime-container">
