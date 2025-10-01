@@ -1,5 +1,3 @@
-/* Search Page */
-
 .search-container {
     padding: 1rem;
     display: flex;
@@ -279,7 +277,6 @@ input:checked + .slider:before {
     margin: 0 1rem;
 }
 
-/* Mobile specific styles */
 @media (max-width: 500px) {
     .search-container {
         flex-direction: column;
@@ -292,10 +289,10 @@ input:checked + .slider:before {
         height: auto;
         border-radius: 10px;
         background-color: var(--bg-color-primary);
-        gap: 0.5rem; /* Added for spacing */
+        gap: 0.5rem; 
     }
     .filter-button {
-        order: 2; /* This will place it after the search-bar-content */
+        order: 2; 
         width: 50%;
         border-radius: 10px;
         margin: 0 auto 0.5rem auto;

@@ -1,10 +1,3 @@
-/*
-================================
-Details Page Specific Styles
-================================
-*/
-
-/* --- Main Container --- */
 .details-container {
     max-width: 1200px;
     margin: 0 auto;
@@ -21,7 +14,6 @@ Details Page Specific Styles
     text-shadow: 0 0 10px rgba(255, 87, 34, 0.3);
 }
 
-/* --- Genres Section (MOVED INSIDE OVERVIEW TAB) --- */
 .details-genres-inner {
     margin-bottom: 2.5rem;
     padding: 1.5rem;
@@ -31,7 +23,7 @@ Details Page Specific Styles
 
 .genres-header {
     font-size: 1.8rem;
-    color: var(--secondary-accent); /* Standard section header color */
+    color: var(--secondary-accent); 
     margin-top: 0;
     margin-bottom: 1.5rem;
     border-bottom: 1px solid var(--border-color);
@@ -44,7 +36,6 @@ Details Page Specific Styles
     gap: 1rem;
 }
 
-/* Genre Tag: Gradient Border */
 .genre-tag {
     background-color: var(--bg-color-mid);
     color: var(--secondary-accent);
@@ -81,7 +72,16 @@ Details Page Specific Styles
     box-shadow: none;
 }
 
-/* --- Hero Section (Poster, Stats, Synopsis) --- */
+.genre-tag.is-na {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.genre-tag.is-na::before {
+    background: var(--border-color);
+}
+
+
+/* Hero Section */
 .details-hero {
     display: flex;
     gap: 3rem; 
@@ -93,13 +93,12 @@ Details Page Specific Styles
     box-shadow: 0 12px 25px rgba(0, 0, 0, 0.3);
 }
 
-/* Container for Poster and Titles (now stacked) */
 .details-poster-group {
     display: flex;
     flex-direction: column;
     gap: 2rem;
     flex-shrink: 0;
-    width: 350px; /* Wider poster group */
+    width: 350px; 
 }
 
 .details-poster {
@@ -110,7 +109,7 @@ Details Page Specific Styles
 
 .details-poster img {
     width: 100%;
-    height: 480px; /* Taller image */
+    height: 480px; 
     object-fit: cover; 
     border-radius: 12px;
     box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
@@ -123,7 +122,7 @@ Details Page Specific Styles
     top: 0;
     left: 0;
     width: 100%;
-    height: 480px; /* Match new image height */
+    height: 480px; 
     background-color: var(--bg-color-mid);
     border-radius: 12px;
     display: flex;
@@ -135,7 +134,6 @@ Details Page Specific Styles
     border: 3px solid var(--primary-accent);
 }
 
-/* --- Alternative Titles Box --- */
 .details-titles-box {
     background-color: var(--bg-color-mid);
     padding: 1.5rem;
@@ -165,12 +163,10 @@ Details Page Specific Styles
     border-bottom: 1px dotted rgba(255, 255, 255, 0.1);
 }
 
-/* --- Main Info (Stats & Synopsis) --- */
 .details-info {
     flex-grow: 1;
 }
 
-/* Stats Boxes (Hero Section) */
 .details-stats.hero-stats {
     display: flex;
     flex-wrap: wrap; 
@@ -180,7 +176,7 @@ Details Page Specific Styles
 
 #overview p {
     text-align: justify;
-    line-height: 1.5rem; /* Matches the synopsis line height */
+    line-height: 1.5rem; 
     color: var(--text-color);
     font-size: 1.05rem;
 }
@@ -190,7 +186,7 @@ Details Page Specific Styles
     padding: 1rem 0.75rem;
     border-radius: 10px;
     text-align: center;
-    flex: 1 1 20%; /* Distribute space evenly (4 boxes) */
+    flex: 1 1 20%; 
     min-width: 100px;
     border: 1px solid var(--border-color);
     transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
@@ -212,14 +208,13 @@ Details Page Specific Styles
 
 .stat-box .stat-value-large {
     margin: 0;
-    font-size: 1.6rem; /* Larger size for stats */
+    font-size: 1.6rem; 
     font-weight: bold;
     color: var(--lighter-accent);
 }
 
-/* Synopsis Header */
 .synopsis-header {
-    font-size: 1.8rem; /* Larger header */
+    font-size: 1.8rem; 
     color: var(--secondary-accent);
     margin-bottom: 1rem;
     border-bottom: 2px solid var(--border-color);
@@ -232,40 +227,56 @@ Details Page Specific Styles
     text-align: justify;
     line-height: 1.75;
     color: #e0e0e0;
-    font-size: 1.05rem; /* Slightly larger synopsis text */
+    font-size: 1.05rem; 
 }
-
-/* --- Quick Facts Table (unchanged structure) --- */
 
 .quick-facts-table {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1rem;
     margin-bottom: 3rem;
-    padding: 2.5rem;
-    background-color: var(--bg-color-mid);
-    border-radius: 18px;
-    border: 1px solid var(--border-color);
+    padding: 0;
+    background-color: transparent;
+    border: none;
+    border-radius: 0;
 }
 
 .fact-item {
+    background-color: var(--bg-color-mid);
+    padding: 1.25rem;
+    border-radius: 10px;
     display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    padding: 0.5rem 0;
-    border-bottom: 1px dotted var(--border-color);
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    border: 1px solid var(--border-color);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.fact-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
 }
 
 .fact-label {
     font-weight: 600;
+    font-size: 0.9rem;
     color: var(--secondary-accent);
+    text-transform: uppercase;
 }
 
 .fact-value {
+    font-size: 1.1rem;
     color: var(--text-color-light);
+    font-weight: 500;
 }
 
-/* --- Tabbed Navigation --- */
+.source-link {
+    text-decoration: none;
+    color: var(--lighter-accent);
+}
+
+/* Tabbed Navigation */
 .details-nav {
     display: flex;
     flex-wrap: wrap;
@@ -293,7 +304,7 @@ Details Page Specific Styles
     border-bottom: 2px solid var(--lighter-accent);
 }
 
-/* --- Details Sections (Tab Content) --- */
+/* --- Details Sections (Tab Content) */
 .details-section {
     display: none;
     padding: 1.5rem 0;
@@ -315,59 +326,58 @@ Details Page Specific Styles
 
 /* Relations Section */
 .relation-group {
-    margin-bottom: 2rem;
-    padding: 1rem 0;
-    border-bottom: 1px dashed var(--border-color);
+    margin-bottom: 2.5rem;
 }
 
-.relation-group h4 {
+.relation-group-title {
+    font-size: 1.5rem;
     color: var(--primary-accent);
-    font-size: 1.2rem;
-    margin-top: 0;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-color);
 }
 
-.relation-group ul {
-    list-style-type: none;
-    padding: 0;
+.flashcard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
 }
 
-.relation-group li {
-    margin-bottom: 0.5rem;
-}
-
-.relation-group a {
-    color: var(--text-color-light);
+.relation-card-fallback {
+    background-color: var(--bg-color-mid);
+    padding: 1.25rem;
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
     text-decoration: none;
+    color: var(--text-color-light);
+    transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
 }
 
-.relation-group a:hover {
+.relation-card-fallback:hover {
+    transform: translateY(-5px);
+    border-color: var(--secondary-accent);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.relation-card-fallback .relation-card-title {
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
     color: var(--lighter-accent);
-    text-decoration: underline;
+}
+
+.relation-card-fallback .relation-card-type {
+    font-size: 0.9rem;
+    color: var(--secondary-accent);
+    text-transform: uppercase;
 }
 
 /* Production Section */
-.production-info {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 2rem;
-    margin-bottom: 2rem;
-}
-
-.production-group h4 {
-    color: var(--primary-accent);
-    margin-bottom: 0.75rem;
-    font-size: 1.1rem;
-}
-
-.production-group ul {
-    list-style: none;
-    padding: 0;
-}
-
-.production-group li {
-    padding: 0.2rem 0;
-    color: var(--text-color-light);
-}
 
 .themes-section {
     margin-bottom: 2rem;
@@ -492,7 +502,6 @@ Details Page Specific Styles
 .trailer-container {
     position: relative;
     width: 100%;
-    /* 16:9 Aspect Ratio */
     padding-bottom: 56.25%; 
     height: 0;
 }
@@ -507,13 +516,11 @@ Details Page Specific Styles
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
 }
 
-/* --- Animations --- */
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* --- Responsive Design --- */
 @media (max-width: 992px) {
     .details-hero {
         flex-direction: column;
@@ -529,7 +536,7 @@ Details Page Specific Styles
 
     .details-poster-group {
         width: 100%;
-        max-width: 300px; /* Adjust max width for portrait screens */
+        max-width: 300px; 
         gap: 1.5rem;
     }
 
@@ -547,7 +554,7 @@ Details Page Specific Styles
     }
     
     .stat-box {
-        flex: 1 1 45%; /* Two boxes per row on smaller screens */
+        flex: 1 1 45%; 
         padding: 0.8rem 0.5rem;
     }
 
@@ -555,7 +562,11 @@ Details Page Specific Styles
         font-size: 1.4rem;
     }
 
-    .quick-facts-table,
+    .quick-facts-table {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        padding: 0;
+    }
+
     .details-trailer {
         padding: 1.5rem;
     }
@@ -564,8 +575,8 @@ Details Page Specific Styles
         justify-content: center;
     }
 
-    /* Adjust inner genres for small screens */
     .details-genres-inner {
         padding: 1rem;
     }
+
 }

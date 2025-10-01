@@ -1,5 +1,6 @@
-import { getAnimeDetails, getAnimeCharacters, getAnimeStaff } from '../api.js';
+import { getAnimeDetails, getAnimeCharacters, getAnimeStaff, getAnimeInfo } from '../api.js';
 import { showLoader, hideLoader, loadCSS, load404 } from '../pages.js';
+import { createFlashcardHTML } from './UIs.js';
 
 export async function loadDetailsPage(animeId) {
   console.log(`Loading Details for anime ID: ${animeId}`);
@@ -8,6 +9,7 @@ export async function loadDetailsPage(animeId) {
   document.getElementById('navsearch').style.color = '#ddd';
   const content = document.getElementById('content');
   content.innerHTML = '';
+  document.getElementById('randomDiv').style.display = 'none'; 
 
   showLoader();
 
@@ -40,13 +42,11 @@ export async function loadDetailsPage(animeId) {
       `
       : '';
 
-    const studiosHTML = (anime.studios && anime.studios.length > 0)
-      ? anime.studios.map(s => s.name).join(', ')
+    const seasonHTML = anime.season
+      ? `${anime.season.charAt(0).toUpperCase() + anime.season.slice(1)}`
       : 'N/A';
 
-    const seasonHTML = anime.season
-      ? `${anime.season.charAt(0).toUpperCase() + anime.season.slice(1)} ${anime.year}`
-      : 'N/A';
+    const yearHTML = anime.year || 'N/A';
 
     const trailerHTML = anime.trailer?.youtube_id
         ? `
@@ -63,16 +63,7 @@ export async function loadDetailsPage(animeId) {
         </div>
         `
         : '';
-    const relationsHTML = (anime.relations && anime.relations.length > 0)
-        ? anime.relations.map(relation => `
-            <div class="relation-group">
-                <h4>${relation.relation}</h4>
-                <ul>
-                    ${relation.entry.map(entry => `<li><a href="${entry.type === 'manga' ? entry.url : `#/${entry.type}/${entry.mal_id}`}" ${entry.type === 'manga' ? 'target="_blank"' : ''}>${entry.name}</a> (${entry.type})</li>`).join('')}
-                </ul>
-            </div>
-        `).join('')
-        : '<p>No related anime found.</p>';
+    const relationsHTML = '<div id="relations-container"></div>';
 
     // Stats block for the hero section
     const heroStatsHTML = `
@@ -97,20 +88,24 @@ export async function loadDetailsPage(animeId) {
     `;
 
     const productionHTML = `
-        <div class="production-info">
-             <div class="production-group">
-                <h4>Producers</h4>
-                <ul>${(anime.producers && anime.producers.length > 0) ? anime.producers.map(p => `<li>${p.name}</li>`).join('') : '<li>N/A</li>'}</ul>
-            </div>
-            <div class="production-group">
-                <h4>Licensors</h4>
-                <ul>${(anime.licensors && anime.licensors.length > 0) ? anime.licensors.map(l => `<li>${l.name}</li>`).join('') : '<li>N/A</li>'}</ul>
-            </div>
-            <div class="production-group">
-                <h4>Studios</h4>
-                <ul>${(anime.studios && anime.studios.length > 0) ? anime.studios.map(s => `<li>${s.name}</li>`).join('') : '<li>N/A</li>'}</ul>
-            </div>
-        </div>
+      <div class="details-genres-inner">
+          <h2 class="genres-header">Producers</h2>
+          <div class="details-genres-list">
+              ${(anime.producers && anime.producers.length > 0) ? anime.producers.map(p => `<span class="genre-tag">${p.name}</span>`).join('') : '<span class="genre-tag is-na">N/A</span>'}
+          </div>
+      </div>
+      <div class="details-genres-inner">
+          <h2 class="genres-header">Licensors</h2>
+          <div class="details-genres-list">
+              ${(anime.licensors && anime.licensors.length > 0) ? anime.licensors.map(l => `<span class="genre-tag">${l.name}</span>`).join('') : '<span class="genre-tag is-na">N/A</span>'}
+          </div>
+      </div>
+      <div class="details-genres-inner">
+          <h2 class="genres-header">Studios</h2>
+          <div class="details-genres-list">
+              ${(anime.studios && anime.studios.length > 0) ? anime.studios.map(s => `<span class="genre-tag">${s.name}</span>`).join('') : '<span class="genre-tag is-na">N/A</span>'}
+          </div>
+      </div>
         <div class="themes-section">
             <h4>Opening Themes</h4>
             <ul>${(anime.theme?.openings && anime.theme.openings.length > 0) ? anime.theme.openings.map(op => `<li>${op}</li>`).join('') : '<li>No opening themes found.</li>'}</ul>
@@ -160,7 +155,7 @@ export async function loadDetailsPage(animeId) {
     }).join('')}</div>`
     : '<p>No staff information available.</p>';
 
-    // --- Main HTML Template (Restructured) ---
+    // --- Main HTML Template ---
 
     const detailsHTML = `
     <div class="details-container">
@@ -194,11 +189,11 @@ export async function loadDetailsPage(animeId) {
             <div class="fact-item"><span class="fact-label">Status:</span><span class="fact-value">${anime.status || 'N/A'}</span></div>
             <div class="fact-item"><span class="fact-label">Aired:</span><span class="fact-value">${anime.aired?.string || 'N/A'}</span></div>
             <div class="fact-item"><span class="fact-label">Season:</span><span class="fact-value">${seasonHTML}</span></div>
+            <div class="fact-item"><span class="fact-label">Year:</span><span class="fact-value">${yearHTML}</span></div>
             <div class="fact-item"><span class="fact-label">Rating:</span><span class="fact-value">${anime.rating || 'N/A'}</span></div>
-            <div class="fact-item"><span class="fact-label">Studios:</span><span class="fact-value">${studiosHTML}</span></div>
             <div class="fact-item"><span class="fact-label">Source:</span><span class="fact-value">${anime.source || 'N/A'}</span></div>
             <div class="fact-item"><span class="fact-label">Scored By:</span><span class="fact-value">${anime.scored_by?.toLocaleString() || 'N/A'}</span></div>
-            <div class="fact-item"><span class="fact-label">Members:</span><span class="fact-value">${anime.members?.toLocaleString() || 'N/A'}</span></div>
+            <div class="fact-item"><span class="fact-label">Duration:</span><span class="fact-value">${anime.duration || 'N/A'}</span></div>
             <div class="fact-item"><span class="fact-label">Favorites:</span><span class="fact-value">${anime.favorites?.toLocaleString() || 'N/A'}</span></div>
             <div class="fact-item"><span class="fact-label">Official Source:</span><span class="fact-value"><a href="${anime.url || '#'}" target="_blank" class="source-link">MyAnimeList</a></span></div>
         </div>
@@ -239,6 +234,7 @@ export async function loadDetailsPage(animeId) {
 
     content.innerHTML = detailsHTML;
     initTabbedNavigation();
+    loadRelations(anime.relations);
 
   } catch (error) {
     console.error('Failed to load anime details:', error);
@@ -247,6 +243,54 @@ export async function loadDetailsPage(animeId) {
     hideLoader();
     document.getElementById('randomDiv').style.display = 'none';
   }
+}
+
+async function loadRelations(relations) {
+  const container = document.getElementById('relations-container');
+  if (!relations || relations.length === 0) {
+    container.innerHTML = '<p>No related anime found.</p>';
+    return;
+  }
+
+  for (const relation of relations) {
+    const group = document.createElement('div');
+    group.className = 'relation-group';
+
+    const title = document.createElement('h4');
+    title.className = 'relation-group-title';
+    title.textContent = relation.relation;
+    group.appendChild(title);
+
+    const grid = document.createElement('div');
+    grid.className = 'gridGallery';
+    group.appendChild(grid);
+
+    for (const entry of relation.entry) {
+      if (entry.type === 'anime') {
+        try {
+          const animeInfo = await getAnimeInfo(entry.mal_id);
+          if (animeInfo) {
+            grid.innerHTML += createFlashcardHTML(animeInfo, 'top-rated');
+          }
+        } catch (error) {
+          console.error(`Failed to fetch info for anime ID: ${entry.mal_id}`, error);
+          grid.innerHTML += createFallbackCard(entry);
+        }
+      } else {
+        grid.innerHTML += createFallbackCard(entry);
+      }
+    }
+    container.appendChild(group);
+  }
+}
+
+function createFallbackCard(entry) {
+  return `
+    <a href="${entry.url}" target="_blank" class="relation-card-fallback">
+      <span class="relation-card-title">${entry.name}</span>
+      <span class="relation-card-type">${entry.type}</span>
+    </a>
+  `;
 }
 
 function initTabbedNavigation() {

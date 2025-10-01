@@ -8,6 +8,7 @@ const routes = {
 };
 
 export const handleRoute = () => {
+  window.scrollTo(0, 0);
   const path = window.location.hash.substring(1) || '/';
   const [pathName] = path.split('?');
   const routeName = routes[pathName];

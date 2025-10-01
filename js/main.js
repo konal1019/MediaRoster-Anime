@@ -293,6 +293,12 @@ export async function initSearch() {
     activeFilters.q = searchIn.value;
     console.log(activeFilters);
   });
+  searchIn.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+      delete activeFilters['page']
+      constructURL(true);
+    }
+  });
 
   const params = new URLSearchParams(window.location.hash.split('?')[1] || '');
   if (params.toString()) {

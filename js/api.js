@@ -142,6 +142,12 @@ export const getAnimeDetails = async (animeId) => {
     return await fetchWithCacheAndRetry(url, cacheKey);
 };
 
+export const getAnimeInfo = async (animeId) => {
+    const url = `${BASE_URL}/anime/${animeId}`;
+    const cacheKey = `anime_info_${animeId}`;
+    return await fetchWithCacheAndRetry(url, cacheKey);
+};
+
 export const getAnimeCharacters = async (animeId) => {
     const url = `${BASE_URL}/anime/${animeId}/characters`;
     const cacheKey = `anime_characters_${animeId}`;

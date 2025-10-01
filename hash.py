@@ -26,17 +26,22 @@ def hash_and_copy():
         'css': [
             os.path.join(src_dir, 'css', 'style.css'),
             os.path.join(src_dir, 'css', 'icons.css'),
-            os.path.join(src_dir, 'css', 'search.css')
+            os.path.join(src_dir, 'css', 'search.css'),
+            os.path.join(src_dir, 'css', 'details.css')
         ],
         'js': [
             os.path.join(src_dir, 'js', 'pages.js'),
             os.path.join(src_dir, 'js', 'router.js'),
             os.path.join(src_dir, 'js', 'main.js'),
-            os.path.join(src_dir, 'js', 'api.js')
+            os.path.join(src_dir, 'js', 'api.js'),
+            os.path.join(src_dir, 'js', 'components', 'UIs.js'),
+            os.path.join(src_dir, 'js', 'components', 'search.js'),
+            os.path.join(src_dir, 'js', 'components', 'details.js')
         ],
         'others': [
             os.path.join(src_dir, 'jumpscare.mp3'),
-            os.path.join(src_dir, 'jumpscare.jpg')
+            os.path.join(src_dir, 'jumpscare.jpg'),
+            os.path.join(src_dir, 'logo.webp')
         ]
     }
     
