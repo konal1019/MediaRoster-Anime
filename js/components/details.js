@@ -1,8 +1,9 @@
-import { getAnimeDetails, getAnimeCharacters, getAnimeStaff, getAnimeInfo } from '../api.js';
+import { getAnimeDetails, getAnimeCharacters, getAnimeStaff, getAnimeInfo, getRandomAnime } from '../api.js';
+import { initFlashcardHover} from '../main.js';
 import { showLoader, hideLoader, loadCSS, load404 } from '../pages.js';
 import { createFlashcardHTML } from './UIs.js';
 
-export async function loadDetailsPage(animeId) {
+export async function loadDetailsPage(animeId = null) {
   console.log(`Loading Details for anime ID: ${animeId}`);
   loadCSS('./css/details.css');
   document.getElementById('navhome').style.color = '#ddd';
@@ -14,18 +15,20 @@ export async function loadDetailsPage(animeId) {
   showLoader();
 
   try {
-    const [anime, charactersData, staffData] = await Promise.all([
-        getAnimeDetails(animeId),
-        getAnimeCharacters(animeId),
-        getAnimeStaff(animeId)
-    ]);
-
+    const anime = animeId === 'random' ? await getRandomAnime() : await getAnimeDetails(animeId);
+    animeId = anime.mal_id;
+    let charactersData = null;
+    let staffData = null;
+    if (animeId && window.location.hash.startsWith('#/details-')) {
+        [ charactersData, staffData ] = await Promise.all([ 
+            getAnimeCharacters(animeId),
+            getAnimeStaff(animeId)
+        ]);
+    }
     if (!anime) {
       throw new Error('Anime data not found.');
     }
-
     // --- Data Aggregation ---
-
     const titlesHTML = [
         ...(anime.title_synonyms || []).map(s => `<li>${s}</li>`),
         ...(anime.titles || []).map(t => `<li>${t.type}: ${t.title}</li>`)
@@ -106,22 +109,26 @@ export async function loadDetailsPage(animeId) {
               ${(anime.studios && anime.studios.length > 0) ? anime.studios.map(s => `<span class="genre-tag">${s.name}</span>`).join('') : '<span class="genre-tag is-na">N/A</span>'}
           </div>
       </div>
-        <div class="themes-section">
-            <h4>Opening Themes</h4>
-            <ul>${(anime.theme?.openings && anime.theme.openings.length > 0) ? anime.theme.openings.map(op => `<li>${op}</li>`).join('') : '<li>No opening themes found.</li>'}</ul>
-            <h4>Ending Themes</h4>
-            <ul>${(anime.theme?.endings && anime.theme.endings.length > 0) ? anime.theme.endings.map(ed => `<li>${ed}</li>`).join('') : '<li>No ending themes found.</li>'}</ul>
-        </div>
-        <div class="external-links">
-            <h4>External Links</h4>
-            <ul>
-                ${(anime.external && anime.external.length > 0) ? anime.external.map(link => `<li><a href="${link.url}" target="_blank">${link.name}</a></li>`).join('') : '<li>No external links available.</li>'}
-            </ul>
-             <h4>Streaming Platforms</h4>
-            <ul>
-                ${(anime.streaming && anime.streaming.length > 0) ? anime.streaming.map(link => `<li><a href="${link.url}" target="_blank">${link.name}</a></li>`).join('') : '<li>No streaming links available.</li>'}
-            </ul>
-        </div>
+      <div class="themes-section">
+          <h4>Opening Themes</h4>
+          <ul>${(anime.theme?.openings && anime.theme.openings.length > 0) ? anime.theme.openings.map(op => `<li>${op}</li>`).join('') : '<li>No opening themes found.</li>'}</ul>
+          <h4>Ending Themes</h4>
+          <ul>${(anime.theme?.endings && anime.theme.endings.length > 0) ? anime.theme.endings.map(ed => `<li>${ed}</li>`).join('') : '<li>No ending themes found.</li>'}</ul>
+      </div>
+      <div class="links-section">
+          <div class="external-links">
+              <h4>External Links</h4>
+              <div class="links-container">
+                  ${(anime.external && anime.external.length > 0) ? anime.external.map(link => `<a href="${link.url}" target="_blank" class="link-button"><i class="fa-solid fa-arrow-up-right-from-square"></i>${link.name}</a>`).join('') : '<p>No external links available.</p>'}
+              </div>
+          </div>
+          <div class="streaming-platforms">
+              <h4>Streaming Platforms</h4>
+              <div class="links-container">
+                  ${(anime.streaming && anime.streaming.length > 0) ? anime.streaming.map(link => `<a href="${link.url}" target="_blank" class="link-button"><i class="fas fa-play-circle"></i>${link.name}</a>`).join('') : '<p>No streaming links available.</p>'}
+              </div>
+          </div>
+      </div>
     `;
 
     const charactersHTML = (charactersData && charactersData.length > 0)
@@ -130,7 +137,7 @@ export async function loadDetailsPage(animeId) {
         const isPlaceholder = imgSrc.includes('questionmark');
         return `
         <div class="character-card">
-            ${isPlaceholder ? '<div class="placeholder-icon"><i class="fas fa-user"></i></div>' : `<img src="${imgSrc}" alt="${char.character.name}">`}
+            ${isPlaceholder ? '<div class="placeholder-icon"><i class="fas fa-user"></i></div>' : `<img src="${imgSrc}" loading="lazy" alt="${char.character.name}">`}
             <div class="character-info">
                 <h5>${char.character.name}</h5>
                 <p>${char.role}</p>
@@ -146,7 +153,7 @@ export async function loadDetailsPage(animeId) {
         const isPlaceholder = imgSrc.includes('questionmark');
         return `
         <div class="staff-card">
-            ${isPlaceholder ? '<div class="placeholder-icon"><i class="fas fa-user-tie"></i></div>' : `<img src="${imgSrc}" alt="${staff.person.name}">`}
+            ${isPlaceholder ? '<div class="placeholder-icon"><i class="fas fa-user-tie"></i></div>' : `<img src="${imgSrc}" loading="lazy" alt="${staff.person.name}">`}
             <div class="staff-info">
                 <h5>${staff.person.name}</h5>
                 <p>${staff.positions.join(', ')}</p>
@@ -231,17 +238,19 @@ export async function loadDetailsPage(animeId) {
         ${trailerHTML}
       </div>
     `;
-
-    content.innerHTML = detailsHTML;
-    initTabbedNavigation();
-    loadRelations(anime.relations);
-
+    if (window.location.hash.startsWith('#/details-')) {
+      content.innerHTML = detailsHTML;
+      initTabbedNavigation();
+      loadRelations(anime.relations);
+    }
   } catch (error) {
     console.error('Failed to load anime details:', error);
     load404(`details-${animeId}`);
   } finally {
-    hideLoader();
-    document.getElementById('randomDiv').style.display = 'none';
+    if (window.location.hash.startsWith('#/details-')) {
+      hideLoader();
+      document.getElementById('randomDiv').style.display = 'none';
+    }
   }
 }
 
@@ -252,36 +261,39 @@ async function loadRelations(relations) {
     return;
   }
 
-  for (const relation of relations) {
-    const group = document.createElement('div');
-    group.className = 'relation-group';
+  if (window.location.hash.startsWith('#/details-')) {
+    for (const relation of relations) {
+      const group = document.createElement('div');
+      group.className = 'relation-group';
 
-    const title = document.createElement('h4');
-    title.className = 'relation-group-title';
-    title.textContent = relation.relation;
-    group.appendChild(title);
+      const title = document.createElement('h4');
+      title.className = 'relation-group-title';
+      title.textContent = relation.relation;
+      group.appendChild(title);
 
-    const grid = document.createElement('div');
-    grid.className = 'gridGallery';
-    group.appendChild(grid);
+      const grid = document.createElement('div');
+      grid.className = 'gridGallery';
+      group.appendChild(grid);
 
-    for (const entry of relation.entry) {
-      if (entry.type === 'anime') {
-        try {
-          const animeInfo = await getAnimeInfo(entry.mal_id);
-          if (animeInfo) {
-            grid.innerHTML += createFlashcardHTML(animeInfo, 'top-rated');
+      for (const entry of relation.entry) {
+        if (entry.type === 'anime') {
+          try {
+            const animeInfo = await getAnimeInfo(entry.mal_id);
+            if (animeInfo) {
+              grid.innerHTML += createFlashcardHTML(animeInfo, 'top-rated');
+            }
+          } catch (error) {
+            console.error(`Failed to fetch info for anime ID: ${entry.mal_id}`, error);
+            grid.innerHTML += createFallbackCard(entry);
           }
-        } catch (error) {
-          console.error(`Failed to fetch info for anime ID: ${entry.mal_id}`, error);
+        } else {
           grid.innerHTML += createFallbackCard(entry);
         }
-      } else {
-        grid.innerHTML += createFallbackCard(entry);
       }
+      container.appendChild(group);
     }
-    container.appendChild(group);
-  }
+  };
+  initFlashcardHover();
 }
 
 function createFallbackCard(entry) {

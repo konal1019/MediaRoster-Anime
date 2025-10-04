@@ -161,7 +161,8 @@ export const getAnimeStaff = async (animeId) => {
 };
 
 export const getRandomAnime = async () => {
-    return await fetchWithoutCache(`${BASE_URL}/random/anime`);
+    const res = await fetchWithoutCache(`${BASE_URL}/random/anime`);
+    return res.data;
 };
 
 export async function searchAnime(JikanURL) {

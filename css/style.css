@@ -453,7 +453,7 @@
       box-shadow: 0 0 10px rgba(106, 72, 204, 0.6);
   }
   
-  @media (min-width: 650px) {
+  @media (min-width: 600px) {
     .nav-text-desktop {
       display: inline;
     }
@@ -694,4 +694,30 @@
     80% { transform: translate(-1px, -1px) rotate(1deg); }
     90% { transform: translate(1px, 2px) rotate(0deg); }
     100% { transform: translate(1px, -2px) rotate(-1deg); }
+  }
+
+@media (max-width: 400px) {
+    .top-rated-container,
+    .airing-container,
+    .seasonal-container {
+        padding: 0 0.5rem;
+    }
+
+    .horizontal-gallery {
+        gap: 0.5rem;
+    }
+
+    .flashcard {
+        width: 135px;
+        height: 190px;
+    }
+
+    .gridGallery {
+        gap: 0.5rem;
+        padding-right: 0px;
+        grid-template-columns: repeat(auto-fill, minmax(135px, 1fr));
+    }
+    .flashcard-link {
+      margin-right: none;
+    }
   }

@@ -365,6 +365,10 @@
   .fa-tv:before {
     content: "\f26c";
   }
+  .fa-arrow-up-right-from-square:before,
+  .fa-external-link:before {
+    content: "\f08e";
+  }
   .fa-circle-user:before {
     content: "\f2bd";
   }

@@ -1,4 +1,4 @@
-import { escapeHTML } from "../main.js";
+import { escapeHTML } from "./utils.js";
 
 export function createFlashcardHTML(anime, cardType) {
   const imageUrl = anime.images?.webp?.image_url ?? 'placeholder.png';

@@ -313,6 +313,7 @@
 
 .details-section.active {
     display: block;
+    padding-bottom: 20px;
 }
 
 .details-section h2 {
@@ -399,18 +400,58 @@
     margin-bottom: 0.4rem;
 }
 
-.external-links h4 {
-    color: var(--primary-accent);
-    margin-top: 1rem;
-    margin-bottom: 0.5rem;
-    font-size: 1.1rem;
+.links-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-top: 2rem;
 }
 
-.external-links ul {
-    list-style: none;
-    padding: 0;
-    margin-bottom: 1.5rem;
+.external-links h4,
+.streaming-platforms h4 {
+    color: var(--primary-accent);
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    font-size: 1.3rem;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.5rem;
 }
+
+.links-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.link-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    background-color: var(--bg-color-mid);
+    color: var(--text-color-light);
+    padding: 0.8rem 1.2rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 500;
+    border: 1px solid var(--border-color);
+    transition: background-color 0.3s, color 0.3s, transform 0.3s;
+}
+
+.link-button:hover {
+    background-color: var(--primary-accent);
+    color: #fff;
+    transform: translateY(-2px);
+}
+
+.link-button i {
+    color: var(--secondary-accent);
+    transition: color 0.3s;
+}
+
+.link-button:hover i {
+    color: #fff;
+}
+
 
 /* Characters and Staff */
 .character-grid,
@@ -579,4 +620,17 @@
         padding: 1rem;
     }
 
+}
+
+@media (max-width: 600px) {
+    .links-section {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    .details-section {
+        padding: 0px;
+    }
+    .details-container {
+    padding: 0 1rem;
+    }
 }

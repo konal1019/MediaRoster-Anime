@@ -1,7 +1,8 @@
-import { status, initSlideshow, initFlashcardHover, escapeHTML, randomAnime, initFilters, renderGenres, initSearch, displaySearchResults, applyFilters } from './main.js';
+import { status, initSlideshow, initFlashcardHover, randomAnime, initFilters, renderGenres, initSearch, displaySearchResults, applyFilters } from './main.js';
 import { searchAnime, getTopRatedAnime, getMostPopularAnime, getAiringAnime, getSeasonalAnime, getGenres, genres} from './api.js';
 import {createAnimeSection, createFlashcardHTML} from './components/UIs.js';
 import { loadSearchPage } from './components/search.js';
+import { escapeHTML  } from './components/utils.js';
 
 export function loadPageContent(pageName) {
   hideLoader();
@@ -59,6 +60,7 @@ export function loadCSS(filename) {
 }
 
 export async function loadHomePage() {
+  const currentHash = window.location.hash;
   console.log('Loading Home Page');
   document.getElementById('navhome').style.color = '#8960ff';
   document.getElementById('navsearch').style.color = '#ddd';
@@ -228,7 +230,7 @@ export async function loadHomePage() {
       <a class="next">></a>
     </div>
   `;
-
+  if (currentHash !== '' && currentHash !== '#/') return;
   content.innerHTML = slideshowHTML;
 
   const sections = [
@@ -240,13 +242,14 @@ export async function loadHomePage() {
 
   // Load sections sequentially for reliability
   for (const section of sections) {
+    if (currentHash !== '' && currentHash !== '#/') return;
     const sectionHTML = await createAnimeSection(section);
-    if (window.location.hash === '' || window.location.hash === '#/') {
+    if (currentHash === '' || currentHash === '#/') {
       content.innerHTML += sectionHTML;
-    };
-  };
+    }
+  }
 
-  if (window.location.hash === '' || window.location.hash === '#/') {
+  if (currentHash === '' || currentHash === '#/') {
     const randomDiv = document.getElementById('randomDiv');
     randomDiv.style.display = 'block'; 
     hideLoader();
@@ -258,9 +261,12 @@ export async function loadHomePage() {
   } else {
     console.log('Home page load cancelled due to navigation.');
   }
-};
+}
 
 export function load404(path) {
+  const currentHash = window.location.hash;
+  if (currentHash.substring(1) !== path) return;
+
   console.log('Loading 404 Page');
   document.getElementById('navhome').style.color = '#ddd';
   document.getElementById('navsearch').style.color = '#ddd';
@@ -286,7 +292,7 @@ export function load404(path) {
     }
     if (countdown <= 0) {
       clearInterval(interval);
-      window.location.hash = '/';
+      window.location.href = './#/';
     }
   }, 1000);
 

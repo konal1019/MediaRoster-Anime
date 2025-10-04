@@ -1,6 +1,8 @@
 import { genres, searchAnime, getGenres } from './api.js';
 import { showLoader, hideLoader } from './pages.js';
 import { createFlashcardHTML } from './components/UIs.js';
+import { escapeHTML, getSafeParams } from './components/utils.js';
+import { loadDetailsPage } from './components/details.js';
 export const status = {"searching":false}
 
 export function initSlideshow() {
@@ -82,36 +84,15 @@ export function initFlashcardHover() {
     });
   });
 }
-
-export function escapeHTML(str) {
-  if (typeof str !== 'string') {
-    return '';
-  }
-  return str.replace(/[&<>"']/g, function(m) {
-    switch (m) {
-      case '&':
-        return '&amp;';
-      case '<':
-        return '&lt;';
-      case '>':
-        return '&gt;';
-      case '"' :
-        return '&quot;';
-      default:
-        return '&#039;';
-    }
-  });
-}
-
+// random
 export function randomAnime() {
   const randomButton = document.getElementById('random-anime-button');
   randomButton.addEventListener('click', () => {
     const chance = Math.floor(Math.random() * 100);
-    if (chance < 50) {
+    if (chance < 2) {
       triggerJumpscare();
     } else {
-      const randomAnimeId = Math.floor(Math.random() * 10871);
-      window.location.href = `${window.location.pathname}#/details-${randomAnimeId}`;
+      window.location.hash = '#/details-random'
     }
   });
 }
@@ -153,8 +134,9 @@ function triggerJumpscare() {
     window.location.href = './';
   }, 3000);
 }
-
 export const activeFilters = {};
+
+// ---------- FILTER / SEARCH UTILITIES ----------
 
 export function initFilters() {
     const filterButton = document.querySelector('.filter-button');
@@ -164,63 +146,43 @@ export function initFilters() {
     const filterDropdowns = document.querySelectorAll('.filter-dropdown');
 
     filterButton.addEventListener('click', () => {
-      if (filterOptions.style.display === 'none') {
-        filterOptions.style.display = 'grid';
-      } else {
-        filterOptions.style.display = 'none';
-      }
+        filterOptions.style.display = filterOptions.style.display === 'none' ? 'grid' : 'none';
     });
 
     filterBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        const filter = btn.dataset.filter;
-        const value = btn.dataset.value;
-        const singleSelectGroups = ["season", "status", "type", "rating"];
-    
-        if (singleSelectGroups.includes(filter)) {
-          document.querySelectorAll(`.filter-btn[data-filter="${filter}"]`)
-            .forEach(b => b.classList.remove('active'));
-          if (activeFilters[filter] !== value) {
-            // set only the clicked one
-            activeFilters[filter] = value;
-            btn.classList.add('active');
-          } else {
-            // remove the filter
-            delete activeFilters[filter];
-            btn.classList.remove('active');
-          }
-        } else {
-          // keep multi-select behavior for other filters
-          if (activeFilters[filter] && activeFilters[filter].includes(value)) {
-            activeFilters[filter] = activeFilters[filter].filter(v => v !== value);
-            if (activeFilters[filter].length === 0) {
-              delete activeFilters[filter];
+        btn.addEventListener('click', () => {
+            const filter = btn.dataset.filter;
+            const value = btn.dataset.value;
+            const singleSelectGroups = ["season", "status", "type", "rating"];
+
+            if (singleSelectGroups.includes(filter)) {
+                document.querySelectorAll(`.filter-btn[data-filter="${filter}"]`).forEach(b => b.classList.remove('active'));
+                if (activeFilters[filter] !== value) {
+                    activeFilters[filter] = value;
+                    btn.classList.add('active');
+                } else {
+                    delete activeFilters[filter];
+                }
+            } else {
+                if (activeFilters[filter] && activeFilters[filter].includes(value)) {
+                    activeFilters[filter] = activeFilters[filter].filter(v => v !== value);
+                    if (!activeFilters[filter].length) delete activeFilters[filter];
+                    btn.classList.remove('active');
+                } else {
+                    if (!activeFilters[filter]) activeFilters[filter] = [];
+                    activeFilters[filter].push(value);
+                    btn.classList.add('active');
+                }
             }
-            btn.classList.remove('active');
-          } else {
-            if (!activeFilters[filter]) {
-              activeFilters[filter] = [];
-            }
-            activeFilters[filter].push(value);
-            btn.classList.add('active');
-          }
-        }
-    
-        console.log(activeFilters);
-      });
-    });    
-    
+        });
+    });
+
     filterInputs.forEach(input => {
         input.addEventListener('input', () => {
             const filter = input.id;
             const value = input.value;
-
-            if (value) {
-                activeFilters[filter] = value;
-            } else {
-                delete activeFilters[filter];
-            }
-            console.log(activeFilters);
+            if (value) activeFilters[filter] = value;
+            else delete activeFilters[filter];
         });
     });
 
@@ -228,186 +190,148 @@ export function initFilters() {
         dropdown.addEventListener('change', () => {
             const filter = dropdown.id;
             const value = dropdown.value;
-
-            if (value) {
-                activeFilters[filter] = value;
-            } else {
-                delete activeFilters[filter];
-            }
-            console.log(activeFilters);
+            if (value) activeFilters[filter] = value;
+            else delete activeFilters[filter];
         });
     });
 }
 
 export async function renderGenres() {
-  if (JSON.stringify(genres) === '{}') {
-    await getGenres();
-  }
+    if (JSON.stringify(genres) === '{}') await getGenres();
 
-  const content = Object.entries(genres).map(([key, value]) => {
-    return `
+    const content = Object.entries(genres).map(([key, value]) => `
         <button class="genre-btn" data-filter="genres" data-value="${key}">${value}</button>
-    `;
-  }).join('')
+    `).join('');
 
-  const genresDiv = document.getElementById('genresDiv')
-  genresDiv.innerHTML += content;
+    const genresDiv = document.getElementById('genresDiv');
+    genresDiv.innerHTML += content;
 
-  const genreBtn = document.querySelectorAll('.genre-btn')
-  genreBtn.forEach(btn => {
-    btn.addEventListener('click', () => {
-      const filter = btn.dataset.filter;
-      const value = btn.dataset.value;
+    document.querySelectorAll('.genre-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const filter = btn.dataset.filter;
+            const value = btn.dataset.value;
 
-      if (activeFilters[filter] && activeFilters[filter].includes(value)) {
-        activeFilters[filter] = activeFilters[filter].filter(v => v !== value);
-        if (activeFilters[filter].length === 0) {
-          delete activeFilters[filter];
-        }
-        btn.classList.remove('active');
-      } else {
-        if (!activeFilters[filter]) {
-          activeFilters[filter] = [];
-        }
-        activeFilters[filter].push(value);
-        btn.classList.add('active');
-      }
-
-      console.log(activeFilters); // after reading this at a later date, I dunno know what's goin on
-    })
-  });
-};
-
-export async function initSearch() {
-  applyFilters();
-  const searchBtn = document.getElementById('search-button');
-  if (searchBtn) {
-    searchBtn.addEventListener('click', () => {
-      delete activeFilters['page']
-      constructURL(true);
+            if (activeFilters[filter] && activeFilters[filter].includes(value)) {
+                activeFilters[filter] = activeFilters[filter].filter(v => v !== value);
+                if (!activeFilters[filter].length) delete activeFilters[filter];
+                btn.classList.remove('active');
+            } else {
+                if (!activeFilters[filter]) activeFilters[filter] = [];
+                activeFilters[filter].push(value);
+                btn.classList.add('active');
+            }
+        });
     });
-  }
-
-  const searchIn = document.getElementById('search-input');
-  searchIn.addEventListener('input', () => {
-    activeFilters.q = searchIn.value;
-    console.log(activeFilters);
-  });
-  searchIn.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-      delete activeFilters['page']
-      constructURL(true);
-    }
-  });
-
-  const params = new URLSearchParams(window.location.hash.split('?')[1] || '');
-  if (params.toString()) {
-    handleSearch(false);
-  }
 }
 
+// ---------- SEARCH ----------
+
+export async function initSearch() {
+    applyFilters();
+
+    const searchBtn = document.getElementById('search-button');
+    if (searchBtn) searchBtn.addEventListener('click', () => {
+        delete activeFilters['page'];
+        constructURL(true);
+    });
+
+    const searchIn = document.getElementById('search-input');
+    searchIn.addEventListener('input', () => {
+        activeFilters.q = searchIn.value; // store raw input; sanitized via getSafeParams later
+    });
+    searchIn.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            delete activeFilters['page'];
+            constructURL(true);
+        }
+    });
+
+    const params = getSafeParams(); // always sanitize from URL/hash
+    if (params.toString()) handleSearch(false);
+}
 
 async function handleSearch(updateURL = true) {
-  console.log('handling search');
-  const url = await constructURL(updateURL);
-  if (url) {
-    const results = await searchAnime(url);
-    displaySearchResults(results);
-  }
+    const url = await constructURL(updateURL);
+    if (url) {
+        const results = await searchAnime(url);
+        displaySearchResults(results);
+    }
 }
 
 export async function constructURL(updateURL = false) {
-  console.log('creating url for', activeFilters);
-  const baseURL = 'https://api.jikan.moe/v4/anime';
+    const baseURL = 'https://api.jikan.moe/v4/anime';
+    const params = new URLSearchParams();
 
-  const params = new URLSearchParams();
-  for (const filter in activeFilters) {
-    if (Array.isArray(activeFilters[filter])) {
-      params.append(filter, activeFilters[filter].join(','));
-    } else {
-      params.append(filter, activeFilters[filter]);
+    for (const filter in activeFilters) {
+        let value = activeFilters[filter];
+        if (filter === 'q') {
+            value = value.replace(/[^\p{L}\p{N}\s\-_.:'";|#]/gu, '').slice(0, 100); // sanitize here
+        }
+
+        if (Array.isArray(value)) params.append(filter, value.join(','));
+        else params.append(filter, value);
     }
-  }
 
-  if (params.toString()) {
+    if (!params.toString()) return null;
+
     const JikanURL = `${baseURL}?${params.toString()}`;
-    if (updateURL) {
-      const hash = `#/search?${params.toString()}`;
-      window.location.hash = hash;
-      console.log(hash);
-    }
+    if (updateURL) window.location.hash = `#/search?${params.toString()}`;
     return JikanURL;
-  }
-  return null;
 }
 
 export function applyFilters() {
-  console.log('applying filters');
-  // Clear existing active filters
-  for (const key in activeFilters) {
-    delete activeFilters[key];
-  }
+    for (const key in activeFilters) delete activeFilters[key];
+    document.querySelectorAll('[class*="active"]').forEach(el => el.classList.remove('active'));
 
-  // un-mark all active buttons
-  const activeElements = document.querySelectorAll('[class*="active"]');
-  activeElements.forEach(element => {
-    element.classList.remove('active');
-  });
+    const params = getSafeParams(); // sanitize from URL/hash
+    const IdFilters = ['order_by', 'sort', 'min_score', 'max_score'];
 
-  const params = new URLSearchParams(window.location.hash.split('?')[1] || '');
-  const IdFilters = ['order_by', 'sort', 'min_score', 'max_score'] 
-
-  for (const [key, value] of params.entries()) {
-    if (key === 'q') {
-      const searchInput = document.getElementById('search-input');
-      if (searchInput) searchInput.value = value;
-      activeFilters.q = value;
-    } else if (key === 'genres') {
-      const values = value.split(',');
-      activeFilters[key] = [];
-      values.forEach(v => {
-        const btn = document.querySelector(`[data-filter='${key}'][data-value='${v}']`);
-        if (btn) {
-          btn.classList.add('active');
-          activeFilters[key].push(v);
+    for (const [key, value] of params.entries()) {
+        if (key === 'q') {
+            const input = document.getElementById('search-input');
+            if (input) input.value = value;
+            activeFilters.q = value;
+        } else if (key === 'genres') {
+            activeFilters[key] = [];
+            value.split(',').forEach(v => {
+                const btn = document.querySelector(`[data-filter='${key}'][data-value='${v}']`);
+                if (btn) {
+                    btn.classList.add('active');
+                    activeFilters[key].push(v);
+                }
+            });
+        } else if (key === 'page') activeFilters[key] = value;
+        else if (key in IdFilters) {
+            const elem = document.getElementById(key);
+            if (elem) elem.value = value;
+        } else {
+            const elem = document.querySelector(`[data-filter='${key}'][data-value='${value}']`);
+            if (elem) elem.classList.add('active');
+            activeFilters[key] = value;
         }
-      });
-    } else if (key==='page') {
-      activeFilters[key] = value;
-    } else if (key in IdFilters ) {
-      const filt = document.getElementById(key)
-      if (filt) {
-        filt.value = value;
-      }
-    } else {
-      const element = document.querySelector(`[data-filter='${key}'][data-value='${value}']`);
-      if (element) {
-        element.classList.add('active');
-      }
-      activeFilters[key] = value;
     }
-  }
-  console.log('filters applied', activeFilters);
 }
+
+// ---------- PAGINATION ----------
 
 function loadPagination(paginationData, containerEl) {
     if (!containerEl) return;
-    containerEl.innerHTML = ''; // Clear old controls
+    containerEl.innerHTML = '';
 
     const { current_page, last_visible_page, has_next_page } = paginationData;
 
     const createButton = (text, page, enabled) => {
-        const button = document.createElement('button');
-        button.innerHTML = text;
-        button.disabled = !enabled;
+        const btn = document.createElement('button');
+        btn.innerHTML = text;
+        btn.disabled = !enabled;
         if (enabled) {
-            button.addEventListener('click', () => {
-                const params = new URLSearchParams(window.location.hash.split('?')[1] || '');
+            btn.addEventListener('click', () => {
+                const params = getSafeParams();
                 params.set('page', page);
                 window.location.hash = `#/search?${params.toString()}`;
             });
         }
-        return button;
+        return btn;
     };
 
     containerEl.appendChild(createButton('<<', 1, current_page > 1));
@@ -421,45 +345,37 @@ function loadPagination(paginationData, containerEl) {
     containerEl.appendChild(createButton('>>', last_visible_page, current_page < last_visible_page));
 }
 
+// ---------- DISPLAY RESULTS ----------
+
 export async function displaySearchResults(searchResults) {
-  const searchResultsContainer = document.getElementById('search-results');
+    const container = document.getElementById('search-results');
+    if (!container) return;
 
-  if (!searchResultsContainer) {
-      console.error('Search results container #search-results not found!');
-      return;
-  }
+    container.innerHTML = '';
+    const defaultContent = document.getElementById('default-search-content');
+    if (defaultContent) defaultContent.style.display = 'none';
 
-  searchResultsContainer.innerHTML = '';
-  
-  const defaultContent = document.getElementById('default-search-content');
-  if (defaultContent) {
-      defaultContent.style.display = 'none';
-  }
+    if (!searchResults?.data?.length) {
+        container.innerHTML = '<p class="no-results">No Matching results found.</p>';
+        status.searching = false;
+        hideLoader();
+        return;
+    }
 
-  if (!searchResults || !searchResults.data || searchResults.data.length === 0) {
-      searchResultsContainer.innerHTML = '<p class="no-results">No Matching results found.</p>';
-      status.searching = false;
-      hideLoader();
-      return;
-  }
+    const infoHeader = document.createElement('h2');
+    infoHeader.className = 'search-results-info';
+    infoHeader.textContent = `Found ${searchResults.pagination.items.total} results`;
+    container.appendChild(infoHeader);
 
-  const infoHeader = document.createElement('h2');
-  infoHeader.className = 'search-results-info';
-  infoHeader.textContent = `Found ${searchResults.pagination.items.total} results`;
-  searchResultsContainer.appendChild(infoHeader);
+    const grid = document.createElement('div');
+    grid.className = 'results-grid';
+    grid.innerHTML = searchResults.data.map(anime => createFlashcardHTML(anime, 'top-rated')).join('');
+    container.appendChild(grid);
 
-  const gridContainer = document.createElement('div');
-  gridContainer.className = 'results-grid';
-  
-  gridContainer.innerHTML = searchResults.data.map(anime => createFlashcardHTML(anime, 'top-rated')).join('');
-  
-  searchResultsContainer.appendChild(gridContainer);
-  
-  const paginationContainer = document.createElement('div');
-  paginationContainer.className = 'pagination-controls';
-  searchResultsContainer.appendChild(paginationContainer);
+    const pagination = document.createElement('div');
+    pagination.className = 'pagination-controls';
+    container.appendChild(pagination);
 
-  initFlashcardHover();
-
-  loadPagination(searchResults.pagination, paginationContainer);
+    initFlashcardHover();
+    loadPagination(searchResults.pagination, pagination);
 }

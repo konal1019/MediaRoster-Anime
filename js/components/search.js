@@ -1,9 +1,11 @@
-import { status, initSlideshow, initFlashcardHover, escapeHTML, randomAnime, initFilters, renderGenres, initSearch, displaySearchResults, applyFilters} from '../main.js';
+import { status, initSlideshow, initFlashcardHover, randomAnime, initFilters, renderGenres, initSearch, displaySearchResults, applyFilters} from '../main.js';
 import { searchAnime, getTopRatedAnime, getMostPopularAnime, getGenres, genres } from '../api.js';
 import { createAnimeSection, createFlashcardHTML } from './UIs.js';
 import { loadCSS, showLoader, hideLoader } from '../pages.js'
+import { escapeHTML } from './utils.js';
 
 export async function loadSearchPage() {
+    const currentHash = window.location.hash;
     loadCSS('./css/search.css');
     console.log('Loading Search Page');
     document.getElementById('navsearch').style.color = '#8960ff';
@@ -116,10 +118,11 @@ export async function loadSearchPage() {
     initSearch();
     initFilters();
   
-    const [path, query] = window.location.hash.split('?');
+    const [path, query] = currentHash.split('?');
     if (path === '#/search' && !query) {
       const searchResultsContainer = document.getElementById('search-results');
       if (searchResultsContainer) {
+        if (currentHash !== '#/search') return;
         const topRatedSection = await createAnimeSection({
           title: 'Top Rated Anime',
           apiFunction: getTopRatedAnime,
@@ -128,8 +131,9 @@ export async function loadSearchPage() {
           titleClass: 'airing-title',
           galleryClass: 'gridGallery'
         });
+        if (currentHash !== '#/search') return;
         searchResultsContainer.innerHTML += topRatedSection;
-  
+        if (currentHash !== '#/search') return;
         const mostPopularSection = await createAnimeSection({
           title: 'Most Popular Anime',
           apiFunction: getMostPopularAnime,
@@ -138,26 +142,28 @@ export async function loadSearchPage() {
           titleClass: 'airing-title',
           galleryClass: 'gridGallery'
         });
+        if (currentHash !== '#/search') return;
         searchResultsContainer.innerHTML += mostPopularSection;
       }
   
-      if (window.location.hash === '#/search') {
+      if (currentHash === '#/search') {
         initFlashcardHover();
         document.getElementById('randomDiv').style.display = 'block';
         renderGenres();
         randomAnime();
         hideLoader();
-      };
+      }
   
     } else {
       console.log(`Search initiated with query: ${query}`);
       const searchResultsContainer = document.getElementById('search-results');
-      if(searchResultsContainer) searchResultsContainer.innerHTML = '';
+      if (searchResultsContainer) searchResultsContainer.innerHTML = '';
       if (status.searching) {
-        randerGenres();
+        renderGenres();
         randomAnime();
       } else {
         status.searching = true;
+        if (currentHash.split('?')[0] !== '#/search') return;
         await renderGenres();
         initSearch();
         randomAnime();
@@ -165,4 +171,4 @@ export async function loadSearchPage() {
         status.searching = false;
       }
     }
-  };
+  }

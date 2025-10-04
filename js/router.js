@@ -17,9 +17,9 @@ export const handleRoute = () => {
     console.log(`Navigating to: ${routeName}`);
     loadPageContent(routeName);
   } else if (path.startsWith('/details-')) {
-    const animeNameOrId = path.split('-')[1];
-    console.log(`Navigating to details for: ${animeNameOrId}`);
-    loadDetailsPage(animeNameOrId)
+    const animeId = path.split('-')[1];
+    console.log(`Navigating to details for: ${animeId}`);
+    loadDetailsPage(animeId)
   } else {
     load404(path);
   }
