@@ -36,7 +36,8 @@ def hash_and_copy():
             os.path.join(src_dir, 'js', 'api.js'),
             os.path.join(src_dir, 'js', 'components', 'UIs.js'),
             os.path.join(src_dir, 'js', 'components', 'search.js'),
-            os.path.join(src_dir, 'js', 'components', 'details.js')
+            os.path.join(src_dir, 'js', 'components', 'details.js'),
+            os.path.join(src_dir, 'js', 'components', 'utils.js')
         ],
         'others': [
             os.path.join(src_dir, 'jumpscare.mp3'),
