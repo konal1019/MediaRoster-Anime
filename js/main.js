@@ -1,6 +1,6 @@
 import { genres, searchAnime, getGenres } from './api.js';
 import { showLoader, hideLoader } from './pages.js';
-import { createFlashcardHTML } from './components/UIs.js';
+import { createFlashcard } from './components/UIs.js';
 import { escapeHTML, getSafeParams } from './components/utils.js';
 import { loadDetailsPage } from './components/details.js';
 export const status = {"searching":false}
@@ -10,36 +10,39 @@ export function initSlideshow() {
   const slides = document.querySelectorAll('.slide');
   const prev = document.querySelector('.prev');
   const next = document.querySelector('.next');
+  let interval;
 
   function showSlides() {
     slides.forEach(slide => slide.classList.remove('active'));
-    if (slideIndex >= slides.length) {
-      slideIndex = 0;
-    }
-    if (slideIndex < 0) {
-      slideIndex = slides.length - 1;
-    }
+    if (slideIndex >= slides.length) slideIndex = 0;
+    if (slideIndex < 0) slideIndex = slides.length - 1;
     slides[slideIndex].classList.add('active');
+  }
+
+  function resetInterval() {
+    clearInterval(interval);
+    interval = setInterval(() => {
+      slideIndex++;
+      showSlides();
+    }, 5000);
   }
 
   if (prev && next) {
     prev.addEventListener('click', () => {
       slideIndex--;
       showSlides();
+      resetInterval();
     });
 
     next.addEventListener('click', () => {
       slideIndex++;
       showSlides();
+      resetInterval();
     });
   }
 
   showSlides();
-
-  setInterval(() => {
-    slideIndex++;
-    showSlides();
-  }, 5000);
+  resetInterval();
 }
 
 export function initFlashcardHover() {
@@ -369,7 +372,7 @@ export async function displaySearchResults(searchResults) {
 
     const grid = document.createElement('div');
     grid.className = 'results-grid';
-    grid.innerHTML = searchResults.data.map(anime => createFlashcardHTML(anime, 'top-rated')).join('');
+    grid.innerHTML = searchResults.data.map(anime => createFlashcard(anime, 'top-rated')).join('');
     container.appendChild(grid);
 
     const pagination = document.createElement('div');

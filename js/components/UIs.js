@@ -1,6 +1,6 @@
 import { escapeHTML } from "./utils.js";
 
-export function createFlashcardHTML(anime, cardType) {
+export function createFlashcard(anime, cardType) {
   const imageUrl = anime.images?.webp?.image_url ?? 'placeholder.png';
   const title = anime.title_english || anime.title;
   const synopsis = escapeHTML(anime.synopsis || anime.background || 'No synopsis available.');
@@ -70,14 +70,14 @@ export function createFlashcardHTML(anime, cardType) {
   `;
 }
 
-export async function createAnimeSection({ title, apiFunction, cardType, containerClass, titleClass, galleryClass }) {
+export async function createSection({ title, apiFunction, cardType, containerClass, titleClass, galleryClass }) {
     try {
         const animeList = await apiFunction();
         if (!animeList || animeList.length === 0) {
             return `<div class="${containerClass}"><h2 class="${titleClass}">${title}</h2><p>No anime found for this category.</p></div>`;
         }
 
-        const galleryHTML = animeList.map(anime => createFlashcardHTML(anime, cardType)).join('');
+        const galleryHTML = animeList.map(anime => createFlashcard(anime, cardType)).join('');
 
         return `
             <div class="${containerClass}">

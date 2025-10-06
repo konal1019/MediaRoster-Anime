@@ -1,6 +1,6 @@
 import { status, initSlideshow, initFlashcardHover, randomAnime, initFilters, renderGenres, initSearch, displaySearchResults, applyFilters} from '../main.js';
 import { searchAnime, getTopRatedAnime, getMostPopularAnime, getGenres, genres } from '../api.js';
-import { createAnimeSection, createFlashcardHTML } from './UIs.js';
+import { createSection, createFlashcard } from './UIs.js';
 import { loadCSS, showLoader, hideLoader } from '../pages.js'
 import { escapeHTML } from './utils.js';
 
@@ -123,7 +123,7 @@ export async function loadSearchPage() {
       const searchResultsContainer = document.getElementById('search-results');
       if (searchResultsContainer) {
         if (currentHash !== '#/search') return;
-        const topRatedSection = await createAnimeSection({
+        const topRatedSection = await createSection({
           title: 'Top Rated Anime',
           apiFunction: getTopRatedAnime,
           cardType: 'top-rated',
@@ -134,7 +134,7 @@ export async function loadSearchPage() {
         if (currentHash !== '#/search') return;
         searchResultsContainer.innerHTML += topRatedSection;
         if (currentHash !== '#/search') return;
-        const mostPopularSection = await createAnimeSection({
+        const mostPopularSection = await createSection({
           title: 'Most Popular Anime',
           apiFunction: getMostPopularAnime,
           cardType: 'most-popular',

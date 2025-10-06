@@ -1,7 +1,7 @@
 import { getAnimeDetails, getAnimeCharacters, getAnimeStaff, getAnimeInfo, getRandomAnime } from '../api.js';
 import { initFlashcardHover} from '../main.js';
 import { showLoader, hideLoader, loadCSS, load404 } from '../pages.js';
-import { createFlashcardHTML } from './UIs.js';
+import { createFlashcard } from './UIs.js';
 
 export async function loadDetailsPage(animeId = null) {
   console.log(`Loading Details for anime ID: ${animeId}`);
@@ -15,20 +15,30 @@ export async function loadDetailsPage(animeId = null) {
   showLoader();
 
   try {
-    const anime = animeId === 'random' ? await getRandomAnime() : await getAnimeDetails(animeId);
+    const isRandom = animeId === 'random';
+    const anime = isRandom ? await getRandomAnime() : await getAnimeDetails(animeId);
+    
+    if (!anime || !anime.mal_id) {
+      throw new Error('Anime data not found.');
+    }
+    
     animeId = anime.mal_id;
+    
+    const currentHash = `#/details-${animeId}`;
+    if (isRandom) {
+      window.location.hash = currentHash;
+    }
+
     let charactersData = null;
     let staffData = null;
-    if (animeId && window.location.hash.startsWith('#/details-')) {
+
+    if (window.location.hash === currentHash) {
         [ charactersData, staffData ] = await Promise.all([ 
             getAnimeCharacters(animeId),
             getAnimeStaff(animeId)
         ]);
     }
-    if (!anime) {
-      throw new Error('Anime data not found.');
-    }
-    // --- Data Aggregation ---
+
     const titlesHTML = [
         ...(anime.title_synonyms || []).map(s => `<li>${s}</li>`),
         ...(anime.titles || []).map(t => `<li>${t.type}: ${t.title}</li>`)
@@ -56,19 +66,18 @@ export async function loadDetailsPage(animeId = null) {
         <div class="details-trailer">
             <h2>Trailer</h2>
             <div class="trailer-container">
-                <iframe 
-                    src="https://www.youtube.com/embed/${anime.trailer.youtube_id}" 
-                    frameborder="0" 
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                    allowfullscreen>
-                </iframe>
+              <iframe 
+                  src="https://www.youtube.com/embed/${anime.trailer.youtube_id}?rel=0" 
+                  frameborder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope;" 
+                  allowfullscreen>
+              </iframe>
             </div>
         </div>
         `
         : '';
     const relationsHTML = '<div id="relations-container"></div>';
 
-    // Stats block for the hero section
     const heroStatsHTML = `
         <div class="details-stats hero-stats">
             <div class="stat-box">
@@ -162,8 +171,6 @@ export async function loadDetailsPage(animeId = null) {
     }).join('')}</div>`
     : '<p>No staff information available.</p>';
 
-    // --- Main HTML Template ---
-
     const detailsHTML = `
     <div class="details-container">
         <h1>${anime.title_english || anime.title}</h1>
@@ -238,30 +245,32 @@ export async function loadDetailsPage(animeId = null) {
         ${trailerHTML}
       </div>
     `;
-    if (window.location.hash.startsWith('#/details-')) {
+
+    if (window.location.hash === currentHash) {
       content.innerHTML = detailsHTML;
       initTabbedNavigation();
-      loadRelations(anime.relations);
+      loadRelations(anime.relations, animeId);
     }
   } catch (error) {
     console.error('Failed to load anime details:', error);
     load404(`details-${animeId}`);
   } finally {
-    if (window.location.hash.startsWith('#/details-')) {
+    if (window.location.hash === `#/details-${animeId}`) {
       hideLoader();
       document.getElementById('randomDiv').style.display = 'none';
     }
   }
 }
 
-async function loadRelations(relations) {
+async function loadRelations(relations, animeId) {
   const container = document.getElementById('relations-container');
   if (!relations || relations.length === 0) {
     container.innerHTML = '<p>No related anime found.</p>';
     return;
   }
+  const currentHash = `#/details-${animeId}`;
 
-  if (window.location.hash.startsWith('#/details-')) {
+  if (window.location.hash === currentHash) {
     for (const relation of relations) {
       const group = document.createElement('div');
       group.className = 'relation-group';
@@ -280,7 +289,7 @@ async function loadRelations(relations) {
           try {
             const animeInfo = await getAnimeInfo(entry.mal_id);
             if (animeInfo) {
-              grid.innerHTML += createFlashcardHTML(animeInfo, 'top-rated');
+              grid.innerHTML += createFlashcard(animeInfo, 'top-rated');
             }
           } catch (error) {
             console.error(`Failed to fetch info for anime ID: ${entry.mal_id}`, error);

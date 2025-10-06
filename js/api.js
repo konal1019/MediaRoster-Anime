@@ -28,15 +28,20 @@ const logErrorByStatus = (status, statusText) => {
     }
 };
 
-const fetchWithCacheAndRetry = async (url, cacheKey) => {
+const fetchWithCache = async (url, cacheKey) => {
     const now = Date.now();
     const cachedData = localStorage.getItem(cacheKey);
 
     if (cachedData) {
-        const { data, timestamp } = JSON.parse(cachedData);
-        if (now - timestamp < CACHE_DURATION) {
-            console.log(`Cache hit for key: ${cacheKey}`);
-            return data;
+        try {
+            const { data, timestamp } = JSON.parse(cachedData);
+            if (now - timestamp < CACHE_DURATION) {
+                console.log(`Cache hit for key: ${cacheKey}`);
+                return data;
+            }
+        } catch (e) {
+            console.error(`Error parsing cached data for key ${cacheKey}:`, e);
+            localStorage.removeItem(cacheKey); // Remove corrupted data
         }
     }
 
@@ -51,7 +56,42 @@ const fetchWithCacheAndRetry = async (url, cacheKey) => {
         } else {
           const jsonResponse = await response.json();
           const data = jsonResponse.data;
-          localStorage.setItem(cacheKey, JSON.stringify({ data, timestamp: now }));
+          try {
+              localStorage.setItem(cacheKey, JSON.stringify({ data, timestamp: now }));
+          } catch (e) {
+              if (e.name === 'QuotaExceededError') {
+                  console.warn('LocalStorage quota exceeded. Clearing oldest cache entries.');
+                  const cacheItems = Object.keys(localStorage).map(key => {
+                        try {
+                            const item = JSON.parse(localStorage.getItem(key));
+                            if (item && item.timestamp) {
+                                return { key, timestamp: item.timestamp };
+                            }
+                        } catch (error) {
+                            // Not a JSON item or incorrect cache format
+                        }
+                        return null;
+                    }).filter(item => item !== null);
+
+                  cacheItems.sort((a, b) => a.timestamp - b.timestamp);
+
+                  // Remove the oldest 5 items
+                  const itemsToRemove = Math.min(5, cacheItems.length);
+                  for (let i = 0; i < itemsToRemove; i++) {
+                      console.log(`Removing old cache: ${cacheItems[i].key}`);
+                      localStorage.removeItem(cacheItems[i].key);
+                  }
+
+                  try {
+                      localStorage.setItem(cacheKey, JSON.stringify({ data, timestamp: now }));
+                  } catch (e2) {
+                      console.error('Failed to cache data even after clearing some entries:', e2);
+                      alert('seriously how are you filling up all cache space??')
+                    }
+              } else {
+                  console.error('Error saving to localStorage:', e);
+              }
+          }
           return data;
         }
         console.warn(`API request failed with status ${response.status}. Retrying...`);
@@ -99,37 +139,37 @@ const fetchWithCacheAndRetry = async (url, cacheKey) => {
 export const getTopRatedAnime = async () => {
     const url = `${BASE_URL}/top/anime`;
     const cacheKey = 'top_rated_anime';
-    return await fetchWithCacheAndRetry(url, cacheKey);
+    return await fetchWithCache(url, cacheKey);
 };
 
 export const getMostPopularAnime = async () => {
     const url = `${BASE_URL}/top/anime?filter=bypopularity`;
     const cacheKey = 'most_popular_anime';
-    return await fetchWithCacheAndRetry(url, cacheKey);
+    return await fetchWithCache(url, cacheKey);
 };
 
 export const getAiringAnime = async () => {
     const url = `${BASE_URL}/anime?status=airing`;
     const cacheKey = 'airing_anime';
-    return await fetchWithCacheAndRetry(url, cacheKey);
+    return await fetchWithCache(url, cacheKey);
 };
 
 export const getUpcomingAnime = async () => {
     const url = `${BASE_URL}/seasons/upcoming`;
     const cacheKey = 'upcoming_anime';
-    return await fetchWithCacheAndRetry(url, cacheKey);
+    return await fetchWithCache(url, cacheKey);
 };
 
 export const getSeasonalAnime = async () => {
     const url = `${BASE_URL}/seasons/now`;
     const cacheKey = 'seasonal_anime';
-    return await fetchWithCacheAndRetry(url, cacheKey);
+    return await fetchWithCache(url, cacheKey);
 };
 
 export const getGenres = async () => {
     const url = `${BASE_URL}/genres/anime`;
     const cacheKey = 'anime_genres';
-    const genreData = await fetchWithCacheAndRetry(url, cacheKey);
+    const genreData = await fetchWithCache(url, cacheKey);
     genreData.forEach((genre) => {
         genres[genre.mal_id] = genre.name;
     });
@@ -139,25 +179,25 @@ export const getGenres = async () => {
 export const getAnimeDetails = async (animeId) => {
     const url = `${BASE_URL}/anime/${animeId}/full`;
     const cacheKey = `anime_details_${animeId}`;
-    return await fetchWithCacheAndRetry(url, cacheKey);
+    return await fetchWithCache(url, cacheKey);
 };
 
 export const getAnimeInfo = async (animeId) => {
     const url = `${BASE_URL}/anime/${animeId}`;
     const cacheKey = `anime_info_${animeId}`;
-    return await fetchWithCacheAndRetry(url, cacheKey);
+    return await fetchWithCache(url, cacheKey);
 };
 
 export const getAnimeCharacters = async (animeId) => {
     const url = `${BASE_URL}/anime/${animeId}/characters`;
     const cacheKey = `anime_characters_${animeId}`;
-    return await fetchWithCacheAndRetry(url, cacheKey);
+    return await fetchWithCache(url, cacheKey);
 };
 
 export const getAnimeStaff = async (animeId) => {
     const url = `${BASE_URL}/anime/${animeId}/staff`;
     const cacheKey = `anime_staff_${animeId}`;
-    return await fetchWithCacheAndRetry(url, cacheKey);
+    return await fetchWithCache(url, cacheKey);
 };
 
 export const getRandomAnime = async () => {
@@ -169,5 +209,5 @@ export async function searchAnime(JikanURL) {
     if (JikanURL) {
         return await fetchWithoutCache(JikanURL);
     }
-    return fetchWithCacheAndRetry(`${BASE_URL}/anime`);
+    return fetchWithCache(`${BASE_URL}/anime`);
 }
