@@ -21,7 +21,8 @@ files_to_hash = {
         os.path.join(src_dir, 'js', 'components', 'UIs.js'),
         os.path.join(src_dir, 'js', 'components', 'search.js'),
         os.path.join(src_dir, 'js', 'components', 'details.js'),
-        os.path.join(src_dir, 'js', 'components', 'utils.js')
+        os.path.join(src_dir, 'js', 'components', 'utils.js'),
+        os.path.join(src_dir, 'js', 'components', 'data.js')
     ],
     'others': [
         os.path.join(src_dir, 'media', 'jumpscare.mp3'),
@@ -100,7 +101,7 @@ def hash_and_update_refs():
     print("🔑 Hashing and updating references...")
     hashed_map = {}
     built_files_to_update = []
-    
+
     for category in ['css', 'js']:
         for path in files_to_hash[category]:
             built_file = os.path.join(build_dir, os.path.relpath(path, src_dir))
