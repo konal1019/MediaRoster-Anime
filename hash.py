@@ -1,117 +1,141 @@
 import os
-import shutil
 import hashlib
 import subprocess
+import shutil
+
+src_dir = '.'
+build_dir = './build'
+
+files_to_hash = {
+    'css': [
+        os.path.join(src_dir, 'css', 'style.css'),
+        os.path.join(src_dir, 'css', 'icons.css'),
+        os.path.join(src_dir, 'css', 'search.css'),
+        os.path.join(src_dir, 'css', 'details.css')
+    ],
+    'js': [
+        os.path.join(src_dir, 'js', 'pages.js'),
+        os.path.join(src_dir, 'js', 'router.js'),
+        os.path.join(src_dir, 'js', 'main.js'),
+        os.path.join(src_dir, 'js', 'api.js'),
+        os.path.join(src_dir, 'js', 'components', 'UIs.js'),
+        os.path.join(src_dir, 'js', 'components', 'search.js'),
+        os.path.join(src_dir, 'js', 'components', 'details.js'),
+        os.path.join(src_dir, 'js', 'components', 'utils.js')
+    ],
+    'others': [
+        os.path.join(src_dir, 'jumpscare.mp3'),
+        os.path.join(src_dir, 'jumpscare.jpg'),
+        os.path.join(src_dir, 'logo.webp')
+    ]
+}
+
+
+def ensure_dir(path):
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+
+
+def minify_file(src, dest):
+    ext = os.path.splitext(src)[1].lower()
+    ensure_dir(dest)
+    cmd = None
+    if ext == '.js':
+        cmd = ['terser', src, '-o', dest, '--compress', '--mangle']
+    elif ext == '.css':
+        cmd = ['cleancss', '-o', dest, src]
+    elif ext == '.html':
+        cmd = [
+            'html-minifier', '--collapse-whitespace', '--remove-comments',
+            '--minify-css', 'true', '--minify-js', 'true', '-o', dest, src
+        ]
+    else:
+        shutil.copy2(src, dest)
+        return
+
+    try:
+        subprocess.run(cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    except subprocess.CalledProcessError as e:
+        print(f"⚠️ Minifier failed for {src}, copying instead.")
+        shutil.copy2(src, dest)
+
 
 def copy_dir(src, dest):
-    if not os.path.exists(dest):
-        os.makedirs(dest)
+    if not os.path.exists(src):
+        return
+    os.makedirs(dest, exist_ok=True)
     for entry in os.listdir(src):
-        src_path = os.path.join(src, entry)
-        dest_path = os.path.join(dest, entry)
-        if os.path.isdir(src_path):
-            copy_dir(src_path, dest_path)
+        s = os.path.join(src, entry)
+        d = os.path.join(dest, entry)
+        if os.path.isdir(s):
+            copy_dir(s, d)
         else:
-            shutil.copy2(src_path, dest_path)
+            shutil.copy2(s, d)
 
-def minify_file(input_path, output_path):
-    ext = input_path.split('.')[-1].lower()
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    try:
-        if ext == 'js':
-            subprocess.run(['terser', input_path, '-o', output_path, '--compress', '--mangle'], check=True)
-        elif ext == 'css':
-            subprocess.run(['cleancss', '-o', output_path, input_path], check=True)
-        elif ext == 'html':
-            subprocess.run([
-                'html-minifier', '--collapse-whitespace', '--remove-comments',
-                '--minify-css', 'true', '--minify-js', 'true',
-                '-o', output_path, input_path
-            ], check=True)
-        else:
-            shutil.copy2(input_path, output_path)
-    except FileNotFoundError:
-        print(f"Warning: Minifier CLI not installed for {ext}, copying as-is.")
-        shutil.copy2(input_path, output_path)
 
-def hash_and_copy():
-    src_dir = '.'
-    build_dir = './build'
+def minify_all():
+    print("🪄 Minifying...")
+    for category in ['css', 'js']:
+        for path in files_to_hash[category]:
+            rel_path = os.path.relpath(path, src_dir)
+            dest = os.path.join(build_dir, rel_path)
+            minify_file(path, dest)
 
-    files_to_hash = {
-        'css': [
-            'css/style.css',
-            'css/icons.css',
-            'css/search.css',
-            'css/details.css'
-        ],
-        'js': [
-            'js/pages.js',
-            'js/router.js',
-            'js/main.js',
-            'js/api.js',
-            'js/components/UIs.js',
-            'js/components/search.js',
-            'js/components/details.js',
-            'js/components/utils.js'
-        ],
-        'others': [
-            'jumpscare.mp3',
-            'jumpscare.jpg',
-            'logo.webp'
-        ]
-    }
+    # Copy others and webfonts
+    for path in files_to_hash['others']:
+        rel_path = os.path.relpath(path, src_dir)
+        dest = os.path.join(build_dir, rel_path)
+        ensure_dir(dest)
+        shutil.copy2(path, dest)
 
-    # Clean build folder
-    if os.path.exists(build_dir):
-        shutil.rmtree(build_dir)
-    os.makedirs(build_dir)
-    os.makedirs(os.path.join(build_dir, 'css'))
-    os.makedirs(os.path.join(build_dir, 'js'))
-    os.makedirs(os.path.join(build_dir, 'webfonts'))
-
-    # Copy index.html and minify
-    minify_file(os.path.join(src_dir, 'index.html'), os.path.join(build_dir, 'index.html'))
-
-    # Copy webfonts
     copy_dir(os.path.join(src_dir, 'webfonts'), os.path.join(build_dir, 'webfonts'))
 
-    hashed_file_paths = {}
-    all_files_to_hash = sum(files_to_hash.values(), [])
+    if os.path.exists('index.html'):
+        minify_file('index.html', os.path.join(build_dir, 'index.html'))
 
-    for relative_path in all_files_to_hash:
-        full_path = os.path.join(src_dir, relative_path)
-        try:
-            with open(full_path, 'rb') as f:
+    print("✅ Minification done.")
+
+
+def hash_and_update_refs():
+    print("🔑 Hashing and updating references...")
+    hashed_map = {}
+
+    for category in ['css', 'js']:
+        for path in files_to_hash[category]:
+            rel_path = os.path.relpath(path, src_dir)
+            built_file = os.path.join(build_dir, rel_path)
+            if not os.path.exists(built_file):
+                continue
+            with open(built_file, 'rb') as f:
                 content = f.read()
-            file_hash = hashlib.md5(content).hexdigest()[:8]
-            file_name, ext = os.path.splitext(os.path.basename(full_path))
-            new_file_name = f'{file_name}.{file_hash}{ext}'
-            dest_path = os.path.join(build_dir, relative_path)
-            dest_path = os.path.join(os.path.dirname(dest_path), new_file_name)
+            digest = hashlib.md5(content).hexdigest()[:8]
+            base, ext = os.path.splitext(os.path.basename(path))
+            new_name = f"{base}.{digest}{ext}"
+            new_path = os.path.join(os.path.dirname(built_file), new_name)
+            os.rename(built_file, new_path)
+            hashed_map[f"/{rel_path.replace(os.sep, '/')}"] = f"/{os.path.join(os.path.dirname(rel_path), new_name).replace(os.sep, '/')}"
 
-            # Minify + write to build folder
-            minify_file(full_path, dest_path)
+    for root, _, files in os.walk(build_dir):
+        for file in files:
+            if file.endswith(('.html', '.js')):
+                file_path = os.path.join(root, file)
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    text = f.read()
+                for old, new in hashed_map.items():
+                    text = text.replace(old, new)
+                with open(file_path, 'w', encoding='utf-8') as f:
+                    f.write(text)
 
-            original_filename = f'/{os.path.basename(full_path)}'
-            new_filename = f'/{new_file_name}'
-            hashed_file_paths[original_filename] = new_filename
+    print("📝 Updated references in HTML and JS files.")
+    print("🎉 Done.")
 
-            print(f'Hashed + Minified: {original_filename} -> {new_filename}')
-        except FileNotFoundError:
-            print(f'Warning: File not found: {full_path}')
 
-    # Update references in index.html
-    index_path = os.path.join(build_dir, 'index.html')
-    with open(index_path, 'r', encoding='utf-8') as f:
-        content = f.read()
+def main():
+    if os.path.exists(build_dir):
+        shutil.rmtree(build_dir)
+    os.makedirs(build_dir, exist_ok=True)
+    minify_all()
+    hash_and_update_refs()
 
-    for original, new in hashed_file_paths.items():
-        content = content.replace(original, new)
 
-    with open(index_path, 'w', encoding='utf-8') as f:
-        f.write(content)
-    print('Updated references in index.html')
-
-if __name__ == '__main__':
-    hash_and_copy()
+if __name__ == "__main__":
+    main()
