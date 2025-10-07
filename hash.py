@@ -24,9 +24,9 @@ files_to_hash = {
         os.path.join(src_dir, 'js', 'components', 'utils.js')
     ],
     'others': [
-        os.path.join(src_dir, 'jumpscare.mp3'),
-        os.path.join(src_dir, 'jumpscare.jpg'),
-        os.path.join(src_dir, 'logo.webp')
+        os.path.join(src_dir, 'media', 'jumpscare.mp3'),
+        os.path.join(src_dir, 'media', 'jumpscare.jpg'),
+        os.path.join(src_dir, 'media', 'logo.webp')
     ]
 }
 
@@ -40,12 +40,12 @@ def minify_file(src, dest):
     ensure_dir(dest)
     cmd = None
     if ext == '.js':
-        cmd = ['terser', src, '-o', dest, '--compress', '--mangle']
+        cmd = ['/home/user/.global_modules/bin/terser', src, '-o', dest, '--compress', '--mangle']
     elif ext == '.css':
-        cmd = ['cleancss', '-o', dest, src]
+        cmd = ['/home/user/.global_modules/bin/cleancss', '-o', dest, src]
     elif ext == '.html':
         cmd = [
-            'html-minifier', '--collapse-whitespace', '--remove-comments',
+            '/home/user/.global_modules/bin/html-minifier', '--collapse-whitespace', '--remove-comments',
             '--minify-css', 'true', '--minify-js', 'true', '-o', dest, src
         ]
     else:
@@ -53,10 +53,11 @@ def minify_file(src, dest):
         return
 
     try:
-        subprocess.run(cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        subprocess.run(cmd, check=True)
     except subprocess.CalledProcessError as e:
         print(f"⚠️ Minifier failed for {src}, copying instead.")
         shutil.copy2(src, dest)
+
 
 
 def copy_dir(src, dest):
@@ -98,11 +99,11 @@ def minify_all():
 def hash_and_update_refs():
     print("🔑 Hashing and updating references...")
     hashed_map = {}
-
+    built_files_to_update = []
+    
     for category in ['css', 'js']:
         for path in files_to_hash[category]:
-            rel_path = os.path.relpath(path, src_dir)
-            built_file = os.path.join(build_dir, rel_path)
+            built_file = os.path.join(build_dir, os.path.relpath(path, src_dir))
             if not os.path.exists(built_file):
                 continue
             with open(built_file, 'rb') as f:
@@ -112,18 +113,27 @@ def hash_and_update_refs():
             new_name = f"{base}.{digest}{ext}"
             new_path = os.path.join(os.path.dirname(built_file), new_name)
             os.rename(built_file, new_path)
-            hashed_map[f"/{rel_path.replace(os.sep, '/')}"] = f"/{os.path.join(os.path.dirname(rel_path), new_name).replace(os.sep, '/')}"
 
-    for root, _, files in os.walk(build_dir):
-        for file in files:
-            if file.endswith(('.html', '.js')):
-                file_path = os.path.join(root, file)
-                with open(file_path, 'r', encoding='utf-8') as f:
-                    text = f.read()
-                for old, new in hashed_map.items():
-                    text = text.replace(old, new)
-                with open(file_path, 'w', encoding='utf-8') as f:
-                    f.write(text)
+            # Use just the filename as key for JS files
+            hashed_map[f"{base}{ext}"] = new_name
+
+            # Add JS and HTML files to update list immediately
+            if ext in ('.js', '.html'):
+                built_files_to_update.append(new_path)
+
+    # Add index.html if it exists
+    index_file = os.path.join(build_dir, 'index.html')
+    if os.path.exists(index_file):
+        built_files_to_update.append(index_file)
+
+    # Update references
+    for file_path in built_files_to_update:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            text = f.read()
+        for old, new in hashed_map.items():
+            text = text.replace(old, new)
+        with open(file_path, 'w', encoding='utf-8') as f:
+            f.write(text)
 
     print("📝 Updated references in HTML and JS files.")
     print("🎉 Done.")
