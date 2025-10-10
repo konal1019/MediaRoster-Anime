@@ -82,9 +82,12 @@ export async function createSection({ title, apiFunction, cardType, containerCla
         return `
             <div class="${containerClass}">
                 <h2 class="${titleClass}">${title}</h2>
+                <div class="gallery-prev">&lt</div>
                 <div class="${galleryClass}">
                     ${galleryHTML}
                 </div>
+                <div class="gallery-next">&gt</div>
+            </div>
             </div>
         `;
     } catch (error) {

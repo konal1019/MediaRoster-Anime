@@ -87,6 +87,27 @@ export function initFlashcardHover() {
     });
   });
 }
+export function initGalleryControls() {
+  const content = document.getElementById('content');
+  content.addEventListener('click', (event) => {
+      const prevButton = event.target.closest('.gallery-prev');
+      const nextButton = event.target.closest('.gallery-next');
+      if (prevButton) {
+          const gallery = prevButton.parentElement.querySelector('.horizontal-gallery');
+          gallery.scrollBy({
+              left: -300,
+              behavior: 'smooth'
+          });
+      }
+      if (nextButton) {
+          const gallery = nextButton.parentElement.querySelector('.horizontal-gallery');
+          gallery.scrollBy({
+              left: 300,
+              behavior: 'smooth'
+          });
+      }
+  });
+}
 // random
 export function randomAnime() {
   const randomButton = document.getElementById('random-anime-button');

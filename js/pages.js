@@ -1,4 +1,4 @@
-import { status, initSlideshow, initFlashcardHover, randomAnime, initFilters, renderGenres, initSearch, displaySearchResults, applyFilters } from './main.js';
+import { status, initSlideshow, initFlashcardHover, randomAnime, initFilters, renderGenres, initSearch, displaySearchResults, applyFilters, initGalleryControls } from './main.js';
 import { searchAnime, getTopRatedAnime, getMostPopularAnime, getAiringAnime, getSeasonalAnime, getGenres, genres, getAnimeInfo } from './api.js';
 import { createSection, createFlashcard } from './components/UIs.js';
 import { loadSearchPage } from './components/search.js';
@@ -108,6 +108,7 @@ export async function loadHomePage() {
     hideLoader();
     initSlideshow();
     initFlashcardHover();
+    initGalleryControls();
     randomAnime();
     getGenres();
     console.log('Home page loaded');
