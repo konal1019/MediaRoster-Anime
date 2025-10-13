@@ -7,7 +7,6 @@ import { reccomendedData} from './components/data.js'
 
 // ====== PAGE ROUTING ======
 export function loadPageContent(pageName) {
-  hideLoader();
   document.getElementById('randomDiv').style.display = 'none';
   if (pageName === 'home') loadHomePage();
   else if (pageName === 'search') loadSearchPage();
@@ -20,6 +19,7 @@ let loaderTimeout;
 export function showLoader() {
   const loaderContainer = document.getElementById('loader');
   if (loaderContainer) {
+    clearTimeout(loaderTimeout);
     loaderContainer.innerHTML = `
       <div class="loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`;
     loaderContainer.style.display = 'flex';

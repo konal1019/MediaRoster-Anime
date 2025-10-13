@@ -41,52 +41,81 @@ export function initSlideshow() {
     });
   }
 
+  // Swipe functionality
+  const slideshowContainer = document.querySelector('.slideshow-container');
+  let touchstartX = 0;
+  let touchendX = 0;
+
+  function handleGesture() {
+    if (touchendX < touchstartX) {
+      slideIndex++;
+      showSlides();
+      resetInterval();
+    }
+    if (touchendX > touchstartX) {
+      slideIndex--;
+      showSlides();
+      resetInterval();
+    }
+  }
+
+  slideshowContainer.addEventListener('touchstart', e => {
+    touchstartX = e.changedTouches[0].screenX;
+  });
+
+  slideshowContainer.addEventListener('touchend', e => {
+    touchendX = e.changedTouches[0].screenX;
+    handleGesture();
+  });
   showSlides();
   resetInterval();
 }
 
 export function initFlashcardHover() {
   const flashcards = document.querySelectorAll('.flashcard-link:not([data-hover-initialized])');
+  function removeHover(card) {
+    const synopsisOverlay = card.querySelector('.flashcard-synopsis-overlay');
+    if (synopsisOverlay) {
+      synopsisOverlay.classList.add('fade-out');
+      synopsisOverlay.addEventListener('transitionend', () => {
+        synopsisOverlay.remove();
+        delete card.dataset.overlayAdded;
+      }, {
+        once: true
+      });
+    } else {
+      delete card.dataset.overlayAdded;
+    }
+  };
+  function addHover(card) {
+    if (card.dataset.overlayAdded) {
+      return;
+    }
+    card.dataset.overlayAdded = 'true';
+
+    const synopsis = card.dataset.synopsis;
+
+    const synopsisOverlay = document.createElement('div');
+    synopsisOverlay.classList.add('flashcard-synopsis-overlay');
+    synopsisOverlay.innerHTML = `
+      <p>${synopsis}</p>
+      <a href="${window.location.pathname}${card.href}" class="synopsis-details-link">...</a>
+    `;
+
+    card.querySelector('.flashcard').appendChild(synopsisOverlay);
+  }
   flashcards.forEach(card => {
-    if (card.hoverInitialized == 'true') {
+    if (card.dataset.hoverInitialized == 'true') {
       return;
     }
     card.dataset.hoverInitialized = 'true';
-    card.addEventListener('mouseenter', () => {
-      if (card.dataset.overlayAdded) {
-        return;
-      }
-      card.dataset.overlayAdded = 'true';
-
-      const synopsis = card.dataset.synopsis;
-      const detailsUrl = card.href;
-
-      const synopsisOverlay = document.createElement('div');
-      synopsisOverlay.classList.add('flashcard-synopsis-overlay');
-      synopsisOverlay.innerHTML = `
-        <p>${synopsis}</p>
-        <a href="${window.location.pathname}${detailsUrl.split('#')[1]}" class="synopsis-details-link">...</a>
-      `;
-
-      card.querySelector('.flashcard').appendChild(synopsisOverlay);
-    });
-
-    card.addEventListener('mouseleave', () => {
-      const synopsisOverlay = card.querySelector('.flashcard-synopsis-overlay');
-      if (synopsisOverlay) {
-        synopsisOverlay.classList.add('fade-out');
-        synopsisOverlay.addEventListener('transitionend', () => {
-          synopsisOverlay.remove();
-          delete card.dataset.overlayAdded;
-        }, {
-          once: true
-        });
-      } else {
-        delete card.dataset.overlayAdded;
-      }
-    });
+    card.addEventListener('mouseenter', () => addHover(card))
+    card.addEventListener('mouseleave', () => removeHover(card))
+    card.addEventListener('touchstart', () => addHover(card))
+    card.addEventListener('touchend', () => removeHover(card))
   });
 }
+
 export function initGalleryControls() {
   const content = document.getElementById('content');
   content.addEventListener('click', (event) => {
@@ -95,14 +124,14 @@ export function initGalleryControls() {
       if (prevButton) {
           const gallery = prevButton.parentElement.querySelector('.horizontal-gallery');
           gallery.scrollBy({
-              left: -300,
+              left: -400,
               behavior: 'smooth'
           });
       }
       if (nextButton) {
           const gallery = nextButton.parentElement.querySelector('.horizontal-gallery');
           gallery.scrollBy({
-              left: 300,
+              left: 400,
               behavior: 'smooth'
           });
       }
@@ -113,10 +142,10 @@ export function randomAnime() {
   const randomButton = document.getElementById('random-anime-button');
   randomButton.addEventListener('click', () => {
     const chance = Math.floor(Math.random() * 100);
-    if (chance < 50) {
+    if (chance < 0) {
       triggerJumpscare();
     } else {
-      window.location.hash = '#/deatails-random'
+      window.location.hash = '#/details-random'
     }
   });
 }
@@ -148,7 +177,7 @@ function triggerJumpscare() {
     jumpscareContainer.requestFullscreen();
   }
 
-  jumpscareAudio.play().catch(e => console.error("Couldn\'t play jumpscare audio, maybe it\'s missing?"));
+  jumpscareAudio.play().catch(e => console.error("Couldn't play jumpscare audio, maybe it's missing?"));
 
   setTimeout(() => {
     if (document.exitFullscreen) {
@@ -289,7 +318,7 @@ export async function constructURL(updateURL = false) {
     for (const filter in activeFilters) {
         let value = activeFilters[filter];
         if (filter === 'q') {
-            value = value.replace(/[^\p{L}\p{N}\s\-_.:'";|#]/gu, '').slice(0, 100); // sanitize here
+            value = value.replace(/[^\p{L}\p{N}\s\-_.:'"|#]/gu, '').slice(0, 100); // sanitize here
         }
 
         if (Array.isArray(value)) params.append(filter, value.join(','));

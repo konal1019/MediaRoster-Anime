@@ -79,7 +79,8 @@ export async function createSection({ title, apiFunction, cardType, containerCla
 
         const galleryHTML = animeList.map(anime => createFlashcard(anime, cardType)).join('');
 
-        return `
+        return galleryClass === 'horizontal-gallery' 
+        ? `
             <div class="${containerClass}">
                 <h2 class="${titleClass}">${title}</h2>
                 <div class="gallery-prev">&lt</div>
@@ -88,6 +89,13 @@ export async function createSection({ title, apiFunction, cardType, containerCla
                 </div>
                 <div class="gallery-next">&gt</div>
             </div>
+            </div>
+        ` : `
+            <div class="${containerClass}">
+                <h2 class="${titleClass}">${title}</h2>
+                <div class="${galleryClass}">
+                    ${galleryHTML}
+                </div>
             </div>
         `;
     } catch (error) {

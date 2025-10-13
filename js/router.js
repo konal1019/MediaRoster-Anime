@@ -1,4 +1,4 @@
-import { loadPageContent, load404 } from './pages.js';
+import { loadPageContent, load404, hideLoader } from './pages.js';
 import { loadDetailsPage } from './components/details.js';
 
 const routes = {
@@ -9,6 +9,7 @@ const routes = {
 
 export const handleRoute = () => {
   window.scrollTo(0, 0);
+  hideLoader();
   const path = window.location.hash.substring(1) || '/';
   const [pathName] = path.split('?');
   const routeName = routes[pathName];

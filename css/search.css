@@ -131,6 +131,8 @@
     padding: 10px;
     border-radius: 20px;
     background-color: var(--bg-color-trans);
+    scrollbar-width: thin;
+    scrollbar-color: var(--darker-accent) var(--bg-color-primary);
 }
 
 .filter-header {
