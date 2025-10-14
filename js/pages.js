@@ -131,7 +131,7 @@ async function updateSlides() {
         </div>
         <div class="slide-column-right">
           <div class="slide-content">
-            <h2 class="slide-title">${escapeHTML(data.title)}</h2>
+            <h2 class="slide-title">${escapeHTML(data.title_english || data.title)}</h2>
             <p class="slide-description">${escapeHTML(data.synopsis?.substring(0, 250) || 'No description')}...</p>
             <div class="slide-details">
               <span><i class="fas fa-play-circle"></i> ${data.episodes || 'N/A'} Episodes</span>

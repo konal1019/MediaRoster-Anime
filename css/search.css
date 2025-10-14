@@ -131,8 +131,6 @@
     padding: 10px;
     border-radius: 20px;
     background-color: var(--bg-color-trans);
-    scrollbar-width: thin;
-    scrollbar-color: var(--darker-accent) var(--bg-color-primary);
 }
 
 .filter-header {
@@ -312,13 +310,6 @@ input:checked + .slider:before {
     font-size: 1.5rem;
     margin-bottom: 20px;
     text-align: center;
-}
-
-.results-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 20px;
-    padding: 0 10px;
 }
 
 .no-results {

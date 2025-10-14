@@ -156,7 +156,7 @@ export async function loadSearchPage() {
   
     } else {
       console.log(`Search initiated with query: ${query}`);
-      const searchResultsContainer = document.getElementById('search-results');
+      const searchResultsContainer = document.getElementById('gridGallery');
       if (searchResultsContainer) searchResultsContainer.innerHTML = '';
       if (status.searching) {
         renderGenres();

@@ -99,7 +99,7 @@ export function initFlashcardHover() {
     synopsisOverlay.classList.add('flashcard-synopsis-overlay');
     synopsisOverlay.innerHTML = `
       <p>${synopsis}</p>
-      <a href="${window.location.pathname}${card.href}" class="synopsis-details-link">...</a>
+      <a href="${card.href}" class="synopsis-details-link">...</a>
     `;
 
     card.querySelector('.flashcard').appendChild(synopsisOverlay);
@@ -421,7 +421,7 @@ export async function displaySearchResults(searchResults) {
     container.appendChild(infoHeader);
 
     const grid = document.createElement('div');
-    grid.className = 'results-grid';
+    grid.className = 'gridGallery';
     grid.innerHTML = searchResults.data.map(anime => createFlashcard(anime, 'top-rated')).join('');
     container.appendChild(grid);
 
