@@ -26,7 +26,7 @@ export async function loadDetailsPage(animeId = null) {
     
     const currentHash = `#/details-${animeId}`;
     if (isRandom) {
-      window.location.hash = currentHash;
+      history.replaceState(null, null, currentHash);
     }
 
     let charactersData = null;
@@ -172,31 +172,23 @@ export async function loadDetailsPage(animeId = null) {
     : '<p>No staff information available.</p>';
 
     const detailsHTML = `
-    <div class="details-container">
-        <h1>${anime.title_english || anime.title}</h1>
-        
-        <div class="details-hero">
-          <div class="details-poster-group">
-            
+      <div class="details-hero-wrapper">
+          <h1>${anime.title_english || anime.title}</h1>
+          <div class="details-hero">
+            <div class="details-poster-group">
               <div class="details-poster">
                 <img src="${anime.images?.webp?.large_image_url || './placeholder.png'}" alt="${anime.title || 'No Title'}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"/>
                 <div class="placeholder-icon" style="display: none;"><i class="fas fa-question-circle"></i></div>
               </div>
-              
-              <div class="details-titles-box">
-                <h4>Alternative Titles</h4>
-                <ul class="titles-list">${titlesHTML}</ul>
-              </div>
           </div>
-          
           <div class="details-info">
             ${heroStatsHTML}
-
             <h2 class="synopsis-header">Synopsis</h2>
             <p class="details-synopsis">${anime.synopsis || 'No synopsis available.'}</p>
           </div>
         </div>
-
+      </div>
+      <div class="details-container">
         <div class="quick-facts-table">
             <div class="fact-item"><span class="fact-label">Type:</span><span class="fact-value">${anime.type || 'N/A'}</span></div>
             <div class="fact-item"><span class="fact-label">Episodes:</span><span class="fact-value">${anime.episodes || 'N/A'}</span></div>
@@ -221,6 +213,10 @@ export async function loadDetailsPage(animeId = null) {
         </nav>
 
         <div id="overview" class="details-section active">
+            <div class="details-titles-box">
+              <h2>Also Known As: </h4>
+              <ul class="titles-list">${titlesHTML}</ul>
+            </div>
             ${genresHTML}
             <h2>Background</h2>
             <p>${anime.background || 'No background information available.'}</p>
@@ -282,12 +278,13 @@ async function loadRelations(relations, animeId) {
 
       const grid = document.createElement('div');
       grid.className = 'gridGallery';
+      grid.style.justifyContent = 'none';
       group.appendChild(grid);
 
       for (const entry of relation.entry) {
         if (entry.type === 'anime') {
           try {
-            const animeInfo = await getAnimeInfo(entry.mal_id);
+            const animeInfo = window.location.hash === currentHash ? await getAnimeInfo(entry.mal_id): null;
             if (animeInfo) {
               grid.innerHTML += createFlashcard(animeInfo, 'top-rated');
             }

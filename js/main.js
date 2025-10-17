@@ -142,7 +142,7 @@ export function randomAnime() {
   const randomButton = document.getElementById('random-anime-button');
   randomButton.addEventListener('click', () => {
     const chance = Math.floor(Math.random() * 100);
-    if (chance < 0) {
+    if (chance < 1) {
       triggerJumpscare();
     } else {
       window.location.hash = '#/details-random'
@@ -247,6 +247,10 @@ export function initFilters() {
             else delete activeFilters[filter];
         });
     });
+    const sfw = document.getElementById('sfw-checkbox');
+    sfw.addEventListener('change', () => {
+        activeFilters.sfw = true;
+    });
 }
 
 export async function renderGenres() {
@@ -318,9 +322,8 @@ export async function constructURL(updateURL = false) {
     for (const filter in activeFilters) {
         let value = activeFilters[filter];
         if (filter === 'q') {
-            value = value.replace(/[^\p{L}\p{N}\s\-_.:'"|#]/gu, '').slice(0, 100); // sanitize here
+            value = value.replace(/[^\p{L}\p{N}\s\-_.:'"|#]/gu, '').slice(0, 100);
         }
-
         if (Array.isArray(value)) params.append(filter, value.join(','));
         else params.append(filter, value);
     }

@@ -54,8 +54,8 @@ const fetchWithCache = async (url, cacheKey) => {
         if (response.status !== 200 && response.status !== 304) {
             logErrorByStatus(response.status, response.statusText);
         } else {
-          const jsonResponse = await response.json();
-          const data = jsonResponse.data;
+          const responseJSON = await response.json();
+          const data = responseJSON.data;
           try {
               localStorage.setItem(cacheKey, JSON.stringify({ data, timestamp: now }));
           } catch (e) {

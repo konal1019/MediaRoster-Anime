@@ -95,7 +95,7 @@ export async function loadHomePage() {
 
   for (const section of sections) {
     if (window.location.hash !== '' && window.location.hash !== '#/') return;
-    const sectionHTML = await createSection(section);
+      const sectionHTML = await createSection(section);
     if (window.location.hash === '' || window.location.hash === '#/') {
       content.innerHTML += sectionHTML;
     }
@@ -150,7 +150,7 @@ async function updateSlides() {
   }
 }
 
-// ====== 404 ======
+// WARNING!!! : this one was AI:
 export function load404(path) {
   const currentHash = window.location.hash;
   if (currentHash.substring(1) !== path) return;

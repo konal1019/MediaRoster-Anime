@@ -58,7 +58,7 @@ export async function loadSearchPage() {
                         <button class="filter-btn" data-filter="rating" data-value="pg13">PG-13 - Teens 13+</button>
                         <button class="filter-btn" data-filter="rating" data-value="r17">R - 17+ (violence)</button>
                         <button class="filter-btn" data-filter="rating" data-value="r">R+ - Mild Nudity</button>
-                        <abutton class="filter-btn" data-filter="rating" data-value="rx">Rx - Hentai</button>
+                        <button class="filter-btn" data-filter="rating" data-value="rx">Rx - Hentai</button>
                     </div>
                 </div>
             </div>
@@ -81,10 +81,8 @@ export async function loadSearchPage() {
                 </div>
             </div>
             <div class="filter-section">
-                <div class="filter-controls">
-                    <h4 class="filter-header">Genres:</h4>
-                    <div class= "filter-buttons" id="genresDiv">
-                    </div>
+                <h4 class="filter-header">Genres:</h4>
+                <div class= "filter-buttons" id="genresDiv">
                 </div>
             </div>
             <div class="filter-section">

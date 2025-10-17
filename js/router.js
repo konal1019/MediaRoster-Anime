@@ -8,7 +8,9 @@ const routes = {
 };
 
 export const handleRoute = () => {
-  window.scrollTo(0, 0);
+  setTimeout(() => {
+    window.scrollTo(0,0);
+  }, 10);
   hideLoader();
   const path = window.location.hash.substring(1) || '/';
   const [pathName] = path.split('?');

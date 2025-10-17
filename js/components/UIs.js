@@ -76,7 +76,6 @@ export async function createSection({ title, apiFunction, cardType, containerCla
         if (!animeList || animeList.length === 0) {
             return `<div class="${containerClass}"><h2 class="${titleClass}">${title}</h2><p>No anime found for this category.</p></div>`;
         }
-
         const galleryHTML = animeList.map(anime => createFlashcard(anime, cardType)).join('');
 
         return galleryClass === 'horizontal-gallery' 
@@ -92,7 +91,7 @@ export async function createSection({ title, apiFunction, cardType, containerCla
             </div>
         ` : `
             <div class="${containerClass}">
-                <h2 class="${titleClass}">${title}</h2>
+                <h2 class="${titleClass}">${cardType==='seasonal' ? `${title} (${animeList[0].season}, ${animeList[0].year})`: title }</h2>
                 <div class="${galleryClass}">
                     ${galleryHTML}
                 </div>
