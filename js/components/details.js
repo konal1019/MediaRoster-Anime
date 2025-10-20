@@ -1,7 +1,8 @@
-import { getAnimeDetails, getAnimeCharacters, getAnimeStaff, getAnimeInfo, getRandomAnime } from '../api.js';
-import { initFlashcardHover} from '../main.js';
+import { getAnimeDetails, getAnimeCharacters, getAnimeStaff, getAnimeInfo, getRandomAnime, getAnimeReviews } from '../api.js';
+import { initFlashcardHover, initGalleryControls } from '../main.js';
 import { showLoader, hideLoader, loadCSS, load404 } from '../pages.js';
 import { createFlashcard } from './UIs.js';
+import { escapeHTML } from './utils.js';
 
 export async function loadDetailsPage(animeId = null) {
   console.log(`Loading Details for anime ID: ${animeId}`);
@@ -171,6 +172,14 @@ export async function loadDetailsPage(animeId = null) {
     }).join('')}</div>`
     : '<p>No staff information available.</p>';
 
+    const reviewsHTML = `
+      <div class="reviews-container">
+        <div class="gallery-prev">&lt</div>
+        <div class="gallery-next">&gt</div>
+        <h2 class="floating-header">  What People Have to Say</h2>
+        
+      </div>
+    `
     const detailsHTML = `
       <div class="details-hero-wrapper">
           <h1>${anime.title_english || anime.title}</h1>
@@ -218,7 +227,7 @@ export async function loadDetailsPage(animeId = null) {
               <ul class="titles-list">${titlesHTML}</ul>
             </div>
             ${genresHTML}
-            <h2>Background</h2>
+            <h2 class="floating-header">Background</h2>
             <p>${anime.background || 'No background information available.'}</p>
         </div>
 
@@ -237,7 +246,7 @@ export async function loadDetailsPage(animeId = null) {
         <div id="staff" class="details-section">
           ${staffHTML}
         </div>
-
+        ${reviewsHTML}
         ${trailerHTML}
       </div>
     `;
@@ -245,6 +254,7 @@ export async function loadDetailsPage(animeId = null) {
     if (window.location.hash === currentHash) {
       content.innerHTML = detailsHTML;
       initTabbedNavigation();
+      loadReviews(animeId);
       loadRelations(anime.relations, animeId);
     }
   } catch (error) {
@@ -271,8 +281,8 @@ async function loadRelations(relations, animeId) {
       const group = document.createElement('div');
       group.className = 'relation-group';
 
-      const title = document.createElement('h4');
-      title.className = 'relation-group-title';
+      const title = document.createElement('h2');
+      title.className = 'floating-header';
       title.textContent = relation.relation;
       group.appendChild(title);
 
@@ -330,4 +340,68 @@ function initTabbedNavigation() {
       }
     });
   });
+}
+
+async function loadReviews(animeId) {
+  const container = document.querySelector('.reviews-container');
+  const galleryContainer = document.createElement('div');
+  galleryContainer.className = 'horizontal-gallery reviews-gallery';
+  
+  try {
+    const reviewsData = await getAnimeReviews(animeId);
+    
+    if (!reviewsData || reviewsData.length === 0) {
+      container.innerHTML += '<p style="text-align: center; color: var(--text-color); padding: 2rem;">No reviews available.</p>';
+      return;
+    }
+
+    reviewsData.forEach(review => {
+      const reviewCard = createReviewCard(review);
+      galleryContainer.innerHTML += reviewCard;
+    });
+
+    container.appendChild(galleryContainer);
+    initGalleryControls();
+  } catch (error) {
+    console.error('Failed to load reviews:', error);
+    container.innerHTML += '<p style="text-align: center; color: var(--error-color); padding: 2rem;">Failed to load reviews.</p>';
+  }
+}
+
+function createReviewCard(review) {
+  const score = review.score || 0;
+  const username = review.user?.username || 'Anonymous';
+  const malId = review.user?.mal_id || 'N/A';
+  const reviewText = review.review || 'No review text available.';
+  
+  // Truncate review text if too long
+  const truncatedReview = reviewText.length > 300 
+    ? reviewText.substring(0, 300) + '...' 
+    : reviewText;
+
+  return `
+    <div class="review-card">
+      <div class="review-quote-icon">
+        <i class="fas fa-quote-left"></i>
+      </div>
+      <div class="review-content">
+        <p class="review-text">${truncatedReview}</p>
+      </div>
+      <div class="review-footer">
+        <div class="review-user">
+          <div class="review-avatar">
+            <i class="fas fa-user-circle"></i>
+          </div>
+          <div class="review-user-info">
+            <span class="review-username">${username}</span>
+            <span class="review-mal-id">MAL ID: ${malId}</span>
+          </div>
+        </div>
+        <div class="review-rating">
+          <i class="fas fa-star"></i>
+          <span class="review-score">${score}</span>
+        </div>
+      </div>
+    </div>
+  `;
 }

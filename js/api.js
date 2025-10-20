@@ -204,6 +204,11 @@ export const getRandomAnime = async () => {
     const res = await fetchWithoutCache(`${BASE_URL}/random/anime`);
     return res.data;
 };
+export const getAnimeReviews = async (animeId) => {
+    const url = `${BASE_URL}/anime/${animeId}/reviews`;
+    const res =  await fetchWithoutCache(url);
+    return res.data;
+};
 
 export async function searchAnime(JikanURL) {
     if (JikanURL) {
