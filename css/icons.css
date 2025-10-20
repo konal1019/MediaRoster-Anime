@@ -342,7 +342,10 @@
   .fa-star:before {
     content: "\f005";
   }
-  
+  .fa-quote-left-alt:before,
+  .fa-quote-left:before {
+    content: "\f10d";
+  }
   .fa-user-group:before {
     content: "\f500";
   }

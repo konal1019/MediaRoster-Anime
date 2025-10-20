@@ -253,7 +253,7 @@ export async function loadDetailsPage(animeId = null) {
 
     if (window.location.hash === currentHash) {
       content.innerHTML = detailsHTML;
-      initTabbedNavigation();
+      initDetailsNav();
       loadReviews(animeId);
       loadRelations(anime.relations, animeId);
     }
@@ -321,7 +321,7 @@ function createFallbackCard(entry) {
   `;
 }
 
-function initTabbedNavigation() {
+function initDetailsNav() {
   const navItems = document.querySelectorAll('.details-nav-item');
   const sections = document.querySelectorAll('.details-section');
 
@@ -345,7 +345,7 @@ function initTabbedNavigation() {
 async function loadReviews(animeId) {
   const container = document.querySelector('.reviews-container');
   const galleryContainer = document.createElement('div');
-  galleryContainer.className = 'horizontal-gallery reviews-gallery';
+  galleryContainer.className = 'horizontal-gallery';
   
   try {
     const reviewsData = await getAnimeReviews(animeId);
@@ -371,8 +371,8 @@ async function loadReviews(animeId) {
 function createReviewCard(review) {
   const score = review.score || 0;
   const username = review.user?.username || 'Anonymous';
-  const malId = review.user?.mal_id || 'N/A';
-  const reviewText = review.review || 'No review text available.';
+  const malId = review.mal_id || 'N/A';
+  const reviewText = review.review || 'Prolly nothing important';
   
   // Truncate review text if too long
   const truncatedReview = reviewText.length > 300 
@@ -394,7 +394,7 @@ function createReviewCard(review) {
           </div>
           <div class="review-user-info">
             <span class="review-username">${username}</span>
-            <span class="review-mal-id">MAL ID: ${malId}</span>
+            <span class="review-mal-id">MyAnimeList ID: ${malId}</span>
           </div>
         </div>
         <div class="review-rating">
@@ -404,4 +404,4 @@ function createReviewCard(review) {
       </div>
     </div>
   `;
-}
+};
