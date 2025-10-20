@@ -26,7 +26,7 @@ files_to_hash = {
     ],
     'others': [
         os.path.join(src_dir, 'media', 'jumpscare.mp3'),
-        os.path.join(src_dir, 'media', 'jumpscare.jpg'),
+        os.path.join(src_dir, 'media', 'jumpscare.webp'),
         os.path.join(src_dir, 'media', 'logo.webp'),
         os.path.join(src_dir, 'media', 'details-bg.webp')
     ]

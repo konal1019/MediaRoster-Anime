@@ -1,8 +1,6 @@
 import { genres, searchAnime, getGenres } from './api.js';
-import { showLoader, hideLoader } from './pages.js';
-import { createFlashcard } from './components/UIs.js';
 import { escapeHTML, getSafeParams } from './components/utils.js';
-import { loadDetailsPage } from './components/details.js';
+import { displaySearchResults } from './components/search.js';
 export const status = {"searching":false}
 
 export function initSlideshow() {
@@ -248,8 +246,13 @@ export function initFilters() {
         });
     });
     const sfw = document.getElementById('sfw-checkbox');
+    activeFilters.sfw = 'false'; 
     sfw.addEventListener('change', () => {
-        activeFilters.sfw = true;
+      if (sfw.checked) {
+        activeFilters.sfw = 'false';
+      } else {
+        activeFilters.sfw = 'true';
+      }
     });
 }
 
@@ -360,78 +363,13 @@ export function applyFilters() {
         else if (key in IdFilters) {
             const elem = document.getElementById(key);
             if (elem) elem.value = value;
+        } else if (key === 'sfw') {
+            const checkbox = document.getElementById('sfw-checkbox');
+            if (checkbox) checkbox.checked = value === 'true';
         } else {
             const elem = document.querySelector(`[data-filter='${key}'][data-value='${value}']`);
             if (elem) elem.classList.add('active');
             activeFilters[key] = value;
         }
     }
-}
-
-// ---------- PAGINATION ----------
-
-function loadPagination(paginationData, containerEl) {
-    if (!containerEl) return;
-    containerEl.innerHTML = '';
-
-    const { current_page, last_visible_page, has_next_page } = paginationData;
-
-    const createButton = (text, page, enabled) => {
-        const btn = document.createElement('button');
-        btn.innerHTML = text;
-        btn.disabled = !enabled;
-        if (enabled) {
-            btn.addEventListener('click', () => {
-                const params = getSafeParams();
-                params.set('page', page);
-                window.location.hash = `#/search?${params.toString()}`;
-            });
-        }
-        return btn;
-    };
-
-    containerEl.appendChild(createButton('<<', 1, current_page > 1));
-    containerEl.appendChild(createButton('<', current_page - 1, current_page > 1));
-
-    const pageIndicator = document.createElement('span');
-    pageIndicator.textContent = current_page;
-    containerEl.appendChild(pageIndicator);
-
-    containerEl.appendChild(createButton('>', current_page + 1, has_next_page));
-    containerEl.appendChild(createButton('>>', last_visible_page, current_page < last_visible_page));
-}
-
-// ---------- DISPLAY RESULTS ----------
-
-export async function displaySearchResults(searchResults) {
-    const container = document.getElementById('search-results');
-    if (!container) return;
-
-    container.innerHTML = '';
-    const defaultContent = document.getElementById('default-search-content');
-    if (defaultContent) defaultContent.style.display = 'none';
-
-    if (!searchResults?.data?.length) {
-        container.innerHTML = '<p class="no-results">No Matching results found.</p>';
-        status.searching = false;
-        hideLoader();
-        return;
-    }
-
-    const infoHeader = document.createElement('h2');
-    infoHeader.className = 'search-results-info';
-    infoHeader.textContent = `Found ${searchResults.pagination.items.total} results`;
-    container.appendChild(infoHeader);
-
-    const grid = document.createElement('div');
-    grid.className = 'gridGallery';
-    grid.innerHTML = searchResults.data.map(anime => createFlashcard(anime, 'top-rated')).join('');
-    container.appendChild(grid);
-
-    const pagination = document.createElement('div');
-    pagination.className = 'pagination-controls';
-    container.appendChild(pagination);
-
-    initFlashcardHover();
-    loadPagination(searchResults.pagination, pagination);
 }

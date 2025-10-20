@@ -1,4 +1,4 @@
-import { status, initSlideshow, initFlashcardHover, randomAnime, initFilters, renderGenres, initSearch, displaySearchResults, applyFilters} from '../main.js';
+import { status, initSlideshow, initFlashcardHover, randomAnime, initFilters, renderGenres, initSearch, applyFilters} from '../main.js';
 import { searchAnime, getTopRatedAnime, getMostPopularAnime, getGenres, genres } from '../api.js';
 import { createSection, createFlashcard } from './UIs.js';
 import { loadCSS, showLoader, hideLoader } from '../pages.js'
@@ -170,3 +170,66 @@ export async function loadSearchPage() {
       }
     }
   }
+
+function loadPagination(paginationData, containerEl) {
+    if (!containerEl) return;
+    containerEl.innerHTML = '';
+
+    const { current_page, last_visible_page, has_next_page } = paginationData;
+
+    const createButton = (text, page, enabled) => {
+        const btn = document.createElement('button');
+        btn.innerHTML = text;
+        btn.disabled = !enabled;
+        if (enabled) {
+            btn.addEventListener('click', () => {
+                const params = getSafeParams();
+                params.set('page', page);
+                window.location.hash = `#/search?${params.toString()}`;
+            });
+        }
+        return btn;
+    };
+
+    containerEl.appendChild(createButton('<<', 1, current_page > 1));
+    containerEl.appendChild(createButton('<', current_page - 1, current_page > 1));
+
+    const pageIndicator = document.createElement('span');
+    pageIndicator.textContent = current_page;
+    containerEl.appendChild(pageIndicator);
+
+    containerEl.appendChild(createButton('>', current_page + 1, has_next_page));
+    containerEl.appendChild(createButton('>>', last_visible_page, current_page < last_visible_page));
+}
+export async function displaySearchResults(searchResults) {
+    const container = document.getElementById('search-results');
+    if (!container) return;
+
+    container.innerHTML = '';
+    const defaultContent = document.getElementById('default-search-content');
+    if (defaultContent) defaultContent.style.display = 'none';
+
+    if (!searchResults?.data?.length) {
+        container.innerHTML = '<p class="no-results">No Matching results found.</p>';
+        status.searching = false;
+        hideLoader();
+        return;
+    }
+
+    const infoHeader = document.createElement('h2');
+    infoHeader.className = 'search-results-info';
+    infoHeader.textContent = `Found ${searchResults.pagination.items.total} results`;
+    container.appendChild(infoHeader);
+
+    const grid = document.createElement('div');
+    grid.className = 'gridGallery';
+    grid.innerHTML = searchResults.data.map(anime => createFlashcard(anime, 'top-rated')).join('');
+    container.appendChild(grid);
+
+    const pagination = document.createElement('div');
+    pagination.className = 'pagination-controls';
+    container.appendChild(pagination);
+
+    initFlashcardHover();
+    loadPagination(searchResults.pagination, pagination);
+}

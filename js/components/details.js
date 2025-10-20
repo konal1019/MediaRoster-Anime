@@ -30,16 +30,6 @@ export async function loadDetailsPage(animeId = null) {
       history.replaceState(null, null, currentHash);
     }
 
-    let charactersData = null;
-    let staffData = null;
-
-    if (window.location.hash === currentHash) {
-        [ charactersData, staffData ] = await Promise.all([ 
-            getAnimeCharacters(animeId),
-            getAnimeStaff(animeId)
-        ]);
-    }
-
     const titlesHTML = [
         ...(anime.title_synonyms || []).map(s => `<li>${s}</li>`),
         ...(anime.titles || []).map(t => `<li>${t.type}: ${t.title}</li>`)
@@ -77,8 +67,7 @@ export async function loadDetailsPage(animeId = null) {
         </div>
         `
         : '';
-    const relationsHTML = '<div id="relations-container"></div>';
-
+    const relationsHTML = `<div class="loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`;
     const heroStatsHTML = `
         <div class="details-stats hero-stats">
             <div class="stat-box">
@@ -140,38 +129,8 @@ export async function loadDetailsPage(animeId = null) {
           </div>
       </div>
     `;
-
-    const charactersHTML = (charactersData && charactersData.length > 0)
-    ? `<div class="character-grid">${charactersData.map(char => {
-        const imgSrc = char.character.images.webp.image_url;
-        const isPlaceholder = imgSrc.includes('questionmark');
-        return `
-        <div class="character-card">
-            ${isPlaceholder ? '<div class="placeholder-icon"><i class="fas fa-user"></i></div>' : `<img src="${imgSrc}" loading="lazy" alt="${char.character.name}">`}
-            <div class="character-info">
-                <h5>${char.character.name}</h5>
-                <p>${char.role}</p>
-                ${char.voice_actors && char.voice_actors.length > 0 ? `<p class="voice-actor"><b>Voice Actor:</b> ${char.voice_actors[0].person.name} (${char.voice_actors[0].language})</p>` : ''}
-            </div>
-        </div>`
-    }).join('')}</div>`
-    : '<p>No character information available.</p>';
-
-    const staffHTML = (staffData && staffData.length > 0)
-    ? `<div class="staff-grid">${staffData.map(staff => {
-        const imgSrc = staff.person.images.jpg.image_url;
-        const isPlaceholder = imgSrc.includes('questionmark');
-        return `
-        <div class="staff-card">
-            ${isPlaceholder ? '<div class="placeholder-icon"><i class="fas fa-user-tie"></i></div>' : `<img src="${imgSrc}" loading="lazy" alt="${staff.person.name}">`}
-            <div class="staff-info">
-                <h5>${staff.person.name}</h5>
-                <p>${staff.positions.join(', ')}</p>
-            </div>
-        </div>`
-    }).join('')}</div>`
-    : '<p>No staff information available.</p>';
-
+    const charactersHTML = `<div class="loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`;
+    const staffHTML = `<div class="loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`;
     const reviewsHTML = `
       <div class="reviews-container">
         <div class="gallery-prev">&lt</div>
@@ -193,7 +152,7 @@ export async function loadDetailsPage(animeId = null) {
           <div class="details-info">
             ${heroStatsHTML}
             <h2 class="synopsis-header">Synopsis</h2>
-            <p class="details-synopsis">${anime.synopsis || 'No synopsis available.'}</p>
+            <p class="details-synopsis">${escapeHTML(anime.synopsis || 'No synopsis available.')}</p>
           </div>
         </div>
       </div>
@@ -232,7 +191,9 @@ export async function loadDetailsPage(animeId = null) {
         </div>
 
         <div id="relations" class="details-section">
-          ${relationsHTML}
+          <div id="relations-container">
+            ${relationsHTML}
+          </div>
         </div>
 
         <div id="production" class="details-section">
@@ -254,6 +215,8 @@ export async function loadDetailsPage(animeId = null) {
     if (window.location.hash === currentHash) {
       content.innerHTML = detailsHTML;
       initDetailsNav();
+      loadCharecters(animeId);
+      loadStaff(animeId);
       loadReviews(animeId);
       loadRelations(anime.relations, animeId);
     }
@@ -277,6 +240,7 @@ async function loadRelations(relations, animeId) {
   const currentHash = `#/details-${animeId}`;
 
   if (window.location.hash === currentHash) {
+    container.innerHTML = '';
     for (const relation of relations) {
       const group = document.createElement('div');
       group.className = 'relation-group';
@@ -308,7 +272,7 @@ async function loadRelations(relations, animeId) {
       }
       container.appendChild(group);
     }
-  };
+  } else return;
   initFlashcardHover();
 }
 
@@ -340,6 +304,55 @@ function initDetailsNav() {
       }
     });
   });
+}
+
+async function loadCharecters(animeId) {
+  let charactersData = null;
+  try {
+    charactersData = await getAnimeCharacters(animeId);
+  } catch (error) {
+    console.error('Failed to load characters:', error);
+  }
+  const charContainer = document.getElementById('characters');
+  charContainer.innerHTML = (charactersData && charactersData.length > 0)
+  ? `<div class="character-grid">${charactersData.map(char => {
+      const imgSrc = char.character.images.webp.image_url;
+      const isPlaceholder = imgSrc.includes('questionmark');
+      return `
+      <div class="character-card">
+          ${isPlaceholder ? '<div class="placeholder-icon"><i class="fas fa-user"></i></div>' : `<img src="${imgSrc}" loading="lazy" alt="${char.character.name}">`}
+          <div class="character-info">
+              <h5>${char.character.name}</h5>
+              <p>${char.role}</p>
+              ${char.voice_actors && char.voice_actors.length > 0 ? `<p class="voice-actor"><b>Voice Actor:</b> ${char.voice_actors[0].person.name} (${char.voice_actors[0].language})</p>` : ''}
+          </div>
+      </div>`
+  }).join('')}</div>`
+  : '<p>No character information available.</p>';
+}
+
+async function loadStaff(animeId) {
+  let staffData = null;
+  try {
+    staffData = await getAnimeStaff(animeId);
+  } catch (error) {
+    console.error('Failed to load staff:', error);
+  }
+   const staffContainer = document.getElementById('staff');
+   staffContainer.innerHTML = (staffData && staffData.length > 0)
+   ? `<div class="staff-grid">${staffData.map(staff => {
+       const imgSrc = staff.person.images.jpg.image_url;
+       const isPlaceholder = imgSrc.includes('questionmark');
+       return `
+       <div class="staff-card">
+           ${isPlaceholder ? '<div class="placeholder-icon"><i class="fas fa-user-tie"></i></div>' : `<img src="${imgSrc}" loading="lazy" alt="${staff.person.name}">`}
+           <div class="staff-info">
+               <h5>${staff.person.name}</h5>
+               <p>${staff.positions.join(', ')}</p>
+           </div>
+       </div>`
+   }).join('')}</div>`
+   : '<p>No staff information available.</p>'; 
 }
 
 async function loadReviews(animeId) {
@@ -385,7 +398,7 @@ function createReviewCard(review) {
         <i class="fas fa-quote-left"></i>
       </div>
       <div class="review-content">
-        <p class="review-text">${truncatedReview}</p>
+        <p class="review-text">${escapeHTML(truncatedReview)}</p>
       </div>
       <div class="review-footer">
         <div class="review-user">

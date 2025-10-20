@@ -1,6 +1,6 @@
-import { status, initSlideshow, initFlashcardHover, randomAnime, initFilters, renderGenres, initSearch, displaySearchResults, applyFilters, initGalleryControls } from './main.js';
+import { initSlideshow, initFlashcardHover, randomAnime,  initGalleryControls } from './main.js';
 import { searchAnime, getTopRatedAnime, getMostPopularAnime, getAiringAnime, getSeasonalAnime, getGenres, genres, getAnimeInfo } from './api.js';
-import { createSection, createFlashcard } from './components/UIs.js';
+import { createSection } from './components/UIs.js';
 import { loadSearchPage } from './components/search.js';
 import { escapeHTML } from './components/utils.js';
 import { reccomendedData} from './components/data.js'
