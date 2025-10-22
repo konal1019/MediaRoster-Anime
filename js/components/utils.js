@@ -17,7 +17,7 @@ export function escapeHTML(str) {
 
   const allowed_filters = new Set([
     'q', 'page', 'genres', 'min_score', 'max_score',
-    'status', 'type', 'rating', 'order_by', 'sort'
+    'status', 'type', 'rating', 'order_by', 'sort', 'sfw'
   ]);
   
   const ENUMS = {
@@ -48,6 +48,8 @@ export function getSafeParams() {
         .map(v => parseInt(v, 10))
         .filter(n => Number.isFinite(n) && n > 0);
       if (ids.length) safe.set('genres', ids.join(','));
+    } else if (key==='sfw') {
+      safe.set('sfw', value);
     } else if (ENUMS[key]) {
       const norm = value.toLowerCase();
       if (ENUMS[key].has(norm)) safe.set(key, norm);

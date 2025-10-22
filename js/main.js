@@ -246,13 +246,16 @@ export function initFilters() {
         });
     });
     const sfw = document.getElementById('sfw-checkbox');
-    activeFilters.sfw = 'false'; 
     sfw.addEventListener('change', () => {
-      if (sfw.checked) {
-        activeFilters.sfw = 'false';
-      } else {
+      if (!sfw.checked || !activeFilters.sfw) {
         activeFilters.sfw = 'true';
+        sfw.checked = false;
+      } else {
+        delete activeFilters.sfw
+        sfw.checked = true;
+        console.log('removed sfw') 
       }
+      console.log(activeFilters)
     });
 }
 
@@ -288,7 +291,7 @@ export async function renderGenres() {
 
 export async function initSearch() {
     applyFilters();
-
+    console.log(activeFilters)
     const searchBtn = document.getElementById('search-button');
     if (searchBtn) searchBtn.addEventListener('click', () => {
         delete activeFilters['page'];
@@ -342,7 +345,8 @@ export function applyFilters() {
     for (const key in activeFilters) delete activeFilters[key];
     document.querySelectorAll('[class*="active"]').forEach(el => el.classList.remove('active'));
 
-    const params = getSafeParams(); // sanitize from URL/hash
+    const params = getSafeParams();
+    console.log(params)
     const IdFilters = ['order_by', 'sort', 'min_score', 'max_score'];
 
     for (const [key, value] of params.entries()) {
@@ -360,16 +364,18 @@ export function applyFilters() {
                 }
             });
         } else if (key === 'page') activeFilters[key] = value;
-        else if (key in IdFilters) {
+        else if (key === 'sfw') {
+          const checkbox = document.getElementById('sfw-checkbox');
+          activeFilters.sfw = 'true';
+          checkbox.checked = false;
+        } else if (key in IdFilters) {
             const elem = document.getElementById(key);
             if (elem) elem.value = value;
-        } else if (key === 'sfw') {
-            const checkbox = document.getElementById('sfw-checkbox');
-            if (checkbox) checkbox.checked = value === 'true';
         } else {
             const elem = document.querySelector(`[data-filter='${key}'][data-value='${value}']`);
             if (elem) elem.classList.add('active');
             activeFilters[key] = value;
         }
     }
+    console.log(activeFilters)
 }

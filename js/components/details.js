@@ -12,6 +12,12 @@ export async function loadDetailsPage(animeId = null) {
   const content = document.getElementById('content');
   content.innerHTML = '';
   document.getElementById('randomDiv').style.display = 'none'; 
+  const link = document.createElement('link')
+  link.rel = 'preload';
+  link.href = './media/details-bg.webp';
+  link.as = 'image';
+  link.type = 'image/webp';
+  document.head.appendChild(link);
 
   showLoader();
 
@@ -386,11 +392,6 @@ function createReviewCard(review) {
   const username = review.user?.username || 'Anonymous';
   const malId = review.mal_id || 'N/A';
   const reviewText = review.review || 'Prolly nothing important';
-  
-  // Truncate review text if too long
-  const truncatedReview = reviewText.length > 300 
-    ? reviewText.substring(0, 300) + '...' 
-    : reviewText;
 
   return `
     <div class="review-card">
@@ -398,7 +399,7 @@ function createReviewCard(review) {
         <i class="fas fa-quote-left"></i>
       </div>
       <div class="review-content">
-        <p class="review-text">${escapeHTML(truncatedReview)}</p>
+        <p class="review-text">${escapeHTML(reviewText)}</p>
       </div>
       <div class="review-footer">
         <div class="review-user">
