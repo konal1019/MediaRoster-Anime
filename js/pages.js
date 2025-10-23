@@ -13,7 +13,6 @@ export function loadPageContent(pageName) {
   else if (pageName === 'portfolio') window.location.href = 'https://github.com/konal1019';
   else load404();
 }
-
 // ====== LOADER ======
 let loaderTimeout;
 export function showLoader() {
@@ -45,7 +44,6 @@ export function loadCSS(filename) {
     document.head.appendChild(link);
   }
 }
-
 // ====== HOME PAGE ======
 export async function loadHomePage() {
   const currentHash = window.location.hash;
@@ -92,7 +90,6 @@ export async function loadHomePage() {
     { title: 'Currently Airing Anime', apiFunction: getAiringAnime, cardType: 'airing', containerClass: 'airing-container', titleClass: 'airing-title', galleryClass: 'gridGallery' },
     { title: 'Anime This Season', apiFunction: getSeasonalAnime, cardType: 'seasonal', containerClass: 'airing-container', titleClass: 'airing-title', galleryClass: 'gridGallery' }
   ];
-
   for (const section of sections) {
     if (window.location.hash !== '' && window.location.hash !== '#/') return;
       const sectionHTML = await createSection(section);

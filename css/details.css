@@ -646,7 +646,7 @@
   text-align: justify;
   overflow: hidden;
   hyphens: auto;
-  min-height: 80%
+  min-height: 100%;
 }
 
 .review-footer {

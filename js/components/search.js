@@ -2,7 +2,7 @@ import { status, initSlideshow, initFlashcardHover, randomAnime, initFilters, re
 import { searchAnime, getTopRatedAnime, getMostPopularAnime, getGenres, genres } from '../api.js';
 import { createSection, createFlashcard } from './UIs.js';
 import { loadCSS, showLoader, hideLoader } from '../pages.js'
-import { escapeHTML } from './utils.js';
+import { getSafeParams} from './utils.js';
 
 export async function loadSearchPage() {
     const currentHash = window.location.hash;
@@ -65,8 +65,8 @@ export async function loadSearchPage() {
             <div class="filter-section">
                 <div class="filter-controls">
                     <h4 class="filter-header">Score:</h4>
-                    <input type="number" class="filter-input" placeholder="Min Score" id="min-score" min="0" max="10" step="0.1">
-                    <input type="number" class="filter-input" placeholder="Max Score" id="max-score" min="0" max="10" step="0.1">
+                    <input type="number" class="filter-input" placeholder="Min Score" id="min_score" min="0" max="10" step="0.1">
+                    <input type="number" class="filter-input" placeholder="Max Score" id="max_score" min="0" max="10" step="0.1">
                 </div>
             </div>
             <div class="filter-section">
@@ -88,14 +88,16 @@ export async function loadSearchPage() {
             <div class="filter-section">
                 <div class="filter-controls">
                     <h4 class="filter-header">Order By:</h4>
-                    <select id="order-by" class="filter-dropdown">
+                    <select id="order_by" class="filter-dropdown">
                         <option value="score">Score</option>
                         <option value="members">Members</option>
                         <option value="popularity">Popularity</option>
                         <option value="title">A-Z</option>
+                        <option value="favorites">Favorites</option>
+                        <option value="episodes">Episodes</option>
                     </select>
                     <h4 class="filter-header">Sort Direction:</h4>
-                    <select id="sort-direction" class="filter-dropdown">
+                    <select id="sort" class="filter-dropdown">
                         <option value="desc">Descending</option>
                         <option value="asc">Ascending</option>
                     </select>

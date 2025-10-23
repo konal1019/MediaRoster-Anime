@@ -24,12 +24,13 @@ export function escapeHTML(str) {
     status: new Set(['airing','complete','upcoming']),
     type: new Set(['tv','movie','ova','special']),
     rating: new Set(['g','pg','pg13','r','r17','rx']),
-    order_by: new Set(['title','score','popularity','favorites']),
+    order_by: new Set(['title','score','popularity','favorites','members','episodes']),
     sort: new Set(['asc','desc'])
   };
   
 export function getSafeParams() {
   const raw = new URLSearchParams(window.location.hash.split('?')[1] || '');
+  console.log(`raw : ${raw}`)
   const safe = new URLSearchParams();
 
   for (const [key, value] of raw.entries()) {
@@ -55,5 +56,6 @@ export function getSafeParams() {
       if (ENUMS[key].has(norm)) safe.set(key, norm);
     }
   }
+  console.log(`safe : ${safe}`)
   return safe;
 }

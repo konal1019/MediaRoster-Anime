@@ -5,6 +5,8 @@ export function createFlashcard(anime, cardType) {
   const title = anime.title_english || anime.title;
   const synopsis = escapeHTML(anime.synopsis || anime.background || 'No synopsis available.');
   const detailsUrl = `#/details-${anime.mal_id}`;
+  let studios = anime.studios?.map(s => s.name).join(', ') || 'Unknown'
+  studios = studios.length < 20 ? studios : studios.slice(0, 20) + '...';
 
   let overlayDetails = '';
   let badges = '';
@@ -34,7 +36,7 @@ export function createFlashcard(anime, cardType) {
           break;
       case 'airing':
           overlayDetails = `
-              <div class="flashcard-studio"><i class="fa-solid fa-clapperboard"></i>${anime.studios?.map(s => s.name).join(', ') || 'Unknown'}</div>
+              <div class="flashcard-studio"><i class="fa-solid fa-clapperboard"></i>${studios}</div>
               <div class="flashcard-status"><i class="fas fa-calendar-days"></i> ${anime.broadcast?.string || 'Unscheduled'}</div>
           `;
            badges = `
@@ -46,7 +48,7 @@ export function createFlashcard(anime, cardType) {
       case 'seasonal':
            overlayDetails = `
               <div class="flashcard-episodes"><i class="fas fa-play-circle"></i> ${anime.episodes || 'N/A'} episodes</div>
-              <div class="flashcard-studio"><i class="fa-solid fa-clapperboard"></i>${anime.studios?.map(s => s.name).join(', ') || 'Unknown'}</div>
+              <div class="flashcard-studio"><i class="fa-solid fa-clapperboard"></i>${studios}</div>
           `;
            badges = `
               <div class="flashcard-rank">#${anime.rank || ''}</div>

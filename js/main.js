@@ -368,9 +368,10 @@ export function applyFilters() {
           const checkbox = document.getElementById('sfw-checkbox');
           activeFilters.sfw = 'true';
           checkbox.checked = false;
-        } else if (key in IdFilters) {
+        } else if (IdFilters.includes(key)) {
             const elem = document.getElementById(key);
             if (elem) elem.value = value;
+            activeFilters[key] = value;
         } else {
             const elem = document.querySelector(`[data-filter='${key}'][data-value='${value}']`);
             if (elem) elem.classList.add('active');

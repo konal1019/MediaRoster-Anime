@@ -392,6 +392,9 @@ function createReviewCard(review) {
   const username = review.user?.username || 'Anonymous';
   const malId = review.mal_id || 'N/A';
   const reviewText = review.review || 'Prolly nothing important';
+  const truncatedText = reviewText.length < 300
+  ? reviewText 
+  : reviewText.substring(0,300) + '...';
 
   return `
     <div class="review-card">
@@ -399,7 +402,7 @@ function createReviewCard(review) {
         <i class="fas fa-quote-left"></i>
       </div>
       <div class="review-content">
-        <p class="review-text">${escapeHTML(reviewText)}</p>
+        <p class="review-text">${escapeHTML(truncatedText)}</p>
       </div>
       <div class="review-footer">
         <div class="review-user">
