@@ -118,6 +118,10 @@ main {
     font-size: 1rem;
     width: 8rem;
   }
+  .slide-source {
+    font-size: 10px;
+    padding-top: 5px;
+  }
   
   .slide-button:hover {
     background-color: var(--hover-primary-accent);
