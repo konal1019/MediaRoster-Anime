@@ -33,3 +33,18 @@ window.addEventListener('hashchange', handleRoute);
 
 // Initial route handling on page load
 window.addEventListener('load', handleRoute);
+
+let lastScroll = 0;
+const header = document.querySelector('header');
+window.addEventListener('scroll', () => {
+  const currentScroll = window.scrollY;
+  // the number '10' was provided by chatGPT
+  if (currentScroll > lastScroll && currentScroll > 10) {
+    header.style.padding = '0.2rem 0.1rem';
+  } else if (currentScroll < lastScroll) {
+    if (currentScroll <= 10) {
+      header.style.padding = '0.5rem 0.1rem';
+    }
+  }
+  lastScroll = currentScroll;
+});

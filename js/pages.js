@@ -55,25 +55,24 @@ export async function loadHomePage() {
   showLoader();
 
   const slideshowHTML = `
-    <h3 class="recommendations-title">Check Out My Recommendations</h3>
     <div class="slideshow-container">
       ${reccomendedData.map((anime, i) => `
         <div class="slide ${i === 0 ? 'active' : ''}" id="rec-${anime.mal_id}" data-mal-id="${anime.mal_id}">
-          <div class="slide-column-left">
-            <img src="${anime.images.large_image}" alt="${anime.title}">
-          </div>
-          <div class="slide-column-right">
-            <div class="slide-content">
-              <h2 class="slide-title">${anime.title}</h2>
-              <p class="slide-description">${anime.synopsis.substring(0, 250)}...</p>
-              <div class="slide-details">
-                <span><i class="fas fa-play-circle"></i> ${anime.episodes} Episodes</span>
-                <span><i class="fas fa-star"></i> ${anime.score}</span>
-                <span><i class="fas fa-users"></i> ${anime.members.toLocaleString()}</span>
-                <span><i class="fas fa-trophy"></i> Rank: #${anime.rank}</span>
-              </div>
-              <a href="./#/details-${anime.mal_id}" class="slide-button">View Details</a>
+          <picture>
+            <source media="(min-width: 601px)" srcset="${anime.images.PC_image}">
+            <img class="hero-background" src="${anime.images.large_image}" alt="${anime.title} background">
+          </picture>
+          <div class="slide-fade"></div>
+          <div class="slide-content">
+            <h2 class="slide-title">${anime.title}</h2>
+            <p class="slide-description">${anime.synopsis.substring(0, 250)}...</p>
+            <div class="slide-details">
+              <span><i class="fas fa-play-circle"></i> ${anime.episodes} Episodes</span>
+              <span><i class="fas fa-star"></i> ${anime.score}</span>
+              <span><i class="fas fa-users"></i> ${anime.members.toLocaleString()}</span>
+              <span><i class="fas fa-trophy"></i> Rank: #${anime.rank}</span>
             </div>
+            <a href="./#/details-${anime.mal_id}" class="slide-button">View Details</a>
           </div>
         </div>
       `).join('')}
@@ -121,23 +120,26 @@ async function updateSlides() {
       const data = await getAnimeInfo(mal_id);
       if (!data) continue;
       if (window.location.hash !== '' && window.location.hash !== '#/') break;
+      const recData = reccomendedData.find(rec => rec.mal_id == mal_id);
+      const pcImage = recData ? recData.images.PC_image : data.images.jpg.large_image_url;
+
 
       const updated = `
-        <div class="slide-column-left">
-          <img src="${data.images.jpg.large_image_url}" alt="${data.title}">
-        </div>
-        <div class="slide-column-right">
-          <div class="slide-content">
-            <h2 class="slide-title">${escapeHTML(data.title_english || data.title)}</h2>
-            <p class="slide-description">${escapeHTML(data.synopsis?.substring(0, 250) || 'No description')}...</p>
-            <div class="slide-details">
-              <span><i class="fas fa-play-circle"></i> ${data.episodes || 'N/A'} Episodes</span>
-              <span><i class="fas fa-star"></i> ${data.score || 'N/A'}</span>
-              <span><i class="fas fa-users"></i> ${(data.members || 0).toLocaleString()}</span>
-              <span><i class="fas fa-trophy"></i> Rank: #${data.rank || 'N/A'}</span>
-            </div>
-            <a href="./#/details-${data.mal_id}" class="slide-button">View Details</a>
+        <picture>
+          <source media="(min-width: 601px)" srcset="${pcImage}">
+          <img class="hero-background" src="${data.images.jpg.large_image_url}" alt="${data.title} background">
+        </picture>
+        <div class="slide-fade"></div>
+        <div class="slide-content">
+          <h2 class="slide-title">${escapeHTML(data.title_english || data.title)}</h2>
+          <p class="slide-description">${escapeHTML(data.synopsis?.substring(0, 250) || 'No description')}...</p>
+          <div class="slide-details">
+            <span><i class="fas fa-play-circle"></i> ${data.episodes || 'N/A'} Episodes</span>
+            <span><i class="fas fa-star"></i> ${data.score || 'N/A'}</span>
+            <span><i class="fas fa-users"></i> ${(data.members || 0).toLocaleString()}</span>
+            <span><i class="fas fa-trophy"></i> Rank: #${data.rank || 'N/A'}</span>
           </div>
+          <a href="./#/details-${data.mal_id}" class="slide-button">View Details</a>
         </div>
       `;
       slide.innerHTML = updated;

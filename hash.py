@@ -57,7 +57,7 @@ def minify_file(src, dest):
     try:
         subprocess.run(cmd, check=True)
     except subprocess.CalledProcessError as e:
-        print(f"⚠️ Minifier failed for {src}, copying instead.")
+        print(f"Minifier failed for {src}, copying instead.")
         shutil.copy2(src, dest)
 
 
@@ -95,11 +95,11 @@ def minify_all():
     if os.path.exists('index.html'):
         minify_file('index.html', os.path.join(build_dir, 'index.html'))
 
-    print("✅ Minification done.")
+    print("Minification done.")
 
 
 def hash_and_update_refs():
-    print("🔑 Hashing and updating references...")
+    print("Hashing and updating references...")
     hashed_map = {}
     built_files_to_update = []
 
@@ -137,8 +137,8 @@ def hash_and_update_refs():
         with open(file_path, 'w', encoding='utf-8') as f:
             f.write(text)
 
-    print("📝 Updated references in HTML and JS files.")
-    print("🎉 Done.")
+    print("Updated references in HTML and JS files.")
+    print("Done.")
 
 
 def main():

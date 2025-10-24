@@ -48,13 +48,15 @@
             overflow-x: hidden;
         }
         header {
-            background-color: var(--bg-color-secondary);
+            background-color: rgba(36,36,36,0.71);
             padding: 0.5rem 0.1rem; 
             border-bottom: 1px solid var(--border-color);
             position: fixed;
             top: 0;
             z-index: 10;
             width: 100%;
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
         }
         nav {
             display: flex;
@@ -177,6 +179,7 @@
                 justify-content: center;
                 padding: 0 1rem;
                 min-height: 40px;
+
             }
             .logo-title {
                 position: absolute;
@@ -246,8 +249,8 @@
     <link rel="stylesheet" href="./css/style.css">
     <link rel="stylesheet" href="./css/icons.css">
     <link rel="stylesheet" href="./css/details.css">
-    <link rel="preload" href="./webfonts/fa-brands-400.woff2" as="font" type="font/woff2">
-    <link rel="preload" href="./webfonts/fa-solid-900.woff2" as="font" type="font/woff2">
+    <link rel="preload" href="./webfonts/fa-brands-400.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+    <link rel="preload" href="./webfonts/fa-solid-900.woff2" as="font" type="font/woff2" crossorigin="anonymous">
     <link rel="preconnect" href="https://cdn.myanimelist.net">
     <link rel="preconnect" href="https://api.jikan.moe">
 </head>

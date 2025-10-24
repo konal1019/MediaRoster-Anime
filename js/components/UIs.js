@@ -83,7 +83,7 @@ export async function createSection({ title, apiFunction, cardType, containerCla
         return galleryClass === 'horizontal-gallery' 
         ? `
             <div class="${containerClass}">
-                <h2 class="${titleClass}">${title}</h2>
+                <h2 class="${titleClass}, floating-header">${title}</h2>
                 <div class="gallery-prev">&lt</div>
                 <div class="${galleryClass}">
                     ${galleryHTML}
@@ -93,7 +93,7 @@ export async function createSection({ title, apiFunction, cardType, containerCla
             </div>
         ` : `
             <div class="${containerClass}">
-                <h2 class="${titleClass}">${cardType==='seasonal' ? `${title} (${animeList[0].season}, ${animeList[0].year})`: title }</h2>
+                <h2 class="${titleClass}, floating-header">${cardType==='seasonal' ? `${title} (${animeList[0].season}, ${animeList[0].year})`: title }</h2>
                 <div class="${galleryClass}">
                     ${galleryHTML}
                 </div>
