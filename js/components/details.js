@@ -58,13 +58,14 @@ export async function loadDetailsPage(animeId = null) {
 
     const yearHTML = anime.year || 'N/A';
 
-    const embed = anime.trailer?.embed_url 
+    const embed = anime.trailer?.embed_url?.replace('&autoplay=1', '')
     const trailerHTML = embed
         ? `
         <div class="details-trailer">
             <h2>Trailer</h2>
             <div class="trailer-container">
               <iframe 
+                  loading = "lazy"
                   src="${embed}" 
                   frameborder="0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope;" 
@@ -136,14 +137,18 @@ export async function loadDetailsPage(animeId = null) {
           </div>
       </div>
     `;
-    const charactersHTML = `<div class="loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`;
-    const staffHTML = `<div class="loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`;
+    const charactersHTML = `<div class="loader" id="reviews-loader">
+                              <div class="dot"></div>
+                              <div class="dot"></div>
+                              <div class="dot"></div>
+                            </div>`;
+    const staffHTML = charactersHTML
     const reviewsHTML = `
       <div class="reviews-container">
         <div class="gallery-prev">&lt</div>
         <div class="gallery-next">&gt</div>
         <h2 class="floating-header">  What People Have to Say</h2>
-        
+        ${charactersHTML}
       </div>
     `
     const detailsHTML = `
@@ -374,7 +379,7 @@ async function loadReviews(animeId) {
       container.innerHTML += '<p style="text-align: center; color: var(--text-color); padding: 2rem;">No reviews available.</p>';
       return;
     }
-
+    document.getElementById('reviews-loader').remove();
     reviewsData.forEach(review => {
       const reviewCard = createReviewCard(review);
       galleryContainer.innerHTML += reviewCard;
