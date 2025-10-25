@@ -58,13 +58,14 @@ export async function loadDetailsPage(animeId = null) {
 
     const yearHTML = anime.year || 'N/A';
 
-    const trailerHTML = anime.trailer?.youtube_id
+    const embed = anime.trailer?.embed_url 
+    const trailerHTML = embed
         ? `
         <div class="details-trailer">
             <h2>Trailer</h2>
             <div class="trailer-container">
               <iframe 
-                  src="https://www.youtube.com/embed/${anime.trailer.youtube_id}?rel=0" 
+                  src="${embed}" 
                   frameborder="0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope;" 
                   allowfullscreen>

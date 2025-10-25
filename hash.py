@@ -28,14 +28,23 @@ files_to_hash = {
         os.path.join(src_dir, 'media', 'jumpscare.mp3'),
         os.path.join(src_dir, 'media', 'jumpscare.webp'),
         os.path.join(src_dir, 'media', 'logo.webp'),
-        os.path.join(src_dir, 'media', 'details-bg.webp')
+        os.path.join(src_dir, 'media', 'details-bg.webp'),
+        os.path.join(src_dir, 'media', 'akame.webp'),
+        os.path.join(src_dir, 'media', 'AOT.webp'),
+        os.path.join(src_dir, 'media', 'AssaClass.webp'),
+        os.path.join(src_dir, 'media', 'BGS.webp'),
+        os.path.join(src_dir, 'media', 'DeathNote.webp'),
+        os.path.join(src_dir, 'media', 'DuskMaiden.webp'),
+        os.path.join(src_dir, 'media', 'eminance.webp'),
+        os.path.join(src_dir, 'media', 'naruto.webp'),
+        os.path.join(src_dir, 'media', 'ReZero.webp'),
+        os.path.join(src_dir, 'media', 'slime.webp'),
+        os.path.join(src_dir, 'media', 'konosuba.webp')
     ]
 }
 
-
 def ensure_dir(path):
     os.makedirs(os.path.dirname(path), exist_ok=True)
-
 
 def minify_file(src, dest):
     ext = os.path.splitext(src)[1].lower()
@@ -60,8 +69,6 @@ def minify_file(src, dest):
         print(f"Minifier failed for {src}, copying instead.")
         shutil.copy2(src, dest)
 
-
-
 def copy_dir(src, dest):
     if not os.path.exists(src):
         return
@@ -73,7 +80,6 @@ def copy_dir(src, dest):
             copy_dir(s, d)
         else:
             shutil.copy2(s, d)
-
 
 def minify_all():
     print("🪄 Minifying...")
@@ -96,7 +102,6 @@ def minify_all():
         minify_file('index.html', os.path.join(build_dir, 'index.html'))
 
     print("Minification done.")
-
 
 def hash_and_update_refs():
     print("Hashing and updating references...")
@@ -140,14 +145,12 @@ def hash_and_update_refs():
     print("Updated references in HTML and JS files.")
     print("Done.")
 
-
 def main():
     if os.path.exists(build_dir):
         shutil.rmtree(build_dir)
     os.makedirs(build_dir, exist_ok=True)
     minify_all()
     hash_and_update_refs()
-
 
 if __name__ == "__main__":
     main()

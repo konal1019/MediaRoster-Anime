@@ -59,7 +59,11 @@ main {
     left: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(to top, rgba(26,26,26,0.9) 25%, transparent 50%, transparent);
+    background: linear-gradient(to top,
+    #1a1a1a 3%,
+    rgba(26,26,26,0.9) 15%,
+    rgba(26,26,26,0.8) 25%,
+    transparent 50%);
     z-index: 1;
     display: block;
   }
@@ -121,6 +125,7 @@ main {
   .slide-source {
     font-size: 10px;
     padding-top: 5px;
+    color: var(--lighter-accent)
   }
   
   .slide-button:hover {

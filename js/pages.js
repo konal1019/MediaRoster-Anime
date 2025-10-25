@@ -126,7 +126,7 @@ async function updateSlides() {
       const pcImage = recData ? recData.images.PC_image : data.images.jpg.large_image_url;
       const mobileImage = data.images.jpg.large_image_url;
 
-      const title = escapeHTML(data.title_english || data.title);
+      const title = data.title_english || data.title;
       const description = escapeHTML(data.synopsis?.substring(0, 250) || 'No description') + '...';
       const episodes = data.episodes || 'N/A';
       const score = data.score || 'N/A';

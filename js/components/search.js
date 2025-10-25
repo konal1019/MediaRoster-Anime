@@ -117,9 +117,12 @@ export async function loadSearchPage() {
     showLoader();
     initSearch();
     initFilters();
-  
+
     const [path, query] = currentHash.split('?');
     if (path === '#/search' && !query) {
+      const allAnime = await searchAnime('https://api.jikan.moe/v4/anime?page=1');
+      if (currentHash !== '#/search') return;
+      displaySearchResults(allAnime);
       const searchResultsContainer = document.getElementById('search-results');
       if (searchResultsContainer) {
         if (currentHash !== '#/search') return;
@@ -132,7 +135,7 @@ export async function loadSearchPage() {
           galleryClass: 'gridGallery'
         });
         if (currentHash !== '#/search') return;
-        searchResultsContainer.innerHTML += topRatedSection;
+        searchResultsContainer.insertAdjacentHTML('beforeend', topRatedSection)
         if (currentHash !== '#/search') return;
         const mostPopularSection = await createSection({
           title: 'Most Popular Anime',
@@ -143,7 +146,7 @@ export async function loadSearchPage() {
           galleryClass: 'gridGallery'
         });
         if (currentHash !== '#/search') return;
-        searchResultsContainer.innerHTML += mostPopularSection;
+        searchResultsContainer.insertAdjacentHTML('beforeend', mostPopularSection)
       }
   
       if (currentHash === '#/search') {
@@ -187,7 +190,8 @@ function loadPagination(paginationData, containerEl) {
             btn.addEventListener('click', () => {
                 const params = getSafeParams();
                 params.set('page', page);
-                window.location.hash = `#/search?${params.toString()}`;
+                const hash = `#/search?${params.toString() || `page=${page}`}`
+                window.location.hash = hash;
             });
         }
         return btn;
@@ -220,7 +224,7 @@ export async function displaySearchResults(searchResults) {
 
     const infoHeader = document.createElement('h2');
     infoHeader.className = 'search-results-info';
-    infoHeader.textContent = `Found ${searchResults.pagination.items.total} results`;
+    infoHeader.textContent = `Found ${searchResults.pagination.items.total} anime in database`;
     container.appendChild(infoHeader);
 
     const grid = document.createElement('div');
