@@ -376,6 +376,7 @@ async function loadReviews(animeId) {
     const reviewsData = await getAnimeReviews(animeId);
     
     if (!reviewsData || reviewsData.length === 0) {
+      document.getElementById('reviews-loader').remove();
       container.innerHTML += '<p style="text-align: center; color: var(--text-color); padding: 2rem;">No reviews available.</p>';
       return;
     }
