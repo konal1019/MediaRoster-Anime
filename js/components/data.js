@@ -101,7 +101,7 @@ export const reccomendedData = [
     "mal_id": 22199,
     "images": {
       "large_image": "https://cdn.myanimelist.net/images/anime/1429/95946l.webp",
-      "PC_image": "./media/Akame.webp",
+      "PC_image": "./media/akame.webp",
       "source": "https://wallpapers.com/wallpapers/akame-ga-kill-characters-under-moon-scoo5fb7drhy4l0f.html"
     },
     "title": "Akame ga Kill!",

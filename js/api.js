@@ -41,7 +41,7 @@ const fetchWithCache = async (url, cacheKey) => {
             }
         } catch (e) {
             console.error(`Error parsing cached data for key ${cacheKey}:`, e);
-            localStorage.removeItem(cacheKey); // Remove corrupted data
+            localStorage.removeItem(cacheKey);
         }
     }
 
@@ -59,6 +59,7 @@ const fetchWithCache = async (url, cacheKey) => {
           try {
               localStorage.setItem(cacheKey, JSON.stringify({ data, timestamp: now }));
           } catch (e) {
+            // yes this is actually necessary
               if (e.name === 'QuotaExceededError') {
                   console.warn('LocalStorage quota exceeded. Clearing oldest cache entries.');
                   const cacheItems = Object.keys(localStorage).map(key => {
@@ -68,14 +69,12 @@ const fetchWithCache = async (url, cacheKey) => {
                                 return { key, timestamp: item.timestamp };
                             }
                         } catch (error) {
-                            // Not a JSON item or incorrect cache format
+                            // ignore for incorrect cache format
                         }
                         return null;
                     }).filter(item => item !== null);
 
                   cacheItems.sort((a, b) => a.timestamp - b.timestamp);
-
-                  // Remove the oldest 5 items
                   const itemsToRemove = Math.min(5, cacheItems.length);
                   for (let i = 0; i < itemsToRemove; i++) {
                       console.log(`Removing old cache: ${cacheItems[i].key}`);
@@ -86,7 +85,6 @@ const fetchWithCache = async (url, cacheKey) => {
                       localStorage.setItem(cacheKey, JSON.stringify({ data, timestamp: now }));
                   } catch (e2) {
                       console.error('Failed to cache data even after clearing some entries:', e2);
-                      alert('seriously how are you filling up all cache space??')
                     }
               } else {
                   console.error('Error saving to localStorage:', e);

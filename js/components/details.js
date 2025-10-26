@@ -153,13 +153,13 @@ export async function loadDetailsPage(animeId = null) {
     `
     const detailsHTML = `
       <div class="details-hero-wrapper">
-          <h1>${anime.title_english || anime.title}</h1>
-          <div class="details-hero">
-            <div class="details-poster-group">
-              <div class="details-poster">
-                <img src="${anime.images?.webp?.large_image_url || './placeholder.png'}" alt="${anime.title || 'No Title'}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"/>
-                <div class="placeholder-icon" style="display: none;"><i class="fas fa-question-circle"></i></div>
-              </div>
+        <h1>${anime.title_english || anime.title}</h1>
+        <div class="details-hero">
+          <div class="details-poster-group">
+            <div class="details-poster">
+              <img src="${anime.images?.webp?.large_image_url || './placeholder.png'}" alt="${anime.title || 'No Title'}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"/>
+              <div class="placeholder-icon" style="display: none;"><i class="fas fa-question-circle"></i></div>
+            </div>
           </div>
           <div class="details-info">
             ${heroStatsHTML}
@@ -371,26 +371,25 @@ async function loadReviews(animeId) {
   const container = document.querySelector('.reviews-container');
   const galleryContainer = document.createElement('div');
   galleryContainer.className = 'horizontal-gallery';
-  
   try {
     const reviewsData = await getAnimeReviews(animeId);
-    
     if (!reviewsData || reviewsData.length === 0) {
-      document.getElementById('reviews-loader').remove();
       container.innerHTML += '<p style="text-align: center; color: var(--text-color); padding: 2rem;">No reviews available.</p>';
       return;
     }
-    document.getElementById('reviews-loader').remove();
     reviewsData.forEach(review => {
-      const reviewCard = createReviewCard(review);
-      galleryContainer.innerHTML += reviewCard;
-    });
+    const reviewCard = createReviewCard(review);
+    galleryContainer.innerHTML += reviewCard;
+  });
 
     container.appendChild(galleryContainer);
     initGalleryControls();
   } catch (error) {
     console.error('Failed to load reviews:', error);
     container.innerHTML += '<p style="text-align: center; color: var(--error-color); padding: 2rem;">Failed to load reviews.</p>';
+  } finally {
+    const loader = document.getElementById('reviews-loader');
+    if (loader) loader.remove();
   }
 }
 
