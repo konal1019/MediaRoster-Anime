@@ -183,19 +183,19 @@ export const getAnimeDetails = async (animeId) => {
 export const getAnimeInfo = async (animeId) => {
     const url = `${BASE_URL}/anime/${animeId}`;
     const cacheKey = `anime_info_${animeId}`;
-    return await fetchWithCache(url, cacheKey);
+    return await fetchWithoutCache(url);
 };
 
 export const getAnimeCharacters = async (animeId) => {
     const url = `${BASE_URL}/anime/${animeId}/characters`;
     const cacheKey = `anime_characters_${animeId}`;
-    return await fetchWithCache(url, cacheKey);
+    return await fetchWithoutCache(url);
 };
 
 export const getAnimeStaff = async (animeId) => {
     const url = `${BASE_URL}/anime/${animeId}/staff`;
     const cacheKey = `anime_staff_${animeId}`;
-    return await fetchWithCache(url, cacheKey);
+    return await fetchWithoutCache(url, cacheKey);
 };
 
 export const getRandomAnime = async () => {

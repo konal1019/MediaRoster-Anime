@@ -11,8 +11,8 @@ export async function loadDetailsPage(animeId = null) {
   document.getElementById('navsearch').style.color = '#ddd';
   const content = document.getElementById('content');
   content.innerHTML = '';
-  document.getElementById('randomDiv').style.display = 'none'; 
-  const link = document.createElement('link')
+  document.getElementById('randomDiv').style.display = 'none';
+  const link = document.createElement('link');
   link.rel = 'preload';
   link.href = './media/details-bg.webp';
   link.as = 'image';
@@ -58,23 +58,23 @@ export async function loadDetailsPage(animeId = null) {
 
     const yearHTML = anime.year || 'N/A';
 
-    const embed = anime.trailer?.embed_url?.replace('&autoplay=1', '')
+    const embed = anime.trailer?.embed_url?.replace('&autoplay=1', '');
     const trailerHTML = embed
-        ? `
+      ? `
         <div class="details-trailer">
             <h2>Trailer</h2>
             <div class="trailer-container">
-              <iframe 
-                  loading = "lazy"
-                  src="${embed}" 
+              <iframe
+                  loading="lazy"
+                  src="${embed}"
                   frameborder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope;" 
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                   allowfullscreen>
               </iframe>
             </div>
         </div>
         `
-        : '';
+      : '';
     const relationsHTML = `<div class="loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`;
     const heroStatsHTML = `
         <div class="details-stats hero-stats">
@@ -137,27 +137,27 @@ export async function loadDetailsPage(animeId = null) {
           </div>
       </div>
     `;
-    const charactersHTML = `<div class="loader" id="reviews-loader">
-                              <div class="dot"></div>
-                              <div class="dot"></div>
-                              <div class="dot"></div>
-                            </div>`;
-    const staffHTML = charactersHTML
+    const charactersHTML = `<div class="loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`;
+    const staffHTML = charactersHTML;
     const reviewsHTML = `
       <div class="reviews-container">
         <div class="gallery-prev">&lt</div>
         <div class="gallery-next">&gt</div>
-        <h2 class="floating-header">  What People Have to Say</h2>
-        ${charactersHTML}
+        <h2 class="floating-header">What People Have to Say</h2>
+        <div class="loader" id="reviews-loader">
+          <div class="dot"></div>
+          <div class="dot"></div>
+          <div class="dot"></div>
+        </div>
       </div>
-    `
+    `;
     const detailsHTML = `
       <div class="details-hero-wrapper">
         <h1>${anime.title_english || anime.title}</h1>
         <div class="details-hero">
           <div class="details-poster-group">
             <div class="details-poster">
-              <img src="${anime.images?.webp?.large_image_url || './placeholder.png'}" alt="${anime.title || 'No Title'}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"/>
+              <img src="${anime.images?.webp?.large_image_url || anime.imagea?.jpg?.large_image_url}" alt="${anime.title || 'No Title'}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"/>
               <div class="placeholder-icon" style="display: none;"><i class="fas fa-question-circle"></i></div>
             </div>
           </div>
@@ -194,7 +194,7 @@ export async function loadDetailsPage(animeId = null) {
 
         <div id="overview" class="details-section active">
             <div class="details-titles-box">
-              <h2>Also Known As: </h4>
+              <h2>Also Known As: </h2>
               <ul class="titles-list">${titlesHTML}</ul>
             </div>
             ${genresHTML}
@@ -227,9 +227,9 @@ export async function loadDetailsPage(animeId = null) {
     if (window.location.hash === currentHash) {
       content.innerHTML = detailsHTML;
       initDetailsNav();
+      loadReviews(animeId);
       loadCharecters(animeId);
       loadStaff(animeId);
-      loadReviews(animeId);
       loadRelations(anime.relations, animeId);
     }
   } catch (error) {
@@ -246,7 +246,7 @@ export async function loadDetailsPage(animeId = null) {
 async function loadRelations(relations, animeId) {
   const container = document.getElementById('relations-container');
   if (!relations || relations.length === 0) {
-    container.innerHTML = '<p>No related anime found.</p>';
+    if (container) container.innerHTML = '<p>No related anime found.</p>';
     return;
   }
   const currentHash = `#/details-${animeId}`;
@@ -254,6 +254,8 @@ async function loadRelations(relations, animeId) {
   if (window.location.hash === currentHash) {
     container.innerHTML = '';
     for (const relation of relations) {
+      if (window.location.hash !== currentHash) return;
+
       const group = document.createElement('div');
       group.className = 'relation-group';
 
@@ -266,23 +268,31 @@ async function loadRelations(relations, animeId) {
       grid.className = 'gridGallery';
       grid.style.justifyContent = 'none';
       group.appendChild(grid);
+      container.appendChild(group);
 
       for (const entry of relation.entry) {
+        let cardHTML = '';
         if (entry.type === 'anime') {
           try {
-            const animeInfo = window.location.hash === currentHash ? await getAnimeInfo(entry.mal_id): null;
+            const animeInfo = await getAnimeInfo(entry.mal_id);
+            if (window.location.hash !== currentHash) return; 
             if (animeInfo) {
-              grid.innerHTML += createFlashcard(animeInfo, 'top-rated');
+              cardHTML = createFlashcard(animeInfo, 'top-rated');
+            } else {
+              cardHTML = createFallbackCard(entry);
             }
           } catch (error) {
             console.error(`Failed to fetch info for anime ID: ${entry.mal_id}`, error);
-            grid.innerHTML += createFallbackCard(entry);
+            if (window.location.hash !== currentHash) return;
+            cardHTML = createFallbackCard(entry);
           }
         } else {
-          grid.innerHTML += createFallbackCard(entry);
+          cardHTML = createFallbackCard(entry);
         }
+        
+        if (window.location.hash !== currentHash) return;
+        grid.insertAdjacentHTML('beforeend', cardHTML);
       }
-      container.appendChild(group);
     }
   } else return;
   initFlashcardHover();
@@ -303,11 +313,9 @@ function initDetailsNav() {
 
   navItems.forEach(item => {
     item.addEventListener('click', () => {
-      // Deactivate all
       navItems.forEach(nav => nav.classList.remove('active'));
       sections.forEach(sec => sec.classList.remove('active'));
 
-      // Activate clicked
       item.classList.add('active');
       const targetId = item.getAttribute('data-target');
       const targetSection = document.getElementById(targetId);
@@ -319,15 +327,20 @@ function initDetailsNav() {
 }
 
 async function loadCharecters(animeId) {
+  const currentHash = `#/details-${animeId}`;
   let charactersData = null;
   try {
     charactersData = await getAnimeCharacters(animeId);
   } catch (error) {
     console.error('Failed to load characters:', error);
   }
+
+  if (window.location.hash !== currentHash) return;
+
   const charContainer = document.getElementById('characters');
-  charContainer.innerHTML = (charactersData && charactersData.length > 0)
-  ? `<div class="character-grid">${charactersData.map(char => {
+  if (charContainer) {
+    charContainer.innerHTML = (charactersData && charactersData.length > 0)
+    ? `<div class="character-grid">${charactersData.map(char => {
       const imgSrc = char.character.images.webp.image_url;
       const isPlaceholder = imgSrc.includes('questionmark');
       return `
@@ -341,18 +354,24 @@ async function loadCharecters(animeId) {
       </div>`
   }).join('')}</div>`
   : '<p>No character information available.</p>';
+  }
 }
 
 async function loadStaff(animeId) {
+  const currentHash = `#/details-${animeId}`;
   let staffData = null;
   try {
     staffData = await getAnimeStaff(animeId);
   } catch (error) {
     console.error('Failed to load staff:', error);
   }
-   const staffContainer = document.getElementById('staff');
-   staffContainer.innerHTML = (staffData && staffData.length > 0)
-   ? `<div class="staff-grid">${staffData.map(staff => {
+
+  if (window.location.hash !== currentHash) return;
+
+  const staffContainer = document.getElementById('staff');
+  if (staffContainer) {
+    staffContainer.innerHTML = (staffData && staffData.length > 0)
+    ? `<div class="staff-grid">${staffData.map(staff => {
        const imgSrc = staff.person.images.jpg.image_url;
        const isPlaceholder = imgSrc.includes('questionmark');
        return `
@@ -365,31 +384,39 @@ async function loadStaff(animeId) {
        </div>`
    }).join('')}</div>`
    : '<p>No staff information available.</p>'; 
+  }
 }
 
 async function loadReviews(animeId) {
+  const currentHash = `#/details-${animeId}`;
   const container = document.querySelector('.reviews-container');
   const galleryContainer = document.createElement('div');
+  const loader = document.getElementById('reviews-loader');
   galleryContainer.className = 'horizontal-gallery';
+
   try {
     const reviewsData = await getAnimeReviews(animeId);
+    if (window.location.hash !== currentHash) return;
+
     if (!reviewsData || reviewsData.length === 0) {
+      if (loader) loader.remove();
       container.innerHTML += '<p style="text-align: center; color: var(--text-color); padding: 2rem;">No reviews available.</p>';
       return;
     }
-    reviewsData.forEach(review => {
-    const reviewCard = createReviewCard(review);
-    galleryContainer.innerHTML += reviewCard;
-  });
-
+    
+    const reviewCardsHTML = reviewsData.map(review => createReviewCard(review)).join('');
+    galleryContainer.innerHTML = reviewCardsHTML;
     container.appendChild(galleryContainer);
     initGalleryControls();
+    initReviewsStuff();
   } catch (error) {
     console.error('Failed to load reviews:', error);
+    if (window.location.hash !== currentHash) return;
     container.innerHTML += '<p style="text-align: center; color: var(--error-color); padding: 2rem;">Failed to load reviews.</p>';
   } finally {
-    const loader = document.getElementById('reviews-loader');
-    if (loader) loader.remove();
+    if (window.location.hash === currentHash && loader) {
+      loader.remove();
+    }
   }
 }
 
@@ -403,7 +430,7 @@ function createReviewCard(review) {
   : reviewText.substring(0,300) + '...';
 
   return `
-    <div class="review-card">
+    <div class="review-card" data-full-text="${escapeHTML(reviewText)}" data-score="${score}" data-username="${username}">
       <div class="review-quote-icon">
         <i class="fas fa-quote-left"></i>
       </div>
@@ -427,4 +454,60 @@ function createReviewCard(review) {
       </div>
     </div>
   `;
+};
+
+function initReviewsStuff() {
+  const reviewCards = document.querySelectorAll('.review-card');
+  console.log(reviewCards)
+  function showIcon(card) {
+    console.log('showing icon')
+    const iconOverlay = document.createElement('div')
+    iconOverlay.className = "review-icon"
+    iconOverlay.innerHTML = `
+      <i class="fa-solid fa-book-open"></i>
+      <p>Read More</p>
+    `
+    card.appendChild(iconOverlay);
+  }
+
+  function hideIcon(card) {
+    console.log('removing icon')
+    const icon = card.querySelector('.review-icon');
+    if (icon) icon.remove();
+  }
+
+  function showReview(card) {
+    console.log('showing revview popup');
+    const container = document.getElementById('popup');
+    const review = card.dataset.fullText;
+    const name = card.dataset.username;
+    const score = card.dataset.score;
+    container.style.zIndex = '999';
+    const contentDiv = document.createElement('div')
+    contentDiv.id = 'popup-content'
+    contentDiv.innerHTML = `
+      <button id='popup-close'>x</button>
+      <h3>${name} - ${score}<i class="fas fa-star"></i></h3>
+      <p>${review}</p>
+    `
+    container.appendChild(contentDiv);
+    container.addEventListener('click', (e) => {
+      if (e.target === container) {
+        container.style.zIndex = '-10';
+        container.innerHTML = '';
+      }
+    });
+    document.getElementById('popup-close').addEventListener('click', () => {
+        container.style.zIndex = '-10';
+        container.innerHTML = '';
+    });
+  };
+
+  reviewCards.forEach((card) => {
+    card.addEventListener('mouseenter', () => {showIcon(card)});
+    card.addEventListener('mouseleave', () => {hideIcon(card)});
+    card.addEventListener('touchstart', () => {showIcon(card)});
+    card.addEventListener('touchend', () => {hideIcon(card)});
+    card.addEventListener('click', () => {showReview(card)})
+  });
 };

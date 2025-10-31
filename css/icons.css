@@ -349,7 +349,9 @@
   .fa-user-group:before {
     content: "\f500";
   }
-  
+  .fa-book-open:before {
+    content: "\f518";
+  }
   .fa-play-circle:before {
     content: "\f144";
   }

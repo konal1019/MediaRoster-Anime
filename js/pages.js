@@ -53,6 +53,7 @@ export async function loadHomePage() {
   const content = document.getElementById('content');
 
   showLoader();
+  console.log(reccomendedData[1].synopsis)
   const slideshowHTML = `
   <div class="slideshow-container">
     ${reccomendedData.map((anime, i) => `
@@ -121,13 +122,12 @@ async function updateSlides() {
       const data = await getAnimeInfo(mal_id);
       if (!data) continue;
       if (window.location.hash !== '' && window.location.hash !== '#/') break;
-
       const recData = reccomendedData.find(rec => rec.mal_id == mal_id);
       const pcImage = recData ? recData.images.PC_image : data.images.jpg.large_image_url;
       const mobileImage = data.images.jpg.large_image_url;
 
       const title = data.title_english || data.title;
-      const description = escapeHTML(data.synopsis?.substring(0, 250) || 'No description') + '...';
+      const description = data.synopsis?.substring(0, 250) || 'No description' + '...';
       const episodes = data.episodes || 'N/A';
       const score = data.score || 'N/A';
       const members = (data.members || 0).toLocaleString();

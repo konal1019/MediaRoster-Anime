@@ -115,26 +115,41 @@ export function initFlashcardHover() {
 }
 
 export function initGalleryControls() {
-  const content = document.getElementById('content');
-  content.addEventListener('click', (event) => {
-      const prevButton = event.target.closest('.gallery-prev');
-      const nextButton = event.target.closest('.gallery-next');
-      if (prevButton) {
-          const gallery = prevButton.parentElement.querySelector('.horizontal-gallery');
-          gallery.scrollBy({
-              left: -400,
-              behavior: 'smooth'
-          });
+  const prevButtons = document.querySelectorAll('.gallery-prev');
+  const nextButtons = document.querySelectorAll('.gallery-next');
+
+  prevButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const gallery = btn.parentElement.querySelector('.horizontal-gallery');
+      if (gallery) {
+        gallery.scrollBy({
+          left: -400,
+          behavior: 'smooth'
+        });
       }
-      if (nextButton) {
-          const gallery = nextButton.parentElement.querySelector('.horizontal-gallery');
-          gallery.scrollBy({
-              left: 400,
-              behavior: 'smooth'
-          });
+    });
+  });
+
+  nextButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const gallery = btn.parentElement.querySelector('.horizontal-gallery');
+      if (gallery) {
+        gallery.scrollBy({
+          left: 400,
+          behavior: 'smooth'
+        });
       }
+    });
   });
 }
+
+
+function hidePopup() {
+  const popup = document.getElementById('popup');
+  popup.hidden = true;
+  popup.innerHTML = '';
+}
+
 // random
 export function randomAnime() {
   const randomButton = document.getElementById('random-anime-button');
