@@ -97,7 +97,6 @@ export function initFlashcardHover() {
     synopsisOverlay.classList.add('flashcard-synopsis-overlay');
     synopsisOverlay.innerHTML = `
       <p>${synopsis}</p>
-      <a href="${card.href}" class="synopsis-details-link">...</a>
     `;
 
     card.querySelector('.flashcard').appendChild(synopsisOverlay);

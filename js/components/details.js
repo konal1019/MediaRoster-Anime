@@ -58,7 +58,7 @@ export async function loadDetailsPage(animeId = null) {
 
     const yearHTML = anime.year || 'N/A';
 
-    const embed = anime.trailer?.embed_url?.replace('&autoplay=1', '');
+    let embed = anime.trailer?.embed_url?.replace('&autoplay=1', '').replace('?autoplay=1', '') + '&modestbranding=1&showinfo=0&rel=0';
     const trailerHTML = embed
       ? `
         <div class="details-trailer">
@@ -274,8 +274,8 @@ async function loadRelations(relations, animeId) {
         let cardHTML = '';
         if (entry.type === 'anime') {
           try {
+            if (window.location.hash !== currentHash) return;
             const animeInfo = await getAnimeInfo(entry.mal_id);
-            if (window.location.hash !== currentHash) return; 
             if (animeInfo) {
               cardHTML = createFlashcard(animeInfo, 'top-rated');
             } else {

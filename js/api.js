@@ -113,7 +113,7 @@ const fetchWithCache = async (url, cacheKey) => {
             console.log(`Fetching data for URL: ${url}`);
             const response = await fetch(url, { method: 'GET' });
 
-            if (response.status !== 200) {
+            if (response.status !== 200 && response.status !== 304) {
                 logErrorByStatus(response.status, response.statusText);
             } else {
                 return await response.json();

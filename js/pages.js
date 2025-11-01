@@ -53,7 +53,6 @@ export async function loadHomePage() {
   const content = document.getElementById('content');
 
   showLoader();
-  console.log(reccomendedData[1].synopsis)
   const slideshowHTML = `
   <div class="slideshow-container">
     ${reccomendedData.map((anime, i) => `
@@ -67,10 +66,10 @@ export async function loadHomePage() {
           <h2 class="slide-title">${anime.title}</h2>
           <p class="slide-description">${anime.synopsis.substring(0, 250)}...</p>
           <div class="slide-details">
-            <span><i class="fas fa-play-circle"></i> ${anime.episodes} Episodes</span>
-            <span><i class="fas fa-star"></i> ${anime.score}</span>
-            <span><i class="fas fa-users"></i> ${anime.members.toLocaleString()}</span>
-            <span><i class="fas fa-trophy"></i> Rank: #${anime.rank}</span>
+            <span data-type="episodes"><i class="fas fa-play-circle"></i> ${anime.episodes} Episodes</span>
+            <span data-type="score"><i class="fas fa-star"></i> ${anime.score}</span>
+            <span data-type="members"><i class="fas fa-users"></i> ${anime.members.toLocaleString()}</span>
+            <span data-type="rank"><i class="fas fa-trophy"></i> Rank: #${anime.rank}</span>
           </div>
           <a href="./#/details-${anime.mal_id}" class="slide-button">View Details</a>
           <a href="${anime.images.source}" target="_blank" class="slide-source">Original image</a>
@@ -94,7 +93,7 @@ export async function loadHomePage() {
     if (window.location.hash !== '' && window.location.hash !== '#/') return;
       const sectionHTML = await createSection(section);
     if (window.location.hash === '' || window.location.hash === '#/') {
-      content.innerHTML += sectionHTML;
+      content.insertAdjacentHTML('beforeend', sectionHTML);
     }
   }
 
@@ -119,70 +118,40 @@ async function updateSlides() {
 
     const mal_id = slide.dataset.malId;
     try {
-      const data = await getAnimeInfo(mal_id);
+      const res = await getAnimeInfo(mal_id);
+      const data = res?.data;
       if (!data) continue;
       if (window.location.hash !== '' && window.location.hash !== '#/') break;
-      const recData = reccomendedData.find(rec => rec.mal_id == mal_id);
-      const pcImage = recData ? recData.images.PC_image : data.images.jpg.large_image_url;
-      const mobileImage = data.images.jpg.large_image_url;
 
-      const title = data.title_english || data.title;
-      const description = data.synopsis?.substring(0, 250) || 'No description' + '...';
       const episodes = data.episodes || 'N/A';
       const score = data.score || 'N/A';
       const members = (data.members || 0).toLocaleString();
       const rank = data.rank || 'N/A';
 
-      const imgElem = slide.querySelector('img.hero-background');
-      const srcElem = slide.querySelector('source');
-      const titleElem = slide.querySelector('.slide-title');
-      const descElem = slide.querySelector('.slide-description');
-      const detailsElem = slide.querySelector('.slide-details');
-      const linkElem = slide.querySelector('.slide-button');
+      const newEpisodesHTML = `<i class="fas fa-play-circle"></i> ${episodes} Episodes`;
+      const newScoreHTML = `<i class="fas fa-star"></i> ${score}`;
+      const newMembersHTML = `<i class="fas fa-users"></i> ${members}`;
+      const newRankHTML = `<i class="fas fa-trophy"></i> Rank: #${rank}`;
 
-      if (!imgElem || !srcElem || !titleElem || !descElem || !detailsElem || !linkElem) {
-        slide.innerHTML = `
-          <picture>
-            <source media="(min-width: 601px)" srcset="${pcImage}">
-            <img class="hero-background" src="${mobileImage}" alt="${title} background">
-          </picture>
-          <div class="slide-fade"></div>
-          <div class="slide-content">
-            <h2 class="slide-title">${title}</h2>
-            <p class="slide-description">${description}</p>
-            <div class="slide-details">
-              <span><i class="fas fa-play-circle"></i> ${episodes} Episodes</span>
-              <span><i class="fas fa-star"></i> ${score}</span>
-              <span><i class="fas fa-users"></i> ${members}</span>
-              <span><i class="fas fa-trophy"></i> Rank: #${rank}</span>
-            </div>
-            <a href="./#/details-${data.mal_id}" class="slide-button">View Details</a>
-          </div>
-        `;
-        continue;
+      const episodesElem = slide.querySelector('[data-type="episodes"]');
+      const scoreElem = slide.querySelector('[data-type="score"]');
+      const membersElem = slide.querySelector('[data-type="members"]');
+      const rankElem = slide.querySelector('[data-type="rank"]');
+
+      if (episodesElem && episodesElem.innerHTML.trim() !== newEpisodesHTML.trim()) {
+        episodesElem.innerHTML = newEpisodesHTML;
       }
-
-      if (srcElem.srcset !== pcImage) srcElem.srcset = pcImage;
-      if (imgElem.src !== mobileImage) imgElem.src = mobileImage;
-      if (titleElem.textContent !== title) titleElem.textContent = title;
-      if (descElem.textContent !== description) descElem.textContent = description;
-
-      const newDetailsHTML = `
-        <span><i class="fas fa-play-circle"></i> ${episodes} Episodes</span>
-        <span><i class="fas fa-star"></i> ${score}</span>
-        <span><i class="fas fa-users"></i> ${members}</span>
-        <span><i class="fas fa-trophy"></i> Rank: #${rank}</span>
-      `;
-      if (detailsElem.innerHTML.trim() !== newDetailsHTML.trim()) {
-        detailsElem.innerHTML = newDetailsHTML;
+      if (scoreElem && scoreElem.innerHTML.trim() !== newScoreHTML.trim()) {
+        scoreElem.innerHTML = newScoreHTML;
       }
-
-      const newHref = `./#/details-${data.mal_id}`;
-      if (linkElem.getAttribute('href') !== newHref) {
-        linkElem.setAttribute('href', newHref);
+      if (membersElem && membersElem.innerHTML.trim() !== newMembersHTML.trim()) {
+        membersElem.innerHTML = newMembersHTML;
+      }
+      if (rankElem && rankElem.innerHTML.trim() !== newRankHTML.trim()) {
+        rankElem.innerHTML = newRankHTML;
       }
     } catch (e) {
-      console.warn('Failed to update slide:', e);
+      console.warn('Failed to update slide details:', e);
     }
   }
 }

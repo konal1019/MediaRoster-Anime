@@ -302,13 +302,6 @@ main {
   hyphens: auto;
   hyphenate-limit-chars: 4 2 2;
 }
-.snopsis-details-link {
-  color: var(--primary-accent);
-  text-decoration: none;
-  font-weight: bold;
-  align-self: flex-start;
-  margin-top: auto;
-}
 /* Loader and Error */
 #loader {
   display: none;
@@ -391,14 +384,13 @@ main {
 }
 #popup-content::-webkit-scrollbar-track {
   background-color: var(--bg-color-primary);
-  border-radius: 20px;
+  border-top-right-radius: 15px;
+  border-bottom-right-radius: 15px;
 }
 #popup-content { /*firefox*/
   scrollbar-width: thin;
   scrollbar-color: var(--darker-accent) var(--bg-color-primary);
 }
-
-
 #popup-close {
   position: absolute;
   top: 0;
