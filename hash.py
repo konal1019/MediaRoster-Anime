@@ -16,12 +16,11 @@ files_to_hash = {
     'js': [
         os.path.join(src_dir, 'js', 'pages.js'),
         os.path.join(src_dir, 'js', 'router.js'),
-        os.path.join(src_dir, 'js', 'main.js'),
+        os.path.join(src_dir, 'js', 'components', 'initializer.js'),
         os.path.join(src_dir, 'js', 'api.js'),
         os.path.join(src_dir, 'js', 'components', 'UIs.js'),
         os.path.join(src_dir, 'js', 'components', 'search.js'),
         os.path.join(src_dir, 'js', 'components', 'details.js'),
-        os.path.join(src_dir, 'js', 'components', 'utils.js'),
         os.path.join(src_dir, 'js', 'components', 'data.js')
     ],
     'others': [

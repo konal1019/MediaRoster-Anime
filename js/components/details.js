@@ -1,8 +1,7 @@
 import { getAnimeDetails, getAnimeCharacters, getAnimeStaff, getAnimeInfo, getRandomAnime, getAnimeReviews } from '../api.js';
-import { initFlashcardHover, initGalleryControls } from '../main.js';
+import { initFlashcardHover, initGalleryControls } from './initializer.js';
 import { showLoader, hideLoader, loadCSS, load404 } from '../pages.js';
-import { createFlashcard } from './UIs.js';
-import { escapeHTML } from './utils.js';
+import { createFlashcard, escapeHTML } from './UIs.js';
 
 export async function loadDetailsPage(animeId = null) {
   console.log(`Loading Details for anime ID: ${animeId}`);
@@ -137,7 +136,11 @@ export async function loadDetailsPage(animeId = null) {
           </div>
       </div>
     `;
-    const charactersHTML = `<div class="loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`;
+    const charactersHTML = `<div class="loader">
+                              <div class="dot"></div>
+                              <div class="dot"></div>
+                              <div class="dot"></div>
+                            </div>`;
     const staffHTML = charactersHTML;
     const reviewsHTML = `
       <div class="reviews-container">

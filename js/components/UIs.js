@@ -1,5 +1,3 @@
-import { escapeHTML } from "./utils.js";
-
 export function createFlashcard(anime, cardType) {
   const imageUrl = anime.images?.webp?.image_url ?? 'placeholder.png';
   const title = anime.title_english || anime.title;
@@ -59,7 +57,7 @@ export function createFlashcard(anime, cardType) {
   }
 
   return `
-      <a href="./${detailsUrl}" class="flashcard-link" data-synopsis="${synopsis}">
+      <a href="./${detailsUrl}" class="flashcard-link" data-synopsis="${synopsis}" data-type="${anime.type}" data-title="${title}" data-popularity="${anime.popularity}" data-rank="${anime.rank}" data-score="${anime.score}" data-status="${anime.status}" data-genres="${anime.genres.map(g => g.name).join(', ')}" data-episodes="${anime.episodes}" data-studios="${anime.studios.map(s => s.name).join(', ')}" data-rating="${anime.rating}">
           <div class="flashcard">
               <img src="${imageUrl}" loading="lazy" alt="${title}" class="flashcard-image" width="225" height="320" loading="lazy">
               <div class="flashcard-overlay">
@@ -104,3 +102,19 @@ export async function createSection({ title, apiFunction, cardType, containerCla
         return `<div class="error">Failed to load ${title}. Please try again later.</div>`;
     }
 }
+export function escapeHTML(str) {
+    if (typeof str !== 'string') return '';
+    return str.replace(/[&<>"'`=\/]/g, m => {
+      switch (m) {
+        case '&': return '&amp;';
+        case '<': return '&lt;';
+        case '>': return '&gt;';
+        case '"': return '&quot;';
+        case "'": return '&#039;';
+        case '`': return '&#096;';
+        case '=': return '&#x3D;';
+        case '/': return '&#x2F;';
+        default: return m;
+      }
+    });
+  }

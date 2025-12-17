@@ -1,8 +1,8 @@
-import { status, initSlideshow, initFlashcardHover, randomAnime, initFilters, renderGenres, initSearch, applyFilters} from '../main.js';
+import { status, initFlashcardHover, randomAnime } from './initializer.js';
 import { searchAnime, getTopRatedAnime, getMostPopularAnime, getGenres, genres } from '../api.js';
 import { createSection, createFlashcard } from './UIs.js';
 import { loadCSS, showLoader, hideLoader } from '../pages.js'
-import { getSafeParams} from './utils.js';
+const activeFilters = {};
 
 export async function loadSearchPage() {
     const currentHash = window.location.hash;
@@ -210,10 +210,7 @@ function loadPagination(paginationData, containerEl) {
 export async function displaySearchResults(searchResults) {
     const container = document.getElementById('search-results');
     if (!container) return;
-
     container.innerHTML = '';
-    const defaultContent = document.getElementById('default-search-content');
-    if (defaultContent) defaultContent.style.display = 'none';
 
     if (!searchResults?.data?.length) {
         container.innerHTML = '<p class="no-results">No Matching results found.</p>';
@@ -239,3 +236,245 @@ export async function displaySearchResults(searchResults) {
     initFlashcardHover();
     loadPagination(searchResults.pagination, pagination);
 }
+
+export async function initSearch() {
+  applyFilters();
+  console.log(activeFilters)
+  const searchBtn = document.getElementById('search-button');
+  if (searchBtn) searchBtn.addEventListener('click', () => {
+      delete activeFilters['page'];
+      constructURL(true);
+  });
+
+  const searchIn = document.getElementById('search-input');
+  searchIn.addEventListener('input', () => {
+      activeFilters.q = searchIn.value; // store raw input; sanitized via getSafeParams later
+  });
+  searchIn.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+          delete activeFilters['page'];
+          constructURL(true);
+      }
+  });
+
+  const params = getSafeParams(); // always sanitize from URL/hash
+  if (params.toString()) handleSearch(false);
+}
+
+async function handleSearch(updateURL = true) {
+  const url = await constructURL(updateURL);
+  const container = document.getElementById('search-results');
+  if (!container) return;
+  container.innerHTML = `<div class="loader" style="display: flex; justify-content: center; align-items: center; width:100%;">
+                            <div class="dot"></div>
+                            <div class="dot"></div>
+                            <div class="dot"></div>
+                         </div>`;
+  if (url) {
+      const results = await searchAnime(url);
+      displaySearchResults(results);
+  }
+}
+
+export async function constructURL(updateURL = false) {
+  const baseURL = 'https://api.jikan.moe/v4/anime';
+  const params = new URLSearchParams();
+
+  for (const filter in activeFilters) {
+      let value = activeFilters[filter];
+      if (filter === 'q') {
+          value = value.replace(/[^\p{L}\p{N}\s\-_.:'"|#]/gu, '').slice(0, 100);
+      }
+      if (Array.isArray(value)) params.append(filter, value.join(','));
+      else params.append(filter, value);
+  }
+
+  if (!params.toString()) return null;
+
+  const JikanURL = `${baseURL}?${params.toString()}`;
+  if (updateURL) window.location.hash = `#/search?${params.toString()}`;
+  return JikanURL;
+}
+
+export function applyFilters() {
+  for (const key in activeFilters) delete activeFilters[key];
+  document.querySelectorAll('[class*="active"]').forEach(el => el.classList.remove('active'));
+
+  const params = getSafeParams();
+  console.log(params)
+  const IdFilters = ['order_by', 'sort', 'min_score', 'max_score'];
+
+  for (const [key, value] of params.entries()) {
+      if (key === 'q') {
+          const input = document.getElementById('search-input');
+          if (input) input.value = value;
+          activeFilters.q = value;
+      } else if (key === 'genres') {
+          activeFilters[key] = [];
+          value.split(',').forEach(v => {
+              const btn = document.querySelector(`[data-filter='${key}'][data-value='${v}']`);
+              if (btn) {
+                  btn.classList.add('active');
+                  activeFilters[key].push(v);
+              }
+          });
+      } else if (key === 'page') activeFilters[key] = value;
+      else if (key === 'sfw') {
+        const checkbox = document.getElementById('sfw-checkbox');
+        activeFilters.sfw = 'true';
+        checkbox.checked = false;
+      } else if (IdFilters.includes(key)) {
+          const elem = document.getElementById(key);
+          if (elem) elem.value = value;
+          activeFilters[key] = value;
+      } else {
+          const elem = document.querySelector(`[data-filter='${key}'][data-value='${value}']`);
+          if (elem) elem.classList.add('active');
+          activeFilters[key] = value;
+      }
+  }
+  console.log(activeFilters)
+}
+
+export function initFilters() {
+    const filterButton = document.querySelector('.filter-button');
+    const filterOptions = document.querySelector('.filter-options');
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    const filterInputs = document.querySelectorAll('.filter-input');
+    const filterDropdowns = document.querySelectorAll('.filter-dropdown');
+
+    filterButton.addEventListener('click', () => {
+        filterOptions.style.display = filterOptions.style.display === 'none' ? 'grid' : 'none';
+    });
+
+    filterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const filter = btn.dataset.filter;
+            const value = btn.dataset.value;
+            const singleSelectGroups = ["season", "status", "type", "rating"];
+
+            if (singleSelectGroups.includes(filter)) {
+                document.querySelectorAll(`.filter-btn[data-filter="${filter}"]`).forEach(b => b.classList.remove('active'));
+                if (activeFilters[filter] !== value) {
+                    activeFilters[filter] = value;
+                    btn.classList.add('active');
+                } else {
+                    delete activeFilters[filter];
+                }
+            } else {
+                if (activeFilters[filter] && activeFilters[filter].includes(value)) {
+                    activeFilters[filter] = activeFilters[filter].filter(v => v !== value);
+                    if (!activeFilters[filter].length) delete activeFilters[filter];
+                    btn.classList.remove('active');
+                } else {
+                    if (!activeFilters[filter]) activeFilters[filter] = [];
+                    activeFilters[filter].push(value);
+                    btn.classList.add('active');
+                }
+            }
+        });
+    });
+
+    filterInputs.forEach(input => {
+        input.addEventListener('input', () => {
+            const filter = input.id;
+            const value = input.value;
+            if (value) activeFilters[filter] = value;
+            else delete activeFilters[filter];
+        });
+    });
+
+    filterDropdowns.forEach(dropdown => {
+        dropdown.addEventListener('change', () => {
+            const filter = dropdown.id;
+            const value = dropdown.value;
+            if (value) activeFilters[filter] = value;
+            else delete activeFilters[filter];
+        });
+    });
+    const sfw = document.getElementById('sfw-checkbox');
+    sfw.addEventListener('change', () => {
+      if (!sfw.checked || !activeFilters.sfw) {
+        activeFilters.sfw = 'true';
+        sfw.checked = false;
+      } else {
+        delete activeFilters.sfw
+        sfw.checked = true;
+        console.log('removed sfw') 
+      }
+      console.log(activeFilters)
+    });
+}
+
+export async function renderGenres() {
+    if (JSON.stringify(genres) === '{}') await getGenres();
+
+    const content = Object.entries(genres).map(([key, value]) => `
+        <button class="genre-btn" data-filter="genres" data-value="${key}">${value}</button>
+    `).join('');
+
+    const genresDiv = document.getElementById('genresDiv');
+    genresDiv.innerHTML += content;
+
+    document.querySelectorAll('.genre-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const filter = btn.dataset.filter;
+            const value = btn.dataset.value;
+
+            if (activeFilters[filter] && activeFilters[filter].includes(value)) {
+                activeFilters[filter] = activeFilters[filter].filter(v => v !== value);
+                if (!activeFilters[filter].length) delete activeFilters[filter];
+                btn.classList.remove('active');
+            } else {
+                if (!activeFilters[filter]) activeFilters[filter] = [];
+                activeFilters[filter].push(value);
+                btn.classList.add('active');
+            }
+        });
+    });
+};
+
+const allowed_filters = new Set([
+  'q', 'page', 'genres', 'min_score', 'max_score',
+  'status', 'type', 'rating', 'order_by', 'sort', 'sfw'
+]);
+
+const ENUMS = {
+  status: new Set(['airing','complete','upcoming']),
+  type: new Set(['tv','movie','ova','special']),
+  rating: new Set(['g','pg','pg13','r','r17','rx']),
+  order_by: new Set(['title','score','popularity','favorites','members','episodes']),
+  sort: new Set(['asc','desc'])
+};
+  
+export function getSafeParams() {
+  const raw = new URLSearchParams(window.location.hash.split('?')[1] || '');
+  console.log(`raw : ${raw}`)
+  const safe = new URLSearchParams();
+
+  for (const [key, value] of raw.entries()) {
+    if (!allowed_filters.has(key)) continue;
+    if (key === 'q') {
+      const cleanQ = value.replace(/[^\p{L}\p{N}\s\-_.:'";|#]/gu, '').slice(0, 100);
+      safe.set('q', cleanQ);
+    } else if (['min_score','max_score'].includes(key)) {
+      const n = parseInt(value, 10);
+      if (Number.isFinite(n) && n >= 0 && n <= 10) safe.set(key, String(n));
+    } else if (key === 'page') {
+      const n = parseInt(value, 10);
+      if (Number.isFinite(n) && n >= 1 && n <= 1000) safe.set(key, String(n));
+    } else if (key === 'genres') {
+      const ids = value.split(',')
+        .map(v => parseInt(v, 10))
+        .filter(n => Number.isFinite(n) && n > 0);
+      if (ids.length) safe.set('genres', ids.join(','));
+    } else if (key==='sfw') {
+      safe.set('sfw', value);
+    } else if (ENUMS[key]) {
+      const norm = value.toLowerCase();
+      if (ENUMS[key].has(norm)) safe.set(key, norm);
+    }
+  }
+  console.log(`safe : ${safe}`)
+  return safe;
+};

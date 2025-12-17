@@ -36,7 +36,7 @@ const fetchWithCache = async (url, cacheKey) => {
         try {
             const { data, timestamp } = JSON.parse(cachedData);
             if (now - timestamp < CACHE_DURATION) {
-                console.log(`Cache hit for key: ${cacheKey}`);
+                console.log(`Cached data found for key: ${cacheKey}`);
                 return data;
             }
         } catch (e) {
@@ -48,7 +48,7 @@ const fetchWithCache = async (url, cacheKey) => {
     const maxRetries = 5;
     for (let retries = 0; retries < maxRetries; retries++) {
       try {
-        console.log(`Fetching data for URL: ${url}`);
+        console.log(`Fetching data for: ${url}`);
         const response = await fetch(url, { method: 'GET' });
 
         if (response.status !== 200 && response.status !== 304) {

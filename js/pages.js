@@ -1,8 +1,7 @@
-import { initSlideshow, initFlashcardHover, randomAnime,  initGalleryControls } from './main.js';
+import { initSlideshow, initFlashcardHover, randomAnime,  initGalleryControls } from './components/initializer.js';
 import { searchAnime, getTopRatedAnime, getMostPopularAnime, getAiringAnime, getSeasonalAnime, getGenres, genres, getAnimeInfo } from './api.js';
-import { createSection } from './components/UIs.js';
+import { createSection, escapeHTML } from './components/UIs.js';
 import { loadSearchPage } from './components/search.js';
-import { escapeHTML } from './components/utils.js';
 import { reccomendedData} from './components/data.js'
 
 // ====== PAGE ROUTING ======
@@ -61,7 +60,7 @@ export async function loadHomePage() {
           <source media="(min-width: 601px)" srcset="${anime.images.PC_image}">
           <img class="hero-background" src="${anime.images.large_image}" alt="${anime.title} background">
         </picture>
-        <div class="slide-fade"></div>
+        <div class="slide-fade"></div> 
         <div class="slide-content">
           <h2 class="slide-title">${anime.title}</h2>
           <p class="slide-description">${anime.synopsis.substring(0, 250)}...</p>
@@ -72,7 +71,7 @@ export async function loadHomePage() {
             <span data-type="rank"><i class="fas fa-trophy"></i> Rank: #${anime.rank}</span>
           </div>
           <a href="./#/details-${anime.mal_id}" class="slide-button">View Details</a>
-          <a href="${anime.images.source}" target="_blank" class="slide-source">Original image</a>
+          <a href="${anime.images.source}" style="width: 100px;" target="_blank" class="slide-source">Original image</a>
         </div>
       </div>
     `).join('')}

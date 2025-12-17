@@ -405,6 +405,81 @@ main {
 #popup-close:hover {
   background: red;
 }
+
+#flash-popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 25%;
+    height: 25%;
+    color: var(--text-color);
+    border-radius: 6%;
+    background: rgba(20, 20, 20, 0.7);
+    border: 0.4% solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 1%;
+    overflow-y: hidden;
+    overflow-x: hidden;
+    backdrop-filter: blur(5px) brightness(50%);
+  }
+  #flash-popup-rank {
+    font-size: 90%;
+    color: gold;
+    position: relative;
+    top: 1%;
+    left: 1%;
+  }
+  #flash-popup-title {
+    font-size: 120%;
+    font-weight: bolder;
+    color: var(--lighter-accent);
+    line-height: 1.2;
+  }
+  #flash-popup-status {
+    font-size: 90%;
+    line-height: 1;
+  }
+  #flash-popup-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    font-size: 80%;
+    color: var(--text-color);
+    margin-block-end: 0;
+  }
+  #flash-popup-meta div {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--bg-color-mid);
+    padding: 2px 4px;
+    border-radius: 4px;
+  }
+  #flash-popup-meta i {
+    color: var(--icon-color);
+  }
+  #flash-popup-synopsis, #flash-popup-genres, #flash-popup-studios, #flash-popup-episodes {
+    font-size: 80%;
+    line-height: 1.2;
+    color: var(--text-color);
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin-block-start: 0;
+    margin-block-end: 0.3%;
+  }
+  #flash-popup-genres, #flash-popup-studios, #flash-popup-rating, #flash-popup-episodes- {
+    line-clamp: 1;
+    -webkit-line-clamp: 1;
+  }
+  #flash-popup-genres span, #flash-popup-episodes span, #flash-popup-studios span, #flash-popup-rating span {
+    color: var(--secondary-accent)
+  }
+
 /* 404 Page */
 .not-found-container {
   display: flex;
@@ -519,7 +594,6 @@ main {
       font-size: 5vh;
  }
   .slide-description {
-      font-size: 2.5vh;
       -webkit-line-clamp: 7;
       line-clamp: 7;
  }
@@ -581,13 +655,15 @@ main {
       font-size: 1.5rem;
  }
 }
-@media (min-width: 800px) {
-  .flashcard {
-      width: 22vw;
- }
-  .gridGallery {
-      grid-template-columns: repeat(auto-fill, 22vw);
- }
+@media (max-width: 800px) {
+  #flash-popup{
+      width: 50%;
+  }
+}
+@media (max-width: 600px) {
+  #flash-popup {
+    width: 70%;
+  }
 }
 @media (min-width: 1000px) {
   .slide-content {
@@ -761,4 +837,30 @@ main {
   .flashcard-link {
       margin-right: 0;
  }
+  #flash-popup{
+      width: 90%;
+ }
+}
+@media (max-height: 510px) {
+  .slide-description {
+      font-size: 3.5vh;
+  }
+  .slide-title {
+      font-size: 5.5vh;
+  }
+}
+@media (max-height: 700px) {
+  #flash-popup {
+    height: 40%;
+  }
+}
+@media (max-height: 500px) {
+  #flash-popup {
+    height: 55%;
+  }
+}
+@media (max-height: 300px) {
+  #flash-popup {
+    height: 70%;
+  }
 }
