@@ -282,6 +282,7 @@ async function loadRelations(relations, animeId) {
             if (animeInfo) {
               cardHTML = createFlashcard(animeInfo, 'top-rated');
             } else {
+              console.log(`no info ${animeInfo}`) 
               cardHTML = createFallbackCard(entry);
             }
           } catch (error) {
@@ -290,6 +291,7 @@ async function loadRelations(relations, animeId) {
             cardHTML = createFallbackCard(entry);
           }
         } else {
+          console.log('not anime')
           cardHTML = createFallbackCard(entry);
         }
         

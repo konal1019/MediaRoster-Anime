@@ -4,7 +4,8 @@ export function createFlashcard(anime, cardType) {
   const synopsis = escapeHTML(anime.synopsis || anime.background || 'No synopsis available.');
   const detailsUrl = `#/details-${anime.mal_id}`;
   let studios = anime.studios?.map(s => s.name).join(', ') || 'Unknown'
-  studios = studios.length < 20 ? studios : studios.slice(0, 20) + '...';
+  studios = studios.length < 20 ? studios : studios.slice(0, 20) + '...';1
+  const genres = anime.genres?.map(g => g.name).join(', ') || 'Unknown';
 
   let overlayDetails = '';
   let badges = '';
@@ -57,7 +58,7 @@ export function createFlashcard(anime, cardType) {
   }
 
   return `
-      <a href="./${detailsUrl}" class="flashcard-link" data-synopsis="${synopsis}" data-type="${anime.type}" data-title="${title}" data-popularity="${anime.popularity}" data-rank="${anime.rank}" data-score="${anime.score}" data-status="${anime.status}" data-genres="${anime.genres.map(g => g.name).join(', ')}" data-episodes="${anime.episodes}" data-studios="${anime.studios.map(s => s.name).join(', ')}" data-rating="${anime.rating}">
+      <a href="./${detailsUrl}" class="flashcard-link" data-synopsis="${synopsis}" data-type="${anime.type}" data-title="${title}" data-popularity="${anime.popularity}" data-rank="${anime.rank}" data-score="${anime.score}" data-status="${anime.status}" data-genres="${genres}" data-episodes="${anime.episodes}" data-studios="${studios}" data-rating="${anime.rating}">
           <div class="flashcard">
               <img src="${imageUrl}" loading="lazy" alt="${title}" class="flashcard-image" width="225" height="320" loading="lazy">
               <div class="flashcard-overlay">

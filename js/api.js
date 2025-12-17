@@ -182,8 +182,8 @@ export const getAnimeDetails = async (animeId) => {
 
 export const getAnimeInfo = async (animeId) => {
     const url = `${BASE_URL}/anime/${animeId}`;
-    const cacheKey = `anime_info_${animeId}`;
-    return await fetchWithoutCache(url);
+    const res = await fetchWithoutCache(url);
+    return await res.data;
 };
 
 export const getAnimeCharacters = async (animeId) => {

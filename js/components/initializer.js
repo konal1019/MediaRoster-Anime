@@ -1,4 +1,4 @@
-export const status = {"searching":false}
+export const status = {"searching":false, "popupInit":false}
 
 export function initSlideshow() {
   let slideIndex = 0;
@@ -66,177 +66,161 @@ export function initSlideshow() {
   resetInterval();
 }
 
-export function initFlashcardHover() { // The following function is a mess. I don't care cuz I know how it works. If you wanna work with me, kindlty take the initiative to fix it.
-  const flashcards = document.querySelectorAll('.flashcard-link:not([data-popup-init])');
-  const popup = document.getElementById('flash-popup');
-  let onCard = false;
-  let onPopup = false;
-  let activeCard = null;
-  let resizeRaf = null;
-  let popupHide = null;
-
-  window.addEventListener('resize', () => {
-      if (resizeRaf) return;
-      resizeRaf = requestAnimationFrame(() => {
-            resizeRaf = null;
-            if (!popup.hidden && activeCard) {
-                positionPopup(activeCard);
-            }
+export function initFlashcardHover() { // following is a functinal chaos. If you wish to work on it, please take responsibility yourself
+    const flashcards = document.querySelectorAll('.flashcard-link:not([data-popup-init])');
+    const popup = document.getElementById('flash-popup');
+    let onCard = false;
+    let onPopup = false;
+    let activeCard = null;
+    let popupHide = null;
+  
+    if (!status.popupInit) {
+      let resizeRaf = null;
+      window.addEventListener('resize', () => {
+        if (resizeRaf) return;
+        resizeRaf = requestAnimationFrame(() => {
+          resizeRaf = null;
+          if (!popup.hidden && activeCard) positionPopup(activeCard);
+        });
       });
-  });
-  let scrollRaf = null;
-  window.addEventListener('scroll', () => {
-      if (scrollRaf) return;
-      scrollRaf = requestAnimationFrame(() => {
-        scrollRaf = null;
-        if (!popup.hidden && activeCard) {
-            positionPopup(activeCard);
+  
+      let scrollRaf = null;
+      window.addEventListener('scroll', () => {
+        if (scrollRaf) return;
+        scrollRaf = requestAnimationFrame(() => {
+          scrollRaf = null;
+          if (!popup.hidden && activeCard) positionPopup(activeCard);
+        });
+      }, true);
+  
+      popup.addEventListener('touchstart', e => e.stopPropagation());
+      
+      popup.addEventListener('mouseenter', () => {
+        onPopup = true;
+        if (popupHide) clearTimeout(popupHide);
+      });
+  
+      popup.addEventListener('mouseleave', (e) => {
+        onPopup = false;
+        // prevent flickeringand wrong hides
+        if (e.relatedTarget && e.relatedTarget.closest('.flashcard-link')) return;
+        if (activeCard && activeCard.contains(e.relatedTarget)) return;
+        popupHide = setTimeout(tryHide, 50);
+      });
+  
+      document.addEventListener('touchstart', hidePopup);
+      document.addEventListener('click', (e) => {
+        if (activeCard && !activeCard.contains(e.target) && !popup.contains(e.target)) {
+          hidePopup();
         }
-    });
-    }, true);
-
-
-  popup.addEventListener('touchstart', (e) => e.stopPropagation());
-  popup.addEventListener('mouseenter', () => {
-    onPopup = true;
-  });
-  popup.addEventListener('mouseleave', () => {
-    onPopup = false;
-    console.log('left popup')
-    setTimeout(tryHide, 30)
-  });
-  document.addEventListener('touchstart', () => hidePopup())
-  document.addEventListener('click', () => hidePopup())
-
-  function getPopupWidth() {
-    const width = window.innerWidth;
-    const height = window.innerHeight;
-    const res = [];
-
-    if (width < 300) {
-      res.push(width*(9/10))
-    } else if (width < 600) {
-      res.push(width*(7/10))
-    } else if (width < 800) {
-      res.push(width*(5/10))
-    } else {
-      res.push(width*(3/10))
-    };
-
-    if (height < 300) {
-      res.push(height*(7/10))
-    } else if (height < 500) {
-      res.push(height*(5.5/10))
-    } else if (height < 700) {
-      res.push(height*(4/10))
-    } else {
-      res.push(height*(2.5/10))
-    };
-
-    return res
-  }
-
-  function positionPopup(card) {
-    const pos = card.getBoundingClientRect();
-    const [ popupWidth, popupHeight ] = getPopupWidth();
-    const overlap = pos.width * 0.2;
-    const extraHeight = pos.height * 0.1;
-    
-    if (window.innerWidth - pos.right > popupWidth) {
-        popup.style.left = (pos.right - overlap) + "px";
-    } else if (pos.left > popupWidth) {
-        popup.style.left = (pos.left - popupWidth + overlap*2) + "px";
-    } else {
-        popup.style.left = (window.innerWidth - popupWidth) + "px";
-    };
-    if (pos.top > extraHeight) {
-        popup.style.top = (pos.top - extraHeight) + "px";
-    } else if (window.innerHeight - pos.bottom > extraHeight) {
-        popup.style.top = (pos.bottom - extraHeight) + "px";
-    } else {
-        popup.style.top = (pos.top + window.innerHeight*0.7)
+      });
+  
+      status.popupInit = true;
     }
-    popup.hidden = false;
-    popup.style.zIndex = '10';
-  }
- 
-  function addPopup(card) {
-    activeCard = card;
-    clearTimeout(popupHide);
-    popupHide = null;
   
-    const synopsis = card.dataset.synopsis || '';
-    const title = card.dataset.title || '';
-    const type = card.dataset.type || 'N/A';
-    const rank = card.dataset.rank || 'N/A';
-    const score = card.dataset.score || 'N/A';
-    const status = card.dataset.status || 'Unknown';
-    const genres = `${card.dataset.genres}` || 'N/A';
-    const popularity = card.dataset.popularity || 'N/A';
-    const episodes = card.dataset.episodes;
-    const studios = card.dataset.studios || 'Unknown';
-    const rating = card.dataset.rating || "N/A";
+    function getPopupWidth() {
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      const res = [];
   
-    const shortTitle =
-      title.length > 20 ? title.slice(0, 20) + '…' : title;
+      if (w < 300) res.push(w * 0.9);
+      else if (w < 600) res.push(w * 0.7);
+      else if (w < 800) res.push(w * 0.5);
+      else res.push(w * 0.3);
   
-    popup.innerHTML = `
-      <span id="flash-popup-rank">#${rank}</span>
-      <span id="flash-popup-title">${shortTitle}</span>
-      <span class="flash-popup-status">- ${status}</span>
+      if (h < 300) res.push(h * 0.7);
+      else if (h < 500) res.push(h * 0.55);
+      else if (h < 700) res.push(h * 0.4);
+      else res.push(h * 0.25);
   
-      <div id="flash-popup-meta">
-        <div><i class="fas fa-star"></i> ${score}</div>
-        <div><i class="fas fa-video"></i> ${type}</div>
-        <div><i class="fa-solid fa-user-group"></i> ${popularity}</div>
-      </div>
-  
-      <p id="flash-popup-synopsis">${synopsis}</p>
-      <p id="flash-popup-genres"><span>Genres: </span>${genres}</p>
-      <p id="flash-popup-episodes">${episodes ? "<span>Episodes: </span>" + episodes : ""}</p>
-      <p id="flash-popup-studios"><span>Studios: </span>${studios}</p>
-      <p id="flash-popup-studios"><span>Rating: </span>${rating}</p>
-    `;
-  
-    positionPopup(card);
-  }
-  
-  flashcards.forEach(card => {
-    if (card.dataset.popupInit == 'true') {
-      return;
+      return res;
     }
-    card.dataset.popupInit = 'true';
-    card.addEventListener('mouseenter', () => {
+  
+    function positionPopup(card) {
+        const pos = card.getBoundingClientRect();
+        const [popupWidth, popupHeight] = getPopupWidth();
+        const overlap = pos.width * 0.2;
+        const extraHeight = pos.height * 0.1;
+
+        if (window.innerWidth - pos.right > popupWidth) {
+            popup.style.left = (pos.right - overlap) + "px";
+        } else if (pos.left > popupWidth) {
+            popup.style.left = (pos.left - popupWidth + overlap * 2) + "px";
+        } else {
+            popup.style.left = (window.innerWidth - popupWidth) + "px";
+        };
+
+        if (pos.top > extraHeight) {
+            popup.style.top = (pos.top - extraHeight) + "px";
+        } else if (window.innerHeight - pos.bottom > extraHeight) {
+            popup.style.top = (pos.bottom - extraHeight) + "px";
+        } else {
+            popup.style.top = (pos.top + window.innerHeight * 0.7)
+        };
+
+        popup.hidden = false;
+        popup.style.zIndex = '10';
+    }
+  
+    function addPopup(card) {
+      const d = card.dataset;
+      const shortTitle = (d.title || '').length > 20 ? d.title.slice(0, 20) + '...' : (d.title || '');
+  
+      popup.innerHTML = `
+        <span id="flash-popup-rank">#${d.rank || 'N/A'}</span>
+        <span id="flash-popup-title">${shortTitle}</span>
+        <span class="flash-popup-status">- ${d.status || 'Unknown'}</span>
+        <div id="flash-popup-meta">
+          <div><i class="fas fa-star"></i> ${d.score || 'N/A'}</div>
+          <div><i class="fas fa-video"></i> ${d.type || 'N/A'}</div>
+          <div><i class="fa-solid fa-user-group"></i> ${d.popularity || 'N/A'}</div>
+        </div>
+        <p id="flash-popup-synopsis">${d.synopsis || ''}</p>
+        <p id="flash-popup-genres"><span>Genres: </span>${d.genres || 'N/A'}</p>
+        <p id="flash-popup-episodes">${d.episodes ? "<span>Episodes: </span>" + d.episodes : ""}</p>
+        <p id="flash-popup-studios"><span>Studios: </span>${d.studios || 'Unknown'}</p>
+        <p id="flash-popup-studios"><span>Rating: </span>${d.rating || "N/A"}</p>
+      `;
+      positionPopup(card);
+    }
+  
+    flashcards.forEach(card => {
+      if (card.dataset.popupInit == 'true') return;
+      card.dataset.popupInit = 'true';
+  
+      card.addEventListener('mouseenter', () => {
+        if (popupHide) clearTimeout(popupHide);
         onCard = true;
-        addPopup(card)
-    });
-    card.addEventListener('mouseleave', () => {
+        activeCard = card;
+        addPopup(card);
+      });
+  
+      card.addEventListener('mouseleave', (e) => {
         onCard = false;
-        console.log('left card')
-        popupHide = setTimeout(tryHide, 30) // prevent flickering
+        // prevent flickering
+        if (popup.contains(e.relatedTarget)) return; 
+        popupHide = setTimeout(tryHide, 50);
+      });2
+  
+      card.addEventListener('touchstart', (e) => {
+        e.stopPropagation();
+        addPopup(card);
+      });
     });
-    card.addEventListener('touchstart', (e) => {
-        e.stopPropagation()
-        addPopup(card)
-    });
-  });
-
-  function tryHide() {
-    if (!onCard && !onPopup) {
-        hidePopup();
+  
+    function tryHide() {
+      if (!onCard && !onPopup) hidePopup();
+    }
+  
+    function hidePopup() {
+      activeCard = null;
+      popup.hidden = true;
+      popup.innerHTML = '';
+      popup.style.left = '';
+      popup.style.top = '';
+      popup.style.zIndex = '-10';
     }
   }
-
-  function hidePopup() {
-    console.log('popup hidden')
-    activeCard = null;
-    popup.hidden = true;
-    popup.innerHTML = '';
-    popup.style.left = '';
-    popup.style.top = '';
-    popup.style.zIndex = '-10';
-  }
-};
 
 export function initGalleryControls() {
   const prevButtons = document.querySelectorAll('.gallery-prev');
