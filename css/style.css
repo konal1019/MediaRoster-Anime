@@ -406,6 +406,7 @@ main {
   background: red;
 }
 
+/*flashcard popup*/ 
 #flash-popup {
     position: fixed;
     top: 0;
@@ -431,16 +432,19 @@ main {
     position: relative;
     top: 1%;
     left: 1%;
+    flex-shrink: 0;
   }
   #flash-popup-title {
     font-size: 120%;
     font-weight: bolder;
     color: var(--lighter-accent);
     line-height: 1.2;
+    flex-shrink: 0;
   }
   #flash-popup-status {
     font-size: 90%;
-    line-height: 1;
+    line-height: 1.2;
+    flex-shrink: 0;
   }
   #flash-popup-meta {
     display: flex;
@@ -449,6 +453,7 @@ main {
     font-size: 80%;
     color: var(--text-color);
     margin-block-end: 0;
+    flex-shrink: 0;
   }
   #flash-popup-meta div {
     display: flex;
@@ -461,7 +466,7 @@ main {
   #flash-popup-meta i {
     color: var(--icon-color);
   }
-  #flash-popup-synopsis, #flash-popup-genres, #flash-popup-studios, #flash-popup-episodes {
+  #flash-popup-synopsis, #flash-popup-genres, #flash-popup-studios, #flash-popup-episodes, #flash-popup-rating {
     font-size: 80%;
     line-height: 1.2;
     color: var(--text-color);
@@ -472,8 +477,9 @@ main {
     overflow: hidden;
     margin-block-start: 0;
     margin-block-end: 0.3%;
+    flex-shrink: 0;
   }
-  #flash-popup-genres, #flash-popup-studios, #flash-popup-rating, #flash-popup-episodes- {
+  #flash-popup-genres, #flash-popup-studios, #flash-popup-rating, #flash-popup-episodes {
     line-clamp: 1;
     -webkit-line-clamp: 1;
   }

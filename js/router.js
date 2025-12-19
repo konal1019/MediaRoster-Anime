@@ -4,7 +4,7 @@ import { loadDetailsPage } from './components/details.js';
 const routes = {
   '/': 'home',
   '/search': 'search',
-  '/meet-the-creator': 'portfolio',
+  '/say-hi': 'portfolio',
 };
 
 export const handleRoute = () => {

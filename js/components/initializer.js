@@ -114,7 +114,15 @@ export function initFlashcardHover() { // following is a functinal chaos. If you
           hidePopup();
         }
       });
-  
+      window.addEventListener('hashchange', () => {
+        onCard = false;
+        onPopup = false;
+        resizeRaf = null;
+        scrollRaf = null;
+        popupHide = null;
+        activeCard = null;
+        hidePopup();
+      });
       status.popupInit = true;
     }
   
@@ -179,7 +187,7 @@ export function initFlashcardHover() { // following is a functinal chaos. If you
         <p id="flash-popup-genres"><span>Genres: </span>${d.genres || 'N/A'}</p>
         <p id="flash-popup-episodes">${d.episodes ? "<span>Episodes: </span>" + d.episodes : ""}</p>
         <p id="flash-popup-studios"><span>Studios: </span>${d.studios || 'Unknown'}</p>
-        <p id="flash-popup-studios"><span>Rating: </span>${d.rating || "N/A"}</p>
+        <p id="flash-popup-rating"><span>Rating: </span>${d.rating || "N/A"}</p>
       `;
       positionPopup(card);
     }

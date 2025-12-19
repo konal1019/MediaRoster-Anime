@@ -65,6 +65,22 @@
      justify-content: space-between;
      align-items: center;
 }
+ .nav-left {
+     display: flex;
+     align-items: center;
+}
+ .hamburger {
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     height: 6.5vh;
+     width: 6.5vh;
+     cursor: pointer;
+     margin-right: 0.5rem;
+}
+ .hamburger i {
+     font-size: 5vh;
+}
  .nav-title {
      display: flex;
      align-items: center;
@@ -82,10 +98,6 @@
 }
  .nav-title .title a:hover {
      cursor: pointer;
-}
- .hamburger {
-     display: none;
-     height: 6.5vh;
 }
  nav ul {
      list-style: none;
@@ -111,11 +123,44 @@
  nav ul li a:hover {
      color: var(--primary-accent);
 }
+ nav ul li a.active {
+     color: var(--primary-accent);
+}
  .nav-text-desktop {
      display: inline;
 }
  .nav-text-mobile {
      display: none;
+}
+ .nav-links-visible {
+     display: flex;
+}
+ .nav-links-menu {
+     display: none;
+     flex-direction: column;
+     position: absolute;
+     top: 100%;
+     left: 0;
+     width: 100%;
+     background-color: var(--bg-color-secondary);
+     text-align: left;
+     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+     padding: 0;
+}
+ .nav-links-menu.nav-active {
+     display: flex;
+}
+ .nav-links-menu li {
+     margin: 0;
+     border-bottom: 1px solid var(--border-color);
+}
+ .nav-links-menu li:last-child {
+     border-bottom: none;
+}
+ .nav-links-menu li a {
+     padding: 1rem 1.5rem;
+     width: 100%;
+     box-sizing: border-box;
 }
  footer {
      background-color: var(--bg-color-secondary);
@@ -167,7 +212,7 @@
  main {
      padding-top: 7vh;
 }
- @media (max-width: 880px) {
+ @media (max-width: 900px) {
     header {
         padding: 0.5vh 0.07rem;
         position: fixed;
@@ -178,52 +223,26 @@
     }
      nav {
          position: relative;
-         justify-content: center;
+         justify-content: space-between;
          padding: 0 1rem;
          min-height: 7vh;
     }
+     .nav-left {
+         position: static;
+    }
      .nav-title {
-         position: absolute;
-         left: 50%;
-         transform: translateX(-50%);
-         margin-left: 0;
+         position: static;
     }
      .nav-title .logo {
          width: 6vh;
          height: 6vh;
     }
-     .nav-links {
+     .nav-links-visible {
          display: none;
-         flex-direction: column;
-         position: absolute;
-         top: 100%;
-         left: 0;
-         width: 100%;
-         background-color: var(--bg-color-secondary);
-         text-align: left;
-         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-         padding: 0;
-    }
-     .nav-links.nav-active {
-         display: flex;
-    }
-     .nav-links li {
-         margin: 0;
-         border-bottom: 1px solid var(--border-color);
-    }
-     .nav-links li:last-child {
-         border-bottom: none;
-    }
-     .nav-links li a {
-         padding: 1rem 1.5rem;
-         width: 100%;
-         box-sizing: border-box;
     }
      .hamburger {
-         display: block;
-         cursor: pointer;
-         position: absolute;
-         right: 1rem;
+         display: flex;
+         position: static;
     }
      .hamburger i {
          font-size: 5vh;
@@ -244,7 +263,32 @@
          margin-left: auto;
          margin-right: auto;
     }
-} 
+}
+
+@media (max-width: 550px) {
+    .nav-title .title a {
+        font-size: 9vw;
+    }
+    .hamburger i {
+        font-size: 11vw;
+    }
+    .hamburger {
+        width: 12vw;
+        height: 12vw;
+    }
+    nav {
+        justify-content: space-between;
+        align-items: center;
+    }
+    .nav-left {
+        display: flex;
+        align-items: center;
+    }
+    .logo {
+        width: 12vw;
+        height: 12vw;
+    }
+}
     </style>
     <link rel="icon" href="./media/logo.webp">
     <link rel="stylesheet" href="./css/style.css">
@@ -270,17 +314,29 @@
 <body>
     <header id="head" class="head">
         <nav id="navbar">
-            <div class="nav-title">
-                <img class="logo" src="./media/logo.webp" alt="MediaRoster Logo">
-                <span class="title"><a href="#/">MediaRoster</a></span>
+            <div class="nav-left">
+                <div class="hamburger">
+                    <i class="fas fa-bars"></i>
+                </div>
+                <div class="nav-title">
+                    <img class="logo" src="./media/logo.webp" alt="MediaRoster Logo">
+                    <span class="title"><a href="#/">MediaRoster</a></span>
+                </div>
             </div>
-            <div class="hamburger">
-                <i class="fas fa-bars"></i>
-            </div>
-            <ul class="nav-links">
+            <ul class="nav-links-visible">
                 <li><a href="#/" id="navhome"><i class="fas fa-home"></i><span class="nav-text-desktop"> Home</span></a></li>
                 <li><a href="#/search" id="navsearch"><i class="fas fa-search"></i><span class="nav-text-desktop"> Search</span></a></li>
-                <li><a href="#/meet-the-creator" id="navcreator"><i class="fas fa-user"></i><span class="nav-text-desktop"> Meet the Creator</span></a></li>
+                <li><a href="#/say-hi" id="navsayhi"><i class="fas fa-hand-wave"></i><span class="nav-text-desktop"> Say Hi!</span></a></li>
+            </ul>
+            <ul class="nav-links-menu">
+                <li><a href="#/" id="navhome-menu"><i class="fas fa-home"></i><span class="nav-text-desktop"> Home</span></a></li>
+                <li><a href="#/search" id="navsearch-menu"><i class="fas fa-search"></i><span class="nav-text-desktop"> Search</span></a></li>
+                <li><a href="#/say-hi" id="navsayhi-menu"><i class="fas fa-hand-wave"></i><span class="nav-text-desktop"> Say Hi!</span></a></li>
+                <li><a href="#/404" id="navmovies"><i class="fas fa-film"></i><span class="nav-text-desktop"> Movies and Shows</span></a></li>
+                <li><a href="#/404" id="navbooks"><i class="fas fa-book"></i><span class="nav-text-desktop"> Books</span></a></li>
+                <li><a href="#/404" id="navmanga"><i class="fas fa-book-open"></i><span class="nav-text-desktop"> Manga</span></a></li>
+                <li><a href="#/404" id="navgames"><i class="fas fa-gamepad"></i><span class="nav-text-desktop"> Games</span></a></li>
+                <li><a href="#/" id="navanime" class="active"><i class="fas fa-tv"></i><span class="nav-text-desktop"> Anime</span></a></li>
             </ul>
         </nav>
     </header>
@@ -324,22 +380,41 @@
 
     <script>
         const hamburger = document.querySelector(".hamburger");
-        const navLinks = document.querySelector(".nav-links");
+        const navLinksMenu = document.querySelector(".nav-links-menu");
         
         const navhome = document.getElementById('navhome');
         const navsearch = document.getElementById('navsearch');
-        const navcreator = document.getElementById('navcreator');
+        const navsayhi = document.getElementById('navsayhi');
+        const navhomeMenu = document.getElementById('navhome-menu');
+        const navsearchMenu = document.getElementById('navsearch-menu');
+        const navsayhiMenu = document.getElementById('navsayhi-menu');
+        const navmovies = document.getElementById('navmovies');
+        const navbooks = document.getElementById('navbooks');
+        const navmanga = document.getElementById('navmanga');
+        const navgames = document.getElementById('navgames');
+        const navanime = document.getElementById('navanime');
+        
         hamburger.addEventListener("click", () => {
-            navLinks.classList.toggle("nav-active");
+            navLinksMenu.classList.toggle("nav-active");
         });
+        
         const closeMenu = () => {
-            if (navLinks.classList.contains('nav-active')) {
-                navLinks.classList.remove('nav-active');
+            if (navLinksMenu.classList.contains('nav-active')) {
+                navLinksMenu.classList.remove('nav-active');
             }
         };
+        
         navhome.addEventListener('click', closeMenu);
         navsearch.addEventListener('click', closeMenu);
-        navcreator.addEventListener('click', closeMenu);
+        navsayhi.addEventListener('click', closeMenu);
+        navhomeMenu.addEventListener('click', closeMenu);
+        navsearchMenu.addEventListener('click', closeMenu);
+        navsayhiMenu.addEventListener('click', closeMenu);
+        navmovies.addEventListener('click', closeMenu);
+        navbooks.addEventListener('click', closeMenu);
+        navmanga.addEventListener('click', closeMenu);
+        navgames.addEventListener('click', closeMenu);
+        navanime.addEventListener('click', closeMenu);
     </script>
     <script type="module" src="./js/api.js"></script>
     <script type="module" src="./js/router.js"></script>
