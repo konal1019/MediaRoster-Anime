@@ -291,7 +291,7 @@ export async function constructURL(updateURL = false) {
   return JikanURL;
 }
 
-export function z() {
+export function applyFilters() {
   document.querySelectorAll('[class*="active"]').forEach(el => el.classList.remove('active'));
 
   const IdFilters = ['order_by', 'sort', 'min_score', 'max_score'];
