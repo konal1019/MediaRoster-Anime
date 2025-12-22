@@ -115,8 +115,9 @@ export async function loadSearchPage() {
     <div id="search-results"></div>
     `;
     showLoader();
-    initSearch();
     initFilters();
+    initSearch();
+    renderGenres();
 
     const [path, query] = currentHash.split('?');
     if (path === '#/search' && !query) {
@@ -152,27 +153,12 @@ export async function loadSearchPage() {
       if (currentHash === '#/search') {
         initFlashcardHover();
         document.getElementById('randomDiv').style.display = 'block';
-        renderGenres();
         randomAnime();
         hideLoader();
       }
   
     } else {
       console.log(`Search initiated with query: ${query}`);
-      const searchResultsContainer = document.getElementById('gridGallery');
-      if (searchResultsContainer) searchResultsContainer.innerHTML = '';
-      if (status.searching) {
-        renderGenres();
-        randomAnime();
-      } else {
-        status.searching = true;
-        if (currentHash.split('?')[0] !== '#/search') return;
-        await renderGenres();
-        initSearch();
-        randomAnime();
-        hideLoader();
-        status.searching = false;
-      }
     }
   }
 
@@ -238,8 +224,18 @@ export async function displaySearchResults(searchResults) {
 }
 
 export async function initSearch() {
+  const params = getSafeParams();
+  for (const key in activeFilters) delete activeFilters[key];
+  for (const [key, value] of params.entries()) {
+    if (key === 'genres') {
+        activeFilters[key] = value.split(',');
+    } else {
+        activeFilters[key] = value;
+    }
+  }
+
   applyFilters();
-  console.log(activeFilters)
+  
   const searchBtn = document.getElementById('search-button');
   if (searchBtn) searchBtn.addEventListener('click', () => {
       delete activeFilters['page'];
@@ -257,7 +253,6 @@ export async function initSearch() {
       }
   });
 
-  const params = getSafeParams(); // always sanitize from URL/hash
   if (params.toString()) handleSearch(false);
 }
 
@@ -296,44 +291,34 @@ export async function constructURL(updateURL = false) {
   return JikanURL;
 }
 
-export function applyFilters() {
-  for (const key in activeFilters) delete activeFilters[key];
+export function z() {
   document.querySelectorAll('[class*="active"]').forEach(el => el.classList.remove('active'));
 
-  const params = getSafeParams();
-  console.log(params)
   const IdFilters = ['order_by', 'sort', 'min_score', 'max_score'];
 
-  for (const [key, value] of params.entries()) {
+  for (const key in activeFilters) {
+      const value = activeFilters[key];
       if (key === 'q') {
           const input = document.getElementById('search-input');
           if (input) input.value = value;
-          activeFilters.q = value;
       } else if (key === 'genres') {
-          activeFilters[key] = [];
-          value.split(',').forEach(v => {
+          value.forEach(v => {
               const btn = document.querySelector(`[data-filter='${key}'][data-value='${v}']`);
-              if (btn) {
-                  btn.classList.add('active');
-                  activeFilters[key].push(v);
-              }
+              if (btn) btn.classList.add('active');
           });
-      } else if (key === 'page') activeFilters[key] = value;
-      else if (key === 'sfw') {
+      } else if (key === 'page') {
+          // No UI element to update for page number
+      } else if (key === 'sfw') {
         const checkbox = document.getElementById('sfw-checkbox');
-        activeFilters.sfw = 'true';
-        checkbox.checked = false;
+        if (checkbox) checkbox.checked = false;
       } else if (IdFilters.includes(key)) {
           const elem = document.getElementById(key);
           if (elem) elem.value = value;
-          activeFilters[key] = value;
       } else {
           const elem = document.querySelector(`[data-filter='${key}'][data-value='${value}']`);
           if (elem) elem.classList.add('active');
-          activeFilters[key] = value;
       }
   }
-  console.log(activeFilters)
 }
 
 export function initFilters() {
@@ -400,9 +385,7 @@ export function initFilters() {
       } else {
         delete activeFilters.sfw
         sfw.checked = true;
-        console.log('removed sfw') 
       }
-      console.log(activeFilters)
     });
 }
 
@@ -432,6 +415,7 @@ export async function renderGenres() {
             }
         });
     });
+    applyFilters();
 };
 
 const allowed_filters = new Set([
