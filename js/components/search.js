@@ -1,10 +1,15 @@
 import { status, initFlashcardHover, randomAnime } from './initializer.js';
 import { searchAnime, getTopRatedAnime, getMostPopularAnime, getGenres, genres } from '../api.js';
 import { createSection, createFlashcard } from './UIs.js';
-import { loadCSS, showLoader, hideLoader } from '../pages.js'
+import { loadCSS, showLoader, hideLoader, updateMetaTags } from '../pages.js'
 const activeFilters = {};
 
 export async function loadSearchPage() {
+    document.title = 'Search for Anime';
+    updateMetaTags(
+      'Search for anime on MediaRoster. Use filters to find the exact anime you are looking for.',
+      ['mediaroster', 'anime', 'anime list', 'AnimeList', 'Anime keywords', 'list', 'roster', 'home', 'media', 'anim', 'search', 'filter']
+    );
     const currentHash = window.location.hash;
     loadCSS('./css/search.css');
     console.log('Loading Search Page');
@@ -279,6 +284,7 @@ export async function constructURL(updateURL = false) {
       let value = activeFilters[filter];
       if (filter === 'q') {
           value = value.replace(/[^\p{L}\p{N}\s\-_.:'"|#]/gu, '').slice(0, 100);
+          document.title = value || 'Search for Anime';
       }
       if (Array.isArray(value)) params.append(filter, value.join(','));
       else params.append(filter, value);
@@ -439,7 +445,7 @@ export function getSafeParams() {
   for (const [key, value] of raw.entries()) {
     if (!allowed_filters.has(key)) continue;
     if (key === 'q') {
-      const cleanQ = value.replace(/[^\p{L}\p{N}\s\-_.:'";|#]/gu, '').slice(0, 100);
+      const cleanQ = value.replace(/[^\p{L}\p{N}\s\-_.:'"|#]/gu, '').slice(0, 100);
       safe.set('q', cleanQ);
     } else if (['min_score','max_score'].includes(key)) {
       const n = parseInt(value, 10);

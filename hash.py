@@ -100,6 +100,9 @@ def minify_all():
     if os.path.exists('index.html'):
         minify_file('index.html', os.path.join(build_dir, 'index.html'))
 
+    if os.path.exists('404.html'):
+        minify_file('404.html', os.path.join(build_dir, '404.html'))
+
     print("Minification done.")
 
 def hash_and_update_refs():
@@ -131,6 +134,10 @@ def hash_and_update_refs():
     index_file = os.path.join(build_dir, 'index.html')
     if os.path.exists(index_file):
         built_files_to_update.append(index_file)
+
+    _404_file = os.path.join(build_dir, '404.html')
+    if os.path.exists(_404_file):
+        built_files_to_update.append(_404_file)
 
     # Update references
     for file_path in built_files_to_update:

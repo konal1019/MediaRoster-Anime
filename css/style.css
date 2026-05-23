@@ -361,18 +361,19 @@ main {
   align-items: center;
   z-index: -10;
 }
-#popup-content {
-  margin: auto;
+#popup-wrapper {
   background: linear-gradient(135deg, rgba(40, 40, 50, 0.9), rgba(30, 30, 40, 0.9));
   border-radius: 20px;
-  text-align: justify;
-  overflow: auto;
   width: 80%;
   height: 60%;
-  z-index: 999;
-  padding: 15px;
   position: relative;
+  padding: 15px;
   box-sizing: border-box;
+}
+#popup-content {
+  text-align: justify;
+  overflow: auto;
+  height: 100%;
   scrollbar-gutter: stable;
 }
 #popup-content::-webkit-scrollbar {
@@ -393,14 +394,19 @@ main {
 }
 #popup-close {
   position: absolute;
-  top: 0;
-  right: 0;
+  top: 10px;
+  right: 10px;
   border: none;
   font-size: 1.5rem;
   cursor: pointer;
   color: var(--text-color);
-  border: 2px solid block;
-  background: transparent;
+  background: rgba(0,0,0,0.2);
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  line-height: 30px;
+  text-align: center;
+  z-index: 10;
 }
 #popup-close:hover {
   background: red;

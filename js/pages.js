@@ -12,6 +12,25 @@ export function loadPageContent(pageName) {
   else if (pageName === 'portfolio') window.location.href = 'https://github.com/konal1019';
   else load404();
 }
+
+export function updateMetaTags(description, keywords) {
+  let descriptionTag = document.querySelector('meta[name="description"]');
+  if (!descriptionTag) {
+    descriptionTag = document.createElement('meta');
+    descriptionTag.name = 'description';
+    document.head.appendChild(descriptionTag);
+  }
+  descriptionTag.content = description;
+
+  let keywordsTag = document.querySelector('meta[name="keywords"]');
+  if (!keywordsTag) {
+    keywordsTag = document.createElement('meta');
+    keywordsTag.name = 'keywords';
+    document.head.appendChild(keywordsTag);
+  }
+  keywordsTag.content = keywords.join(', ');
+}
+
 // ====== LOADER ======
 let loaderTimeout;
 export function showLoader() {
@@ -45,6 +64,11 @@ export function loadCSS(filename) {
 }
 // ====== HOME PAGE ======
 export async function loadHomePage() {
+  document.title = 'MediaRoster - Discover Your Next Favorite Anime';
+  updateMetaTags(
+    'Discover your next favorite anime with MediaRoster, your go-to hub for anime discovery. Browse, search, and get details on a vast collection of anime series and movies.',
+    ['mediaroster', 'anime', 'anime list', 'AnimeList', 'Anime keywords', 'list', 'roster', 'home', 'media', 'anim']
+  );
   const currentHash = window.location.hash;
   console.log('Loading Home Page');
   document.getElementById('navhome').style.color = '#8960ff';

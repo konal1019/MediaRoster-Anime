@@ -1,6 +1,6 @@
 import { getAnimeDetails, getAnimeCharacters, getAnimeStaff, getAnimeInfo, getRandomAnime, getAnimeReviews } from '../api.js';
 import { initFlashcardHover, initGalleryControls } from './initializer.js';
-import { showLoader, hideLoader, loadCSS, load404 } from '../pages.js';
+import { showLoader, hideLoader, loadCSS, load404, updateMetaTags } from '../pages.js';
 import { createFlashcard, escapeHTML } from './UIs.js';
 
 export async function loadDetailsPage(animeId = null) {
@@ -29,7 +29,19 @@ export async function loadDetailsPage(animeId = null) {
     }
     
     animeId = anime.mal_id;
-    
+    document.title = anime.title_english || anime.title;
+    const description = `Learn about ${anime.title_english || anime.title} on MediaRoster: ${(anime.synopsis || '').substring(0, 50)}...`;
+    const keywords = [
+        anime.title,
+        anime.title_english,
+        ...(anime.titles?.map(t => t.title) || []),
+        ...(anime.genres?.map(g => g.name) || []),
+        'mediaroster', 'anime', 'details'
+    ].filter(Boolean); 
+    console.log(`set meta Keywords:${keywords}, Description: ${description}`)
+
+    updateMetaTags(description, [...new Set(keywords)]);
+
     const currentHash = `#/details-${animeId}`;
     if (isRandom) {
       history.replaceState(null, null, currentHash);
